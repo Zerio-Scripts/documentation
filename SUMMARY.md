@@ -9,7 +9,7 @@
 * [Downloading an product](getting-started/downloading-an-product.md)
 * [Updating an product](getting-started/updating-an-product.md)
 
-## 📝 Common Issues
+## Common Issues
 
 * [Introduction](common-issues/introduction.md)
 * [Lacking Entitlement](common-issues/lacking-entitlement.md)
@@ -17,12 +17,13 @@
 * [Broken UI Functions](common-issues/broken-ui-functions.md)
 * [Did you find a bug?](common-issues/did-you-find-a-bug.md)
 
-## 📻 Zerio Radio
+## Zerio Radio
 
 * [Introduction](zerio-radio/introduction.md)
 * [Installation guide](zerio-radio/installation-guide.md)
 * [Frequently asked questions](zerio-radio/frequently-asked-questions.md)
 * [Config](zerio-radio/config.md)
+* [Developer Documentation](zerio-radio/developer-documentation.md)
 
 ## 🚘Zerio Cardealer
 
@@ -31,14 +32,14 @@
 * [Frequently asked questions](zerio-cardealer/frequently-asked-questions.md)
 * [Config](zerio-cardealer/config.md)
 
-## 👨 Zerio Characters
+## Zerio Characters
 
 * [Introduction](zerio-characters/introduction.md)
 * [Installation guide](zerio-characters/installation-guide.md)
 * [Frequently asked questions](zerio-characters/frequently-asked-questions.md)
 * [Config](zerio-characters/config.md)
 
-## 🚗 Zerio Garage v2
+## Zerio Garage v2
 
 * [Introduction](zerio-garage-v2/introduction.md)
 * [Installation guide](zerio-garage-v2/installation-guide.md)
@@ -53,14 +54,14 @@
 * [Config](zerio-multijobs/config.md)
 * [Developer Documentation](zerio-multijobs/developer-documentation.md)
 
-## 💼 Zerio Bossmenu
+## Zerio Bossmenu
 
 * [Introduction](zerio-bossmenu/introduction.md)
 * [Installation Guide](zerio-bossmenu/installation-guide.md)
 * [Frequently asked questions](zerio-bossmenu/frequently-asked-questions.md)
 * [Config](zerio-bossmenu/config.md)
 
-## 🔧 Zerio Crafting
+## Zerio Crafting
 
 * [Introduction](zerio-crafting/introduction.md)
 * [Installation Guide](zerio-crafting/installation-guide.md)
