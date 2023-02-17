@@ -3,7 +3,26 @@
 ## Information
 
 The exports noted below can be used in any other script that you have in your config. You can handle channels and permissions / access to the channels via these exports.\
-For further exports, such as setting or getting the current radio channel you would have to use either [mumble-voip's](https://github.com/FrazzIe/mumble-voip-fivem#exports) or [pma-voice's](https://github.com/AvarianKnight/pma-voice#exports) exports.
+You can find further exports in either [mumble-voip's](https://github.com/FrazzIe/mumble-voip-fivem#exports) or [pma-voice's](https://github.com/AvarianKnight/pma-voice#exports) README's.
+
+## Exports List (Clientsided)
+
+### HasAccess
+
+```lua
+local access = exports["zerio-radio"]:HasAccess(frequency<number>)
+```
+
+This export takes a single parameter, which is the radio frequency to check. It returns a boolean (true or false) depending on if the local player has access to the channel or not.
+
+### ChangeChannel
+
+```lua
+local changed = exports["zerio-radio"]:ChangeChannel(frequency<number>)
+```
+
+This export takes a single parameter, which is the radio frequency to join. It returns a boolean (true or false) depending on if the player successfully joined the channel. If false is return, you can sefely assume that the player didnt join the channel and most likely doesnt have access to it.<br/>
+This export is exactly the same as what is used in the radio, so notifications and access checking is included.
 
 ## Exports List (Serversided)
 
