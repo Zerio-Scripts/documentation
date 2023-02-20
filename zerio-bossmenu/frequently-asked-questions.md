@@ -8,7 +8,9 @@ Open okokBanking/server.lua and search for "okokBanking:DepositMoneyToSociety" t
 
 Search for "okokBanking:WithdrawMoneyToSociety" in the same file and do the same with it.
 
-![](<../.gitbook/assets/image (8).png>)
+![](<../.gitbook/assets/image (2).png>)
+
+(Make sure to remove the "societyMoney" parameter from the WithdrawMoneyToSociety event)
 
 ### ESX
 

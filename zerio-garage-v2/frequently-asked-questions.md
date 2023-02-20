@@ -35,7 +35,7 @@ Adding this simple line of code to a Garage will lock it to all vehicle types ex
 Start by opening the fxmanifest.lua of qb-phone.\
 Find the line that imports config.lua from qb-garages and delete it, the line should look somewhat like this.
 
-![](<../.gitbook/assets/image (2).png>)
+![](<../.gitbook/assets/image (2) (1).png>)
 
 Then add this at the bottom of the fxmanifest.lua file,&#x20;
 
