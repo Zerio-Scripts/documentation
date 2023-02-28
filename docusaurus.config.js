@@ -118,6 +118,12 @@ const config = {
             label: "Cardealer",
           },
           {
+            type: "doc",
+            docId: "characters/introduction",
+            position: "left",
+            label: "Multi-Char",
+          },
+          {
             href: "https://github.com/Zerio-Scripts/documentation",
             label: "GitHub",
             position: "right",
