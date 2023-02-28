@@ -65,9 +65,57 @@ const config = {
         items: [
           {
             type: "doc",
-            docId: "intro",
+            docId: "start/introduction",
             position: "left",
-            label: "Tutorial",
+            label: "Getting Started",
+          },
+          {
+            type: "doc",
+            docId: "common/introduction",
+            position: "left",
+            label: "Common Issues",
+          },
+          {
+            type: "doc",
+            docId: "radio/introduction",
+            position: "left",
+            label: "Radio",
+          },
+          {
+            type: "doc",
+            docId: "garage/introduction",
+            position: "left",
+            label: "Garage",
+          },
+          {
+            type: "doc",
+            docId: "multijobs/introduction",
+            position: "left",
+            label: "Multijobs",
+          },
+          {
+            type: "doc",
+            docId: "bossmenu/introduction",
+            position: "left",
+            label: "Bossmenu",
+          },
+          {
+            type: "doc",
+            docId: "crafting/introduction",
+            position: "left",
+            label: "Crafting",
+          },
+          {
+            type: "doc",
+            docId: "dispatch/introduction",
+            position: "left",
+            label: "Dispatch",
+          },
+          {
+            type: "doc",
+            docId: "cardealer/introduction",
+            position: "left",
+            label: "Cardealer",
           },
           {
             href: "https://github.com/Zerio-Scripts/documentation",
