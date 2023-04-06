@@ -5,7 +5,7 @@
  */
 
 /* You can override the default Infima variables here. */
-:root {
+html {
   --ifm-color-primary: #5a96e1;
   --ifm-color-primary-dark: #548ed4;
   --ifm-color-primary-darker: #4f87cc;
@@ -15,18 +15,44 @@
   --ifm-color-primary-lightest: #8ebffa;
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+  --ifm-background-color: #fff;
+}
+
+:root {
+  --ifm-heading-color: #000;
+  --ifm-navbar-background-color: #e1e1e1;
+}
+
+.footer--dark {
+  --ifm-footer-background-color: #fff;
+  --ifm-footer-link-color: #000;
+  --ifm-footer-title-color: #000;
+}
+
+.main-wrapper {
+  min-height: calc(100vh - var(--ifm-navbar-height));
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
-[data-theme="dark"] {
-  --ifm-color-primary: #256bc2;
+html[data-theme="dark"] {
+  --ifm-color-primary: transparent;
+  --ifm-heading-color: #fff;
+  --ifm-font-color-base-inverse: #fff;
+  --ifm-navbar-background-color: #222222;
   --ifm-color-primary-dark: #2564b1;
   --ifm-color-primary-darker: #245fa7;
   --ifm-color-primary-darkest: #235797;
   --ifm-color-primary-light: #2c74cc;
   --ifm-color-primary-lighter: #347dd6;
   --ifm-color-primary-lightest: #418be6;
+  --ifm-background-color: #070a0d;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+
+html[data-theme="dark"] .footer--dark {
+  --ifm-footer-background-color: #070a0d;
+  --ifm-footer-title-color: #fff;
+  --ifm-footer-link-color: #fff;
 }
 
 .navbar__link--active:not(:hover) {
