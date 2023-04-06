@@ -127,7 +127,7 @@ const config = {
             label: "Multi-Char",
           },
           {
-            href: "https://github.com/Zerio-Scripts/documentation",
+            href: "https://github.com/Zerio-Scripts",
             label: "GitHub",
             position: "right",
           },
@@ -141,7 +141,7 @@ const config = {
             items: [
               {
                 label: "Github",
-                href: "https://github.com/Zerio-Scripts/documentation",
+                href: "https://github.com/Zerio-Scripts",
               },
               {
                 label: "Discord",
