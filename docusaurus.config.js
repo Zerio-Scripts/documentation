@@ -149,7 +149,7 @@ const config = {
               },
               {
                 label: "Youtube",
-                href: "https://youtube.com/@Zerio",
+                href: "https://youtube.com/Zerio",
               },
             ],
           },
