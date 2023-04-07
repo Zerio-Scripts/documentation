@@ -58,7 +58,7 @@ const config = {
       colorMode: {
         defaultMode: "dark",
       },
-      image: "img/social-card.jpg",
+      image: "img/social-card.png",
       navbar: {
         title: "Zerio-Scripts",
         logo: {
