@@ -38,25 +38,72 @@ Adding this simple line of code to a Garage will lock it to all vehicle types ex
 
 Currently zerio-garage only supports qs-housing for house garages, if you wish for us to add support for any further scripts then please post an suggestion in our discord.
 
-#### Opening an house garage menu
+#### Integrating qs-housing
 
-You can use the event below to open an house garage menu.
+First you would have to change Config.Garage in `qs-housing/config/config.lua` to "zerio-garage".
 
-```lua
-TriggerEvent("zerio-garage:client:OpenHousingGarage", houseId, "qs-housing")
+Then you would have to create the following file: `qs-housing/client/custom/garage/zerio-garage.lua`
+
+```lua title="qs-housing/client/custom/garage/zerio-garage.lua"
+if Config.Garage ~= "zerio-garage" then
+    return
+end
+
+function StoreVehicle(house)
+    TriggerEvent("zerio-garage:client:PutBackHouseVehicle", house, "qs-housing")
+end
+
+function OpenGarage(house)
+    TriggerEvent("zerio-garage:client:OpenHousingGarage", house, "qs-housing")
+end
+
+Citizen.CreateThread(function()
+    while true do
+        Citizen.Wait(0)
+        local ped = PlayerPedId()
+        local pos = GetEntityCoords(ped)
+
+        if closesthouse ~= nil and hasKey and Config.Houses and Config.Houses[closesthouse] and Config.Houses[closesthouse].garage then
+            local dist = GetDistanceBetweenCoords(pos, Config.Houses[closesthouse].garage.x, Config.Houses[closesthouse].garage.y, Config.Houses[closesthouse].garage.z, true)
+
+            if dist < 5.0 then
+                DrawMarker(20, Config.Houses[closesthouse].garage.x, Config.Houses[closesthouse].garage.y, Config.Houses[closesthouse].garage.z + 0.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.3, 0.15, 120, 10, 20, 155, false, false, false, 1, false, false, false)
+
+                if dist < 2.0 then
+                    local vehicle = GetVehiclePedIsIn(PlayerPedId(), false)
+                    if Config.Houses[closesthouse].garage and Config.Houses[closesthouse].garage.x and Config.Houses[closesthouse].garage.y and Config.Houses[closesthouse].garage.z then
+                        if vehicle and vehicle ~= 0 then
+                            if Config.HelpNotification == 'ShowHelpNotification' then
+                                ShowHelpNotification(Lang("HOUSING_SHOWHELP_GARAGE_STORE"))
+                            elseif Config.HelpNotification == 'DrawText3D' then
+                                DrawText3D(Config.Houses[closesthouse].garage.x, Config.Houses[closesthouse].garage.y, Config.Houses[closesthouse].garage.z + 0.3, Lang("HOUSING_DRAWTEXT_GARAGE_STORE"))
+                            end
+
+                            if IsControlJustPressed(0, Keys["E"]) or IsDisabledControlJustPressed(0, Keys["E"]) then
+                                if not StoreVehicle then return DebugPrint("Your client/custom/garages/*.lua is not correctly configured") end
+                                StoreVehicle(closesthouse)
+                            end
+                        else
+                            if Config.HelpNotification == 'ShowHelpNotification' then
+                                ShowHelpNotification(Lang("HOUSING_SHOWHELP_GARAGE_MENU"))
+                            elseif Config.HelpNotification == 'DrawText3D' then
+                                DrawText3D( Config.Houses[closesthouse].garage.x, Config.Houses[closesthouse].garage.y,  Config.Houses[closesthouse].garage.z + 0.3,  Lang("HOUSING_DRAWTEXT_GARAGE_STORE"))
+                            end
+
+                            if IsControlJustPressed(0, Keys["E"]) or IsDisabledControlJustPressed(0, Keys["E"]) then
+                                if not OpenGarage then return DebugPrint("Your client/custom/garages/*.lua is not correctly configured") end
+                                OpenGarage(closesthouse)
+                            end
+                        end
+                    end
+                end
+            else
+                Citizen.Wait(1000)
+            end
+        end
+    end
+end)
 ```
-
-houseId would be the actual house name / house id provided by your housing script, whilst "qs-housing" would be replaced with the name of the housing script that you are using
-
-#### Putting back an vehicle at a house garage
-
-You can use the event below to put back an vehicle at an house garage menu.
-
-```lua
-TriggerEvent("zerio-garage:client:PutBackHouseVehicle", houseId, "qs-housing")
-```
-
-houseId would be the actual house name / house id provided by your housing script, whilst "qs-housing" would be replaced with the name of the housing script that you are using
 
 ### How do I setup qb-phone support
 
