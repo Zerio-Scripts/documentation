@@ -34,6 +34,30 @@ blacklistedTypes = {
 
 Adding this simple line of code to a Garage will lock it to all vehicle types except the inputted vehicle types.
 
+### How do I setup housing support
+
+Currently zerio-garage only supports qs-housing for house garages, if you wish for us to add support for any further scripts then please post an suggestion in our discord.
+
+#### Opening an house garage menu
+
+You can use the event below to open an house garage menu.
+
+```lua
+TriggerEvent("zerio-garage:client:OpenHousingGarage", houseId, "qs-housing")
+```
+
+houseId would be the actual house name / house id provided by your housing script, whilst "qs-housing" would be replaced with the name of the housing script that you are using
+
+#### Putting back an vehicle at a house garage
+
+You can use the event below to put back an vehicle at an house garage menu.
+
+```lua
+TriggerEvent("zerio-garage:client:PutBackHouseVehicle", houseId, "qs-housing")
+```
+
+houseId would be the actual house name / house id provided by your housing script, whilst "qs-housing" would be replaced with the name of the housing script that you are using
+
 ### How do I setup qb-phone support
 
 Start by opening the fxmanifest.lua of qb-phone.\
