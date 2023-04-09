@@ -68,6 +68,14 @@ The text shown at the top of the all menus
 
 ### Showcase
 
+#### Menu
+
+This is the position that the showcase menu gets opened at
+
+#### Vehicle
+
+This is the position that the showcase vehicle spawns at
+
 ### Menu
 
 This is the position that the showcase menu gets opened at
