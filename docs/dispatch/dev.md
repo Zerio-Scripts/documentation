@@ -19,8 +19,9 @@ Example:
 ```lua
 exports["zerio-dispatch"]:AddAlert({
     blipId = 161,
-    length = 30 * 1000,
     position = {0,0,0},
+    sound = "adddispatch.mp3",
+    description = "There was an carjacking down at Popular Street",
     top = {
         text = "Carjacking",
         code = "10-22"
@@ -55,8 +56,9 @@ Example:
 ```lua
 TriggerServerEvent("zerio-dispatch:server:addAlert", 1, {
     blipId = 161,
-    length = 30 * 1000,
     position = {0,0,0},
+    sound = "adddispatch.mp3",
+    description = "There was an carjacking down at Popular Street",
     top = {
         text = "Carjacking",
         code = "10-22"
