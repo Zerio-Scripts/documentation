@@ -42,11 +42,47 @@ exports["zerio-dispatch"]:AddAlert({
 }, 2)
 ```
 
+### AddAlert (From Clientside)
+
+````lua
+TriggerServerEvent("zerio-dispatch:server:addAlert", menuIndex<number>, alertData<table>)
+```
+
+You may add or remove as many fields as you want to.<br/>
+Official list for icons: [**MaterialDesignIcons**](https://pictogrammers.com/library/mdi/?welcome)<br/>
+Example:
+
+```lua
+TriggerServerEvent("zerio-dispatch:server:addAlert", 1, {
+    blipId = 161,
+    length = 30 * 1000,
+    position = {0,0,0},
+    top = {
+        text = "Carjacking",
+        code = "10-22"
+    },
+    fields = {
+        {
+            text = "Popular street",
+            icon = "mdi-earth",
+        },
+        {
+            text = "Adder [ABC 123]",
+            icon = "mdi-car",
+        },
+        {
+            text = "Black, White",
+            icon = "mdi-palette",
+        }
+    }
+})
+```
+
 ### GetAlerts (Serversided)
 
 ```lua
 exports["zerio-dispatch"]:GetAlerts(menuIndex<number>) -- Returns: alerts<table>
-```
+````
 
 Example:
 
