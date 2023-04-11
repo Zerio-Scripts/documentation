@@ -45,7 +45,7 @@ exports["zerio-dispatch"]:AddAlert({
 
 ### AddAlert (From Clientside)
 
-````lua
+```lua
 TriggerServerEvent("zerio-dispatch:server:addAlert", menuIndex<number>, alertData<table>)
 ```
 
@@ -84,7 +84,7 @@ TriggerServerEvent("zerio-dispatch:server:addAlert", 1, {
 
 ```lua
 exports["zerio-dispatch"]:GetAlerts(menuIndex<number>) -- Returns: alerts<table>
-````
+```
 
 Example:
 
