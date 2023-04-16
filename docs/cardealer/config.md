@@ -17,6 +17,24 @@ This determines if the money for buying vehicles should be taken from the employ
 If this is over 0 they will get the price multiplied by this number of the money from every sale.<br/>
 So if they would sell a vehicle for $100,000 and this number would be 0,2 / 20% they would get $20,000 as a "selling bonus" / payout.
 
+## Job
+
+This is the job name of the dealership, has to be the same as the "cardealer" value in zerio_cardealer-vehicles.<br/>
+If this is set to nil and a customname is added then a jobless dealership will be created. Example:
+
+```lua
+{
+    ...
+    job = nil,
+    customname = "jobless"
+    ...
+}
+```
+
+## Label
+
+The text shown at the top of the all menus
+
 ## Plates
 
 ### PlateUseSpace
@@ -47,24 +65,6 @@ This is the position that sold vehicles will spawn at.
 ### Duty
 
 **ONLY QB-CORE** This is the position that the duty can be toggled at
-
-**Job**
-
-This is the job name of the dealership, has to be the same as the "cardealer" value in zerio_cardealer-vehicles.<br/>
-If this is set to nil and a customname is added then a jobless dealership will be created. Example:
-
-```lua
-{
-    ...
-    job = nil,
-    customname = "jobless"
-    ...
-}
-```
-
-**Label**
-
-The text shown at the top of the all menus
 
 ### Showcase
 
