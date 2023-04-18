@@ -30,7 +30,7 @@ Example of how it would look after the change:<br/>
 
 This is quite simple, open this file in any text editor. es_extended -> server -> classes -> player.lua. After that, find the function called "removeInventoryItem" The function should look around the same as this, if it doesnt then dont worry. You most likely just have an different es_extended version:
 
-<br/>![Example](./assets/img/faq3.png)<br/>
+![](./assets/img/faq3.png)
 
 We want to add this piece of code after the "TriggerEvent(s)".
 
@@ -42,4 +42,4 @@ end
 
 Example of how it would look after the change:
 
-<br/>![Example](./assets/img/faq4.png)
+![](./assets/img/faq4.png)
