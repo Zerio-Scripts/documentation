@@ -22,4 +22,4 @@ This is a modern and simple to use Bossmenu. It should contain everything you ne
 - Overview of the job
 - Fully optimized
 
-![](./assets/images/introduction1.webp)
+![Introduction Image](./assets/images/introduction1.webp)

@@ -19,4 +19,4 @@ Have you ever wanted to take your crafting experience to the next level but only
 - Fully optimized
 - Lifetime support
 
-![](./assets/images/introduction1.png)
+![Introduction Image](./assets/images/introduction1.png)

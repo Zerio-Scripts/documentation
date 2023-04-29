@@ -18,5 +18,6 @@ This is a drag and drop modern, easy to use script. It includes everything you w
 
 ## Requirements
 
-This is a QB-Core / ESX script and for that reason it requires any version of QB-Core or ESX. It has been tested on most of the newest versions and it supports any SQL script.<br/>
+This is a QB-Core / ESX script and for that reason it requires any version of QB-Core or ESX. It has been tested on most of the newest versions and it supports any SQL script.
+
 If a specific ESX / QB-Core version doesnt work then you can report it in our discord server and we will fix it as fast as possible!

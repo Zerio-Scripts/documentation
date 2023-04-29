@@ -4,8 +4,10 @@ sidebar_position: 2
 
 # Installation guide
 
-Installing this script is as easy as just downloading the script from the following [**website**](https://keymaster.fivem.net/)<br/>
-After downloading the script you have to put it in your resources folder or a sub folder of the resources folder.<br/>
+Installing this script is as easy as just downloading the script from the following [**website**](https://keymaster.fivem.net/)
+
+After downloading the script you have to put it in your resources folder or a sub folder of the resources folder.
+
 Lastly, you will have to drag "zerio-spawn" out of the "zerio-characters" folder into its own folder.
 
 ## Important
