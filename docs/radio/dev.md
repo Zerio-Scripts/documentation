@@ -25,7 +25,8 @@ This export takes a single parameter, which is the radio frequency to check. It 
 local changed = exports["zerio-radio"]:ChangeChannel(frequency<number>)
 ```
 
-This export takes a single parameter, which is the radio frequency to join. It returns a boolean (true or false) depending on if the player successfully joined the channel. If false is return, you can sefely assume that the player didnt join the channel and most likely doesnt have access to it.<br/>
+This export takes a single parameter, which is the radio frequency to join. It returns a boolean (true or false) depending on if the player successfully joined the channel. If false is return, you can sefely assume that the player didnt join the channel and most likely doesnt have access to it.
+
 This export is exactly the same as what is used in the radio, so notifications and access checking is included.
 
 ## Exports List (Serversided)

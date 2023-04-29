@@ -30,13 +30,16 @@ end
 
 This is quite simple, open this file in any text editor. qs-inventory -> config -> config_setInventory.lua. After that, find the drop part of the function, which should be shown by an if statement mentioning: `== "otherplayer"`:
 
+There should be 4 results in total upon searching for `== "otherplayer"`, you would want to edit the 2 ones that use `QBCore.Shared.SplitStr`, not `QS.Shared.SplitStr`
+
 ![Robbing Image](./assets/img/faq8.png)
+![Robbing Image](./assets/img/faq9.png)
 
 We want to add the following code in the beginning of the function.
 
 ```lua
 if fromItemData.name:lower() == "radio" then
-    TriggerClientEvent("zerio-radio:client:removedradio", src)
+    TriggerClientEvent("zerio-radio:client:removedradio", playerId)
 end
 ```
 
@@ -80,13 +83,16 @@ end
 
 This is quite simple, open this file in any text editor. qs-inventory -> config -> config_setInventory.lua. After that, find the drop part of the function, which should be shown by an if statement mentioning: `== "otherplayer"`:
 
+There should be 4 results in total upon searching for `== "otherplayer"`, you would want to edit the 2 ones that use `QS.Shared.SplitStr`, not `QBCore.Shared.SplitStr`
+
 ![Robbing Image](./assets/img/faq7.png)
+![Robbing Image](./assets/img/faq10.png)
 
 We want to add the following code in the beginning of the function.
 
 ```lua
 if fromItemData.name:lower() == "radio" then
-    TriggerClientEvent("zerio-radio:client:removedradio", src)
+    TriggerClientEvent("zerio-radio:client:removedradio", playerId)
 end
 ```
 
