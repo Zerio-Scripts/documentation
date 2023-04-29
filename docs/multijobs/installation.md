@@ -12,7 +12,7 @@ Lastly you will have to execute the SQL file to ensure that the script works wit
 
 Following the steps in this section will make all scripts that use the SetJob function in ESX / QB-Core automatically work with Zerio-Multijobs.
 
-**ES_Extended:**
+### ES_Extended
 
 Open ES_Extended -> server -> classes -> player.lua and scroll down until you find the function called "self.setJob", in there you want to add this code after the "esx:setJob" event. (see image below)
 
@@ -38,7 +38,7 @@ exports["zerio-multijobs"]:GetJobs(self.identifier, function(jobs)
 end)
 ```
 
-**QB-Core:**
+### QB-Core
 
 Open QB-Core -> server -> player.lua and scroll down to the function called "self.Functions.SetJob", in there you want to add this code bit after the job updating part of the function (see image below)
 

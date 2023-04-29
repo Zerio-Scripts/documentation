@@ -23,7 +23,7 @@ This would create a channel for the frequency 911, and call it "Police Radio", i
 
 ### Misc
 
-**VoiceScript**
+#### VoiceScript
 
 This is the voice script you are using, the script currently only supports pma-voice and mumble-voip. Although saltychat and toko-voip support is being worked on.
 

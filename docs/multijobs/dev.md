@@ -6,7 +6,7 @@ sidebar_position: 5
 
 ## Exports List
 
-### **GetJobs**
+### GetJobs
 
 ```lua
 exports["zerio-multijobs"]:GetJobs(citizenid<string>, callback<function>)

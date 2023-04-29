@@ -6,7 +6,7 @@ sidebar_position: 1
 
 This is a modern and simple to use Bossmenu. It should contain everything you need in an bossmenu although additional features will be added in future updates.
 
-**Features**
+## Features
 
 - Drag and drop installation
 - Any society / money management script supported

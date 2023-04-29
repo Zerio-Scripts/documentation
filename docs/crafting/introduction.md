@@ -6,7 +6,7 @@ sidebar_position: 1
 
 Have you ever wanted to take your crafting experience to the next level but only found mediocre crafting scripts? Look no further, this is an easy to understand and sleekly designed Crafting System for FiveM. It has all the features you would need for an awesome crafting experience on your server. It offers a large config to allow you to easily modify the script to your own liking.
 
-**Features**
+## Features
 
 - Large Config
 - Locales / Translations
