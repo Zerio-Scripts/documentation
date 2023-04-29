@@ -4,11 +4,11 @@ sidebar_position: 3
 
 # Frequently asked questions
 
-## Turn off radio on drop <a href="#turn-off-radio-on-drop" id="turn-off-radio-on-drop"></a>
+## Turn off radio on drop
 
 To do this you will have to add a piece of code to your remove item function of either es_extended or qb-core.
 
-### QB-Core <a href="#qb-core" id="qb-core"></a>
+### QB-Core
 
 #### Quasar Inventory
 
@@ -58,7 +58,7 @@ Example of how it would look after the change:<br/>
 
 ![](./assets/img/faq2.webp)
 
-### ESX / es_extended <a href="#esx-es-extended" id="esx-es-extended"></a>
+### ESX / es_extended
 
 #### Quasar Inventory
 
