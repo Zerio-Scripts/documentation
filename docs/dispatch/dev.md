@@ -43,7 +43,7 @@ exports["zerio-dispatch"]:AddAlert({
 }, 2)
 ```
 
-### AddAlert (From Clientside)
+### AddAlert (Server Event, from client)
 
 ```lua
 TriggerServerEvent("zerio-dispatch:server:addAlert", menuIndex<number>, alertData<table>)
@@ -68,6 +68,40 @@ TriggerServerEvent("zerio-dispatch:server:addAlert", 1, {
             text = "Popular street",
             icon = "mdi-earth",
         },
+        {
+            text = "Adder [ABC 123]",
+            icon = "mdi-car",
+        },
+        {
+            text = "Black, White",
+            icon = "mdi-palette",
+        }
+    }
+})
+```
+
+### AddAlert (Client Export)
+
+```lua
+exports["zerio-dispatch"]:AddAlert(menuIndex<number>, alertData<table>)
+```
+
+This export can be used as an alternative to triggering the server event directly.<br/>
+The difference is that this export automatically adds the player position & street name field.<br/>
+So if you wish to use this, do not include the street name field or position value.
+
+Example:
+
+```lua
+exports["zerio-dispatch"]:AddAlert(1, {
+    blipId = 161,
+    sound = "adddispatch.mp3",
+    description = "There was an carjacking down at Popular Street",
+    top = {
+        text = "Carjacking",
+        code = "10-22"
+    },
+    fields = {
         {
             text = "Adder [ABC 123]",
             icon = "mdi-car",
