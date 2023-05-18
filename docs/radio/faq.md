@@ -14,10 +14,7 @@ To do this you will have to add a piece of code to your remove item function of 
 
 ##### Dropping
 
-This is quite simple, open this file in any text editor. qs-inventory -> config -> config_setInventory.lua. After that, search for `-- drop`. You should find 4 results, whereas the 2 **last** results are for QBCore
-
-![Dropping Image](./assets/img/faq6.png)
-![Dropping Image](./assets/img/faq11.png)
+This is quite simple, open this file in any text editor. qs-inventory -> server -> custom -> misc -> SetInventoryData.lua. After that, search for `-- drop`. You should find 2 results, you would want to do this for both results.
 
 We want to add the following code in the beginning of the function.
 
@@ -27,14 +24,14 @@ if fromItemData.name:lower() == "radio" then
 end
 ```
 
+![Dropping Image](./assets/img/faq5.png)
+![Dropping Image](./assets/img/faq6.png)
+
 ##### Robbing
 
-This is quite simple, open this file in any text editor. qs-inventory -> config -> config_setInventory.lua. After that, find the drop part of the function, which should be shown by an if statement mentioning: `== "otherplayer"`:
+This is quite simple, open this file in any text editor. qs-inventory -> server -> custom -> misc -> SetInventoryData.lua. After that, find the drop part of the function, which should be shown by an if statement mentioning: `== "otherplayer"`:
 
-There should be 4 results in total upon searching for `== "otherplayer"`, you would want to edit the 2 ones that use `QBCore.Shared.SplitStr`, not `QS.Shared.SplitStr`
-
-![Robbing Image](./assets/img/faq8.png)
-![Robbing Image](./assets/img/faq9.png)
+There should be 2 results in total upon searching for `== "otherplayer"`, you would want to edit both.
 
 We want to add the following code in the beginning of the function.
 
@@ -43,6 +40,9 @@ if fromItemData.name:lower() == "radio" then
     TriggerClientEvent("zerio-radio:client:removedradio", playerId)
 end
 ```
+
+![Robbing Image](./assets/img/faq8.png)
+![Robbing Image](./assets/img/faq9.png)
 
 #### Other
 
@@ -68,10 +68,7 @@ Example of how it would look after the change:
 
 ##### Dropping
 
-This is quite simple, open this file in any text editor. qs-inventory -> config -> config_setInventory.lua. After that, search for `-- drop`. You should find 4 results, whereas the 2 **first** results are for QBCore
-
-![Dropping Image](./assets/img/faq5.png)
-![Dropping Image](./assets/img/faq12.png)
+This is quite simple, open this file in any text editor. qs-inventory -> server -> custom -> misc -> SetInventoryData.lua. After that, search for `-- drop`. You should find 2 results, you would want to do this for both results.
 
 We want to add the following code in the beginning of the function.
 
@@ -81,14 +78,14 @@ if fromItemData.name:lower() == "radio" then
 end
 ```
 
+![Dropping Image](./assets/img/faq5.png)
+![Dropping Image](./assets/img/faq6.png)
+
 ##### Robbing
 
-This is quite simple, open this file in any text editor. qs-inventory -> config -> config_setInventory.lua. After that, find the drop part of the function, which should be shown by an if statement mentioning: `== "otherplayer"`:
+This is quite simple, open this file in any text editor. qs-inventory -> server -> custom -> misc -> SetInventoryData.lua. After that, find the drop part of the function, which should be shown by an if statement mentioning: `== "otherplayer"`:
 
-There should be 4 results in total upon searching for `== "otherplayer"`, you would want to edit the 2 ones that use `QS.Shared.SplitStr`, not `QBCore.Shared.SplitStr`
-
-![Robbing Image](./assets/img/faq7.png)
-![Robbing Image](./assets/img/faq10.png)
+There should be 2 results in total upon searching for `== "otherplayer"`, you would want to edit both.
 
 We want to add the following code in the beginning of the function.
 
@@ -97,6 +94,9 @@ if fromItemData.name:lower() == "radio" then
     TriggerClientEvent("zerio-radio:client:removedradio", playerId)
 end
 ```
+
+![Robbing Image](./assets/img/faq8.png)
+![Robbing Image](./assets/img/faq9.png)
 
 #### Other
 
