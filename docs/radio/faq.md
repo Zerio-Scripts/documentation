@@ -10,42 +10,6 @@ To do this you will have to add a piece of code to your remove item function of 
 
 ### QB-Core
 
-#### Quasar Inventory
-
-##### Dropping
-
-This is quite simple, open this file in any text editor. qs-inventory -> server -> custom -> misc -> SetInventoryData.lua. After that, search for `-- drop`. You should find 2 results, you would want to do this for both results.
-
-We want to add the following code in the beginning of the function.
-
-```lua
-if fromItemData.name:lower() == "radio" then
-    TriggerClientEvent("zerio-radio:client:removedradio", src)
-end
-```
-
-![Dropping Image](./assets/img/faq5.png)
-![Dropping Image](./assets/img/faq6.png)
-
-##### Robbing
-
-This is quite simple, open this file in any text editor. qs-inventory -> server -> custom -> misc -> SetInventoryData.lua. After that, find the drop part of the function, which should be shown by an if statement mentioning: `== "otherplayer"`:
-
-There should be 2 results in total upon searching for `== "otherplayer"`, you would want to edit both.
-
-We want to add the following code in the beginning of the function.
-
-```lua
-if fromItemData.name:lower() == "radio" then
-    TriggerClientEvent("zerio-radio:client:removedradio", playerId)
-end
-```
-
-![Robbing Image](./assets/img/faq8.png)
-![Robbing Image](./assets/img/faq9.png)
-
-#### Other
-
 This is quite simple, open this file in any text editor. qb-inventory -> server -> main.lua. After that, find the function called "RemoveItem" The function should look close to this:
 
 ![Dropping Image](./assets/img/faq1.webp)
@@ -63,42 +27,6 @@ Example of how it would look after the change:
 ![Dropping Image](./assets/img/faq2.webp)
 
 ### ESX / es_extended
-
-#### Quasar Inventory
-
-##### Dropping
-
-This is quite simple, open this file in any text editor. qs-inventory -> server -> custom -> misc -> SetInventoryData.lua. After that, search for `-- drop`. You should find 2 results, you would want to do this for both results.
-
-We want to add the following code in the beginning of the function.
-
-```lua
-if fromItemData.name:lower() == "radio" then
-    TriggerClientEvent("zerio-radio:client:removedradio", src)
-end
-```
-
-![Dropping Image](./assets/img/faq5.png)
-![Dropping Image](./assets/img/faq6.png)
-
-##### Robbing
-
-This is quite simple, open this file in any text editor. qs-inventory -> server -> custom -> misc -> SetInventoryData.lua. After that, find the drop part of the function, which should be shown by an if statement mentioning: `== "otherplayer"`:
-
-There should be 2 results in total upon searching for `== "otherplayer"`, you would want to edit both.
-
-We want to add the following code in the beginning of the function.
-
-```lua
-if fromItemData.name:lower() == "radio" then
-    TriggerClientEvent("zerio-radio:client:removedradio", playerId)
-end
-```
-
-![Robbing Image](./assets/img/faq8.png)
-![Robbing Image](./assets/img/faq9.png)
-
-#### Other
 
 This is quite simple, open this file in any text editor. es_extended -> server -> classes -> player.lua. After that, find the function called "removeInventoryItem" The function should look around the same as this, if it doesnt then dont worry. You most likely just have an different es_extended version:
 
