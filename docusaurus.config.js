@@ -86,6 +86,12 @@ const config = {
           },
           {
             type: "doc",
+            docId: "invoice/introduction",
+            position: "left",
+            label: "Invoice",
+          },
+          {
+            type: "doc",
             docId: "garage/introduction",
             position: "left",
             label: "Garage",
@@ -172,7 +178,7 @@ const config = {
       prism: {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
-        additionalLanguages: ['lua', "sql", "json", "javascript"],
+        additionalLanguages: ["lua", "sql", "json", "javascript"],
       },
     }),
 };
