@@ -60,7 +60,7 @@ The export returns a boolean (true or false) depending on if the channel was suc
 ### GiveAccessToChannel
 
 ```lua
-local success = exports["zerio-multijobs"]:GiveAccessToChannel(frequency<number>, value<string>)
+local success = exports["zerio-radio"]:GiveAccessToChannel(frequency<number>, value<string>)
 ```
 
 This export takes 2 parameters, the frequency of the channel and the value which should be whitelisted, such as the discord role, identifier etc (depends on the channel).\
@@ -69,7 +69,7 @@ The export returns a boolean (true or false) depending on if the access was succ
 ### RemoveAccessFromChannel
 
 ```lua
-local removed = exports["zerio-multijobs"]:RemoveJob(frequency<number>, value<string>)
+local removed = exports["zerio-radio"]:RemoveAccessFromChannel(frequency<number>, value<string>)
 ```
 
 This export takes 2 parameters, the frequency of the channel and the value which should be removed access from the channel, such as the discord role, identifier etc (depends on the channel).\
