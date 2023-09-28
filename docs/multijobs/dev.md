@@ -14,6 +14,14 @@ exports["zerio-multijobs"]:GetJobs(citizenid<string>, callback<function>)
 
 This export takes 2 parameters which are the citizenid of the player to get the jobs from and also a callback which returns an array with the job(s) data.
 
+### CountJobs
+
+```lua
+exports["zerio-multijobs"]:CountJobs(citizenid<string>)
+```
+
+This export takes one singular parameter, which is the citizenid/identifier of the player that you want to count the jobs of.
+
 ### AddJob
 
 ```lua
