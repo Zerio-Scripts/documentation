@@ -26,6 +26,7 @@ This script supports nearly all frameworks (including standalone) and nearly all
 - Messaging system, to stay updated with your friends/colleagues
 - Panic Alarm
 - "No talk over mode" for pma-voice
+
 ... and much more
 
 ## Requirements
