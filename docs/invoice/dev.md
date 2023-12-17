@@ -8,8 +8,7 @@ sidebar_position: 3
 
 The exports noted below can be used in any other script that you have in your config. You can use these exports to integrate other scripts with the invoice system.
 
-## Exports List (Clientsided)
-
+## Exports List (Serversided)
 
 ### GetInvoices
 
