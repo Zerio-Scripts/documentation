@@ -18,7 +18,8 @@ Following the steps in this section will make all scripts that use the SetJob fu
 
 Open ES_Extended -> server -> classes -> player.lua and scroll down until you find the function called "self.setJob", in there you want to add this code after the "esx:setJob" event. (see image below)
 
-![Installation Image](./assets/images/installation1.webp)
+![Installation Image](https://github.com/Zerio-Scripts/documentation/assets/54480523/b922de6d-5fd6-4512-a1c4-22d34e45b919)
+
 
 ```lua
 local jobs = exports["zerio-multijobs"]:GetJobs(self.identifier)
@@ -39,7 +40,8 @@ end
 
 Open QB-Core -> server -> player.lua and scroll down to the function called "self.Functions.SetJob", in there you want to add this code bit after the job updating part of the function (see image below)
 
-![Installation Image](./assets/images/installation2.webp)
+![Installation Image](https://github.com/Zerio-Scripts/documentation/assets/54480523/02d2e9dd-08cc-4d75-8a47-405ca796f78b)
+
 
 ```lua
 local jobs = exports["zerio-multijobs"]:GetJobs(self.PlayerData.citizenid)
