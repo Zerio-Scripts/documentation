@@ -21,19 +21,18 @@ Open ES_Extended -> server -> classes -> player.lua and scroll down until you fi
 ![Installation Image](./assets/images/installation1.webp)
 
 ```lua
-exports["zerio-multijobs"]:GetJobs(self.identifier, function(jobs)
-    local notFound = true
-    for i,v in pairs(jobs) do
-        if v.name == self.job.name then
-            notFound = false
-        end
+local jobs = exports["zerio-multijobs"]:GetJobs(self.identifier)
+local notFound = true
+for i,v in pairs(jobs) do
+    if v.name == self.job.name then
+        notFound = false
     end
-    if notFound then
-        exports["zerio-multijobs"]:AddJob(self.identifier, self.job.name, self.job.grade)
-    else
-        exports["zerio-multijobs"]:UpdateJobRank(self.identifier, self.job.name, self.job.grade)
-    end
-end)
+end
+if notFound then
+    exports["zerio-multijobs"]:AddJob(self.identifier, self.job.name, self.job.grade)
+else
+    exports["zerio-multijobs"]:UpdateJobRank(self.identifier, self.job.name, self.job.grade)
+end
 ```
 
 ### QB-Core
@@ -43,17 +42,16 @@ Open QB-Core -> server -> player.lua and scroll down to the function called "sel
 ![Installation Image](./assets/images/installation2.webp)
 
 ```lua
-exports["zerio-multijobs"]:GetJobs(self.PlayerData.citizenid, function(jobs)
-    local notFound = true
-    for i,v in pairs(jobs) do
-        if v.name == job then
-            notFound = false
-        end
+local jobs = exports["zerio-multijobs"]:GetJobs(self.PlayerData.citizenid)
+local notFound = true
+for i,v in pairs(jobs) do
+    if v.name == job then
+        notFound = false
     end
-    if notFound then
-        exports["zerio-multijobs"]:AddJob(self.PlayerData.citizenid, job, tonumber(grade))
-    else
-        exports["zerio-multijobs"]:UpdateJobRank(self.PlayerData.citizenid, job, tonumber(grade))
-    end
-end)
+end
+if notFound then
+    exports["zerio-multijobs"]:AddJob(self.PlayerData.citizenid, job, tonumber(grade))
+else
+    exports["zerio-multijobs"]:UpdateJobRank(self.PlayerData.citizenid, job, tonumber(grade))
+end
 ```
