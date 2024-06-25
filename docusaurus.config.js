@@ -102,6 +102,12 @@ const config = {
           },
           {
             type: "doc",
+            docId: "parking/introduction",
+            position: "left",
+            label: "Parking",
+          },
+          {
+            type: "doc",
             docId: "bossmenu/introduction",
             position: "left",
             label: "Bossmenu",
