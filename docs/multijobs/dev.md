@@ -9,39 +9,55 @@ sidebar_position: 5
 ### GetJobs
 
 ```lua
-exports["zerio-multijobs"]:GetJobs(citizenid<string>, callback<function>)
+local jobs = exports["zerio-multijobs"]:GetJobs(identifier)
 ```
 
-This export takes 2 parameters which are the citizenid of the player to get the jobs from and also a callback which returns an array with the job(s) data.
+This export takes one parameter, which is the identifier of the player to get the jobs from.
 
 ### CountJobs
 
 ```lua
-exports["zerio-multijobs"]:CountJobs(citizenid<string>)
+local count = exports["zerio-multijobs"]:CountJobs(identifier)
 ```
 
-This export takes one singular parameter, which is the citizenid/identifier of the player that you want to count the jobs of.
+This export takes one singular parameter, which is the identifier of the player that you want to count the jobs of.
 
 ### AddJob
 
 ```lua
-exports["zerio-multijobs"]:AddJob(citizenid<string>, jobname<string>, jobgrade<int>)
+exports["zerio-multijobs"]:AddJob(identifier, jobname, jobgrade)
 ```
 
-This export takes 3 parameters. The citizen id of the player to add the job to, the job name and also the job grade **in number form, not the name or label of the job grade**
+This export takes 3 parameters. The identifier of the player to add the job to, the job name and also the job grade **in number form, not the name or label of the job grade**
 
 ### UpdateJobRank
 
 ```lua
-exports["zerio-multijobs"]:UpdateJobRank(citizenid<string>, jobname<string>, newjobgrade<int>)
+exports["zerio-multijobs"]:UpdateJobRank(identifier, jobname, newjobgrade)
 ```
 
-This export takes 3 parameters, the citizen id of the player to update the job for, the job name and also the new job grade to assign to the players job.
+This export takes 3 parameters, the identifier of the player to update the job for, the job name and also the new job grade to assign to the players job.
+
+### DoesPlayerHaveJob
+
+```lua
+local hasJob = exports["zerio-multijobs"]:DoesPlayerHaveJob(identifier, jobname)
+```
+
+This export takes in the player identifier and a job name, and returns whether said player has that job in their multijobs list.
+
+### GetPlayersWithJob
+
+```lua
+local players = exports["zerio-multijobs"]:GetPlayersWithJob(jobname)
+```
+
+This export returns a list of all player identifiers that has a specific job in their multijobs list.
 
 ### RemoveJob
 
 ```lua
-exports["zerio-multijobs"]:RemoveJob(citizenid<string>, jobname<string>)
+exports["zerio-multijobs"]:RemoveJob(identifier, jobname)
 ```
 
-This export takes 2 parameters, the citizen id of the player to remove the job for and also the actual job name to remove from them.
+This export takes 2 parameters, the identifier of the player to remove the job for and also the actual job name to remove from them.
