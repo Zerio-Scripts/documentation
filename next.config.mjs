@@ -5,9 +5,4 @@ const withNextra = nextra({
   themeConfig: "./theme.config.tsx"
 });
 
-export default withNextra({
-  i18n: {
-    locales: ["en"],
-    defaultLocale: "en"
-  }
-});
+export default withNextra({});
