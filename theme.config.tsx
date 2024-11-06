@@ -53,7 +53,7 @@ const config: DocsThemeConfig = {
   i18n: [
     {
       locale: "en-US",
-      name: "English"
+      text: "English"
     }
   ],
   logo: function Logo() {
