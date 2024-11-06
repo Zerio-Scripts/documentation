@@ -51,9 +51,9 @@ const config: DocsThemeConfig = {
     );
   },
   i18n: [
-    { 
+    {
       locale: "en-US",
-      name: "English" 
+      name: "English"
     }
   ],
   logo: function Logo() {
@@ -68,15 +68,6 @@ const config: DocsThemeConfig = {
   },
   sidebar: {
     defaultMenuCollapseLevel: 1,
-    titleComponent: ({ title, type }) =>
-      type === "separator" ? (
-        <div className="flex items-center gap-2">
-          {/* <LogoImg className="h-1.5 shrink-0" /> */}
-          {title}
-        </div>
-      ) : (
-        <>{title}</>
-      ),
     toggleButton: true
   },
   useNextSeoProps() {
