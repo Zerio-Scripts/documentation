@@ -1,22 +1,27 @@
 {
-  "name": "nextra-docs-template",
+  "name": "documentation",
   "version": "0.0.1",
-  "description": "Nextra docs template",
+  "description": "Zerio-Scripts documentation",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "format:check": "eslint && prettier -c .",
+    "format:write": "eslint --fix && prettier -w .",
+    "lint:check": "pnpm format:check",
+    "lint:write": "pnpm format:write",
+    "preinstall": "npx only-allow pnpm",
+    "prepare": "husky"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/shuding/nextra-docs-template.git"
+    "url": "git+https://github.com/Zerio-Scripts/documentation.git"
   },
-  "author": "Shu Ding <g@shud.in>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/shuding/nextra-docs-template/issues"
+    "url": "https://github.com/Zerio-Scripts/documentation/issues"
   },
-  "homepage": "https://github.com/shuding/nextra-docs-template#readme",
+  "homepage": "https://github.com/Zerio-Scripts/documentation#readme",
   "dependencies": {
     "next": "^13.0.6",
     "nextra": "latest",
@@ -25,7 +30,16 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.14.0",
     "@types/node": "18.11.10",
-    "typescript": "^4.9.3"
+    "@typescript-eslint/eslint-plugin": "^8.13.0",
+    "@typescript-eslint/parser": "^8.13.0",
+    "eslint": "^9.14.0",
+    "eslint-plugin-react": "^7.37.2",
+    "globals": "^15.12.0",
+    "husky": "^9.1.6",
+    "prettier": "^3.3.3",
+    "typescript": "^4.9.3",
+    "typescript-eslint": "^8.13.0"
   }
 }
