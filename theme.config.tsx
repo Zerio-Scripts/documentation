@@ -6,11 +6,6 @@ const config: DocsThemeConfig = {
     defaultMenuCollapseLevel: 1,
     toggleButton: true
   },
-  useNextSeoProps() {
-    return {
-      titleTemplate: `%s`
-    };
-  },
   project: {
     link: "https://github.com/Zerio-Scripts/documentation"
   },
@@ -19,7 +14,7 @@ const config: DocsThemeConfig = {
   },
   docsRepositoryBase: "https://github.com/Zerio-Scripts/documentation",
   footer: {
-    text: "Zerip-Scripts Documentation"
+    content: <span>Zerip-Scripts Documentation</span>
   }
 };
 
