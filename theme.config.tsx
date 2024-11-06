@@ -50,7 +50,12 @@ const config: DocsThemeConfig = {
       </>
     );
   },
-  i18n: [{ locale: "en-US", text: "English" }],
+  i18n: [
+    { 
+      locale: "en-US",
+      name: "English" 
+    }
+  ],
   logo: function Logo() {
     return (
       <>
