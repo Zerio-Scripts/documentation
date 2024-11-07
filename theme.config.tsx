@@ -16,16 +16,18 @@ const config: DocsThemeConfig = {
   logo: (
     <>
       <img src="/static/logo.png" width="32" height="32" />
-      <span style={{ marginLeft: '.4em', fontWeight: 800 }}>
-        Zerio-Scripts
-      </span>
+      <span style={{ marginLeft: ".4em", fontWeight: 800 }}>Zerio-Scripts</span>
     </>
   ),
   footer: {
     content: (
       <span>
-        MIT {new Date().getFullYear()} ©{' '}
-        <a href="https://store.zerio-scripts.com" target="_blank">
+        MIT {new Date().getFullYear()} ©{" "}
+        <a
+          href="https://store.zerio-scripts.com"
+          target="_blank"
+          rel="noreferrer"
+        >
           Zerio-Scripts
         </a>
         .
