@@ -3,4 +3,4 @@ export default {
   installationguide: "Installation guide",
   faq: "Frequently asked questions",
   devdocs: "Developer documentation"
-}
+};
