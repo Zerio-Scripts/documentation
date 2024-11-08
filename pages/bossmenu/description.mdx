@@ -1,1 +1,30 @@
+import { Cards, Callout } from "nextra/components";
+import { VideoIcon } from "@radix-ui/react-icons";
+
 # Description
+
+A featurefilled menu allowing the bosses in your server to manage every aspect of their business!
+
+<br />
+
+<Cards.Card
+  icon={<VideoIcon />}
+  title="Preview"
+  href="https://youtu.be/h4vvz2NTLFI"
+  arrow
+/>
+
+## Requirements
+
+- SQL resource: oxmysql, ghmattimysql, mysql-async
+- Framework: QBCore, ESX
+
+## Supported by default
+
+- Job/Society money: esx_society, okokBanking, qb-management, qb-banking, okokBanking, renewedbanking, fd_banking
+- Target script: ox_target, qtarget
+
+<Callout>
+  Support for any job/society script can be added via the
+  `zerio-bossmenu/server/functions.lua` file.
+</Callout>
