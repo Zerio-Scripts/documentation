@@ -1,3 +1,5 @@
+import { Callout } from "nextra/components";
+
 # Developer Documentation
 
 Information you as a developer, wanting to extend the resource might want to know will be listed here.
@@ -5,3 +7,57 @@ Information you as a developer, wanting to extend the resource might want to kno
 Such as notable exports, or such.
 
 If empty, then nothing notable exists at the moment.
+
+## Exports
+
+### Server
+
+#### AddAlert
+
+```lua
+exports["zerio-dispatch"]:AddAlert(alertData, menuIndex)
+```
+
+This export creates a new alert. The menu index would be the index of the menu in `Shared.Whitelist` of `zerio-dispatch/shared/whitelist.lua`. An example of the alertData can be seen below:
+
+```lua
+exports["zerio-dispatch"]:AddAlert({
+    blipId = 161,
+    position = {0,0,0},
+    sound = "adddispatch.mp3",
+    description = "There was an carjacking down at Popular Street",
+    top = {
+        text = "Carjacking",
+        code = "10-22"
+    },
+    fields = {
+        {
+            text = "Popular street",
+            icon = "mdi-earth",
+        },
+        {
+            text = "Adder [ABC 123]",
+            icon = "mdi-car",
+        },
+        {
+            text = "Black, White",
+            icon = "mdi-palette",
+        }
+    }
+}, 2)
+```
+
+<Callout type="info">
+  This can also be triggered from the client via an server event, as the
+  following: ```lua TriggerServerEvent("zerio-dispatch:server:addAlert",
+  menuIndex, alertData) ``` Or via an export as the following: ```lua
+  exports["zerio-dispatch"]:AddAlert(menuIndex, alertData) ```
+</Callout>
+
+#### GetAlerts
+
+```lua
+exports["zerio-dispatch"]:GetAlerts(menuIndex)
+```
+
+This returns a list of all current alerts for a menu. The menu index would be the index of the menu in `Shared.Whitelist` in the `zerio-dispatch/shared/whitelist.lua` file
