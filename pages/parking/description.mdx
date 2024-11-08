@@ -1,1 +1,30 @@
+import { Cards, Callout } from "nextra/components";
+import { VideoIcon } from "@radix-ui/react-icons";
+
 # Description
+
+Let players ensure the safety of parking in your city! With our parking enforcement script, you will have all tools needed to provide a great and fun experience for the job.
+
+<br />
+
+<Cards.Card
+  icon={<VideoIcon />}
+  title="Preview"
+  href="https://youtu.be/akPGQvEWf2A"
+  arrow
+/>
+
+## Requirements
+
+- SQL resource: oxmysql, ghmattimysql, mysql-async
+- Framework: QBCore, ESX
+
+## Supported by default
+
+- Billing scripts: zerio-invoice, qs-billing, okokBilling, esx_billing, qb-phone
+- Target script: qb-target, ox_target
+
+<Callout>
+  Support for any billing script can be added via the
+  `zerio-parking/server/functions.lua` file.
+</Callout>
