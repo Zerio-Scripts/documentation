@@ -1,4 +1,4 @@
-import { Callout } from 'nextra/components'
+import { Callout } from "nextra/components";
 
 # Developer Documentation
 
@@ -33,7 +33,8 @@ This export can be used to change the frequency of the local player. It takes in
 It returns whether the player could connect, or not. If false is returned, then the player most likely doesnt have access to the channel.
 
 <Callout type="info">
-  Disconnecting a player from the radio would be done by setting their radio frequency to 0.
+  Disconnecting a player from the radio would be done by setting their radio
+  frequency to 0.
 </Callout>
 
 ### Server
@@ -47,7 +48,8 @@ local exists = exports["zerio-radio"]:DoesChannelExist(frequency)
 This export returns whether a channel exists or not in zerio-radio. It not existing, would more specifically entail that there is no restrictions on it / that it hasnt been registered via the `CreateChannel` export or `zerio-radio/shared/channels.lua` file.
 
 <Callout>
-  A channel not existing does **not** mean that players cant connect to it. Generally voice scripts allow the player to connect to any valid number.
+  A channel not existing does **not** mean that players cant connect to it.
+  Generally voice scripts allow the player to connect to any valid number.
 </Callout>
 
 #### CreateChannel
