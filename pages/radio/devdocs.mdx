@@ -1,3 +1,5 @@
+import { Callout } from 'nextra/components'
+
 # Developer Documentation
 
 Information you as a developer, wanting to extend the resource might want to know will be listed here.
@@ -5,3 +7,79 @@ Information you as a developer, wanting to extend the resource might want to kno
 Such as notable exports, or such.
 
 If empty, then nothing notable exists at the moment.
+
+## Export list
+
+### Client
+
+#### HasAccess
+
+```lua
+local access = exports["zerio-radio"]:HasAccess(frequency)
+```
+
+This export can be used to check whether the local player has access to a specific channel. The only parameter it takes is the frequency number.
+
+It returns a boolean (true/false) to show whether the player had access or not.
+
+#### ChangeChannel
+
+```lua
+local changed = exports["zerio-radio"]:ChangeChannel(frequency)
+```
+
+This export can be used to change the frequency of the local player. It takes in the frequency number as a parameter.
+
+It returns whether the player could connect, or not. If false is returned, then the player most likely doesnt have access to the channel.
+
+<Callout type="info">
+  Disconnecting a player from the radio would be done by setting their radio frequency to 0.
+</Callout>
+
+### Server
+
+#### DoesChannelExist
+
+```lua
+local exists = exports["zerio-radio"]:DoesChannelExist(frequency)
+```
+
+This export returns whether a channel exists or not in zerio-radio. It not existing, would more specifically entail that there is no restrictions on it / that it hasnt been registered via the `CreateChannel` export or `zerio-radio/shared/channels.lua` file.
+
+<Callout>
+  A channel not existing does **not** mean that players cant connect to it. Generally voice scripts allow the player to connect to any valid number.
+</Callout>
+
+#### CreateChannel
+
+```lua
+local created = exports["zerio-radio"]:CreateChannel(frequency, data)
+```
+
+This export can be used to programatically create channels in zerio-radio, just like you would in the `zerio-radio/shared/channels.lua` file.
+
+The `data` parameter would resemble the structure of a channel, explained better in `zerio-radio/shared/channels.lua`
+
+#### RemoveChannel
+
+```lua
+local removed = exports["zerio-radio"]:RemoveChannel(frequency)
+```
+
+This export would remove a channel from zerio-radio. Or, in other words, make it fully "unlocked" meaning anyone can join it.
+
+#### GiveAccessToChannel
+
+```
+local success = exports["zerio-radio"]:GiveAccessToChannel(frequency, value)
+```
+
+This export would grant a new value access to a specific channel. Forexample, if you have a channel locked to jobs. This would add a new job to the access list. If you have a channel locked to identifiers, it would add a new identifier.
+
+#### RemoveAccessFromChannel
+
+```lua
+local removed = exports["zerio-radio"]:RemoveAccessFromChannel(frequency, value)
+```
+
+This export would remove access to a specific value from the channel. Or in other words, forexample removing a specific job's, identifier's or such's access.
