@@ -1,4 +1,6 @@
 import { DocsThemeConfig } from "nextra-theme-docs";
+import { useRouter } from "next/router";
+import { useConfig } from "nextra-theme-docs";
 
 const config: DocsThemeConfig = {
   darkMode: true,
@@ -19,6 +21,30 @@ const config: DocsThemeConfig = {
       <span style={{ marginLeft: ".4em", fontWeight: 800 }}>Zerio-Scripts</span>
     </>
   ),
+  head: () => {
+    const { asPath } = useRouter();
+    const { title: pageTitle } = useConfig();
+
+    // todo: favicon
+
+    return (
+      <>
+        <meta
+          property="og:url"
+          content={`https://docs.zerio-scripts.com${asPath}`}
+        />
+        <meta
+          property="og:title"
+          content={`${pageTitle} | Zerio-Scripts Documentation`}
+        />
+        <meta
+          property="og:description"
+          content={"Documentation for Zerio-Scripts products"}
+        />
+        <title>{`${pageTitle} | Zerio-Scripts Documentation`}</title>
+      </>
+    );
+  },
   footer: {
     content: (
       <span>
