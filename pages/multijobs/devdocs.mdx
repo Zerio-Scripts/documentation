@@ -5,3 +5,63 @@ Information you as a developer, wanting to extend the resource might want to kno
 Such as notable exports, or such.
 
 If empty, then nothing notable exists at the moment.
+
+## Exports
+
+### Server
+
+#### GetJobs
+
+```lua
+local jobs = exports["zerio-multijobs"]:GetJobs(identifier)
+```
+
+This export takes in the players identifier as an parameter, and returns their current list of jobs.
+
+#### AddJob
+
+```lua
+exports["zerio-multijobs"]:AddJob(identifier, jobname, jobgrade)
+```
+
+This export adds a job to the players multijob list. The grade should be as a number, not the name/label of the grade.
+
+#### RemoveJob
+
+```lua
+exports["zerio-multijobs"]:RemoveJob(identifier, jobname)
+```
+
+This export removes a job from a specific player
+
+#### UpdateJobRank
+
+```lua
+exports["zerio-multijobs"]:UpdateJobRank(identifier, jobname, newjobgrade)
+```
+
+This export can be used to upgrade the grade of a job that the player already has.
+
+#### CountJobs
+
+```lua
+local count = exports["zerio-multijobs"]:CountJobs(identifier)
+```
+
+Returns how many jobs a player currently has
+
+#### DoesPlayerHaveJob
+
+```lua
+local hasJob = exports["zerio-multijobs"]:DoesPlayerHaveJob(identifier, jobname)
+```
+
+This export can be used to check whether a player has a specific job, or not.
+
+#### GetPlayersWithJob
+
+```lua
+local players = exports["zerio-multijobs"]:GetPlayersWithJob(jobname)
+```
+
+This export returns a list of all player identifiers with a specific job. Very useful in forexample bossmenus, or such.

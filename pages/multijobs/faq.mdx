@@ -3,3 +3,51 @@
 A list of frequently asked questions can be seen below.
 
 If this is empty and you have a question, please turn to the support in our [community server](http://discord.zerio-scripts.com) instead!
+
+## How do I give jobs to players?
+
+By default, the commands `/givemultijob` and `/removemultijob` exist. Continue reading here if you wish to integrate with the `SetJob` function, allowing all other commands and such to automatically add the job as a multijob too.
+
+## SetJob integration
+
+### ESX
+
+Open the `es_extended/server/classes/player.lua` file. Then find the `setJob` function.
+
+Then, you'll want to add the following snippet at the end of this function.
+
+```lua
+local jobs = exports["zerio-multijobs"]:GetJobs(self.identifier)
+local notFound = true
+for i,v in pairs(jobs) do
+    if v.name == self.job.name then
+        notFound = false
+    end
+end
+if notFound then
+    exports["zerio-multijobs"]:AddJob(self.identifier, self.job.name, self.job.grade)
+else
+    exports["zerio-multijobs"]:UpdateJobRank(self.identifier, self.job.name, self.job.grade)
+end
+```
+
+### QB-Core
+
+Open the `qb-core/server/player.lua` file. Then find the `SetJob` function.
+
+You'll want to add the following snippet **above** the `return true` line.
+
+```lua
+local jobs = exports["zerio-multijobs"]:GetJobs(self.PlayerData.citizenid)
+local notFound = true
+for i,v in pairs(jobs) do
+    if v.name == job then
+        notFound = false
+    end
+end
+if notFound then
+    exports["zerio-multijobs"]:AddJob(self.PlayerData.citizenid, job, tonumber(grade))
+else
+    exports["zerio-multijobs"]:UpdateJobRank(self.PlayerData.citizenid, job, tonumber(grade))
+end
+```
