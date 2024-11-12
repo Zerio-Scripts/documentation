@@ -1,0 +1,75 @@
+# Developer Documentation
+
+Information you as a developer, wanting to extend the resource might want to know will be listed here.
+
+Such as notable exports, or such.
+
+If empty, then nothing notable exists at the moment.
+
+## Exports
+
+### Server
+
+#### GetInvoices
+
+```lua
+local invoices = exports["zerio-invoice"]:GetInvoices(job)
+```
+
+This gets a list of all invoices for a specific job. The data is structured the same way as it is in the database.
+
+#### MarkInvoiceAsPaid
+
+```lua
+exports["zerio-invoice"]:MarkInvoiceAsPaid(uuid)
+```
+
+This marks an invoice as being paid, without removing money from anyone.
+
+#### RemoveInvoice
+
+```lua
+exports["zerio-invoice"]:RemoveInvoice(uuid)
+```
+
+This deletes an invoice
+
+#### NewInvoice
+
+```lua
+exports["zerio-invoice"]:NewInvoice({
+    type = "player",
+    sendDate = "2023-07-29 01:03:00",
+    dueDate = "2023-07-31 01:03:00",
+    receiver = "SKZ55766",
+    senderJob = "police",
+    senderPlayer = "SKZ55766",
+    reason = "cool",
+    category = "Fine",
+    products = {
+        {
+            price = 10,
+            description = "",
+            quantity = 10
+        }
+    }
+})
+```
+
+This export creates a new invoice. The structure of the data can be seen below, or by the example above:
+
+```
+PARAM           TYPE                        EXPLENATION
+type            "player" | "business"
+sendDate        sql timestamp
+dueDate         sql timestamp
+receiver        string                      Any valid job / identifier
+senderJob       string                      Any valid job
+senderPlayer    string                      Any valid player identifier
+reason          string
+category        string                      Any valid invoice category for that job
+products        array (see types below)
+    price:          number
+    description:    string
+    quantity:       number
+```

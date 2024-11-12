@@ -1,0 +1,19 @@
+# Frequently asked questions
+
+A list of frequently asked questions can be seen below.
+
+If this is empty and you have a question, please turn to the support in our [community server](http://discord.zerio-scripts.com) instead!
+
+## How do I add new vehicles?
+
+Adding new vehicles can be done via the ingame admin menu (/cardealeradmin), or directly via the database table `zerio_cardealer-vehicles`.
+
+The `cardealer` column refers to the job name (or `customname` value if jobless).
+
+## How do I add new categories?
+
+Categories are defined via the `config.lua` file, and they are unique to the dealership.
+
+## Adding admins
+
+Adding admins (to access /cardealeradmin) is done by adding their primary identifier to the list in the `config.lua` file. In QBCore it would be the rockstar license, in ESX it would be the identifier of the character.

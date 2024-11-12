@@ -1,0 +1,120 @@
+import { Callout } from "nextra/components";
+
+# Frequently asked questions
+
+A list of frequently asked questions can be seen below.
+
+If this is empty and you have a question, please turn to the support in our [community server](http://discord.zerio-scripts.com) instead!
+
+## Turning off blips for a garage/impound
+
+This can be done by adding the following to the garage / impound data.
+
+```lua
+hideblip = true,
+```
+
+## Lock garage to specific vehicle types
+
+You can use the `whitelistedTypes` value on a garage, to lock it to only those specific vehicle types.
+
+You can use the `blacklistedTypes` value on a garage, to lock it to **all** vehicle types, **except** for the ones in the blacklist.
+
+<Callout type="info">
+  Valid vehicle types: Compacts, Sedans, SUVs, Coupes, Muscle, SportClassic,
+  Sport, Super, Motorcycle, Offroad, Industrial, Utility, Vans, Bicycles, Boats,
+  Helicopter, Plane, Service, Emergency, Military
+</Callout>
+
+## Housing Support
+
+### QS-Housing
+
+Change `Config.Garage` in `qs-housing/config/config.lua` to `"zerio-garage"`.
+
+Then create the following file, `qs-housing/client/custom/garage/zerio-garage.lua`, with the following content:
+
+```lua
+if Config.Garage ~= "zerio-garage" then
+    return
+end
+
+function StoreVehicle(house)
+    TriggerEvent("zerio-garage:client:PutBackHouseVehicle", house, "qs-housing")
+end
+
+function OpenGarage(house)
+    TriggerEvent("zerio-garage:client:OpenHousingGarage", house, "qs-housing")
+end
+
+Citizen.CreateThread(function()
+    while true do
+        Citizen.Wait(0)
+        local ped = PlayerPedId()
+        local pos = GetEntityCoords(ped)
+
+        if closesthouse ~= nil and hasKey and Config.Houses and Config.Houses[closesthouse] and Config.Houses[closesthouse].garage then
+            local dist = GetDistanceBetweenCoords(pos, Config.Houses[closesthouse].garage.x, Config.Houses[closesthouse].garage.y, Config.Houses[closesthouse].garage.z, true)
+
+            if dist < 5.0 then
+                DrawMarker(20, Config.Houses[closesthouse].garage.x, Config.Houses[closesthouse].garage.y, Config.Houses[closesthouse].garage.z + 0.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.3, 0.15, 120, 10, 20, 155, false, false, false, 1, false, false, false)
+
+                if dist < 2.0 then
+                    local vehicle = GetVehiclePedIsIn(PlayerPedId(), false)
+                    if Config.Houses[closesthouse].garage and Config.Houses[closesthouse].garage.x and Config.Houses[closesthouse].garage.y and Config.Houses[closesthouse].garage.z then
+                        if vehicle and vehicle ~= 0 then
+                            if Config.HelpNotification == 'ShowHelpNotification' then
+                                ShowHelpNotification(Lang("HOUSING_SHOWHELP_GARAGE_STORE"))
+                            elseif Config.HelpNotification == 'DrawText3D' then
+                                DrawText3D(Config.Houses[closesthouse].garage.x, Config.Houses[closesthouse].garage.y, Config.Houses[closesthouse].garage.z + 0.3, Lang("HOUSING_DRAWTEXT_GARAGE_STORE"))
+                            end
+
+                            if IsControlJustPressed(0, Keys["E"]) or IsDisabledControlJustPressed(0, Keys["E"]) then
+                                if not StoreVehicle then return DebugPrint("Your client/custom/garages/*.lua is not correctly configured") end
+                                StoreVehicle(closesthouse)
+                            end
+                        else
+                            if Config.HelpNotification == 'ShowHelpNotification' then
+                                ShowHelpNotification(Lang("HOUSING_SHOWHELP_GARAGE_MENU"))
+                            elseif Config.HelpNotification == 'DrawText3D' then
+                                DrawText3D( Config.Houses[closesthouse].garage.x, Config.Houses[closesthouse].garage.y,  Config.Houses[closesthouse].garage.z + 0.3,  Lang("HOUSING_DRAWTEXT_GARAGE_STORE"))
+                            end
+
+                            if IsControlJustPressed(0, Keys["E"]) or IsDisabledControlJustPressed(0, Keys["E"]) then
+                                if not OpenGarage then return DebugPrint("Your client/custom/garages/*.lua is not correctly configured") end
+                                OpenGarage(closesthouse)
+                            end
+                        end
+                    end
+                end
+            else
+                Citizen.Wait(1000)
+            end
+        end
+    end
+end)
+```
+
+### Other housing scripts
+
+Open a ticket in our [community server](http://discord.zerio-scripts.com) to contact us concerning support for other housing scripts.
+
+## QB-Phone support
+
+QB-Phone uses exports from `qb-garages` to fetch data for their vehicle app.
+
+To fix this error, remove the `@qb-garages/config.lua` shared script from the `qb-phone/fxmanifest.lua` file.
+
+Then, at the bottom of `qb-phone/fxmanifest`, add:
+
+```lua
+dependencies {
+    "zerio-garage"
+}
+```
+
+Then go to the `qb-phone/server/main.lua` file, and add this to the top of it:
+
+```lua
+Config.Garages = exports["zerio-garage"]:getQBPhoneData()
+```

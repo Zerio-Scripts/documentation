@@ -1,0 +1,72 @@
+import { Tabs, Callout } from "nextra/components";
+
+# Frequently asked questions
+
+A list of frequently asked questions can be seen below.
+
+If this is empty and you have a question, please turn to the support in our [community server](http://discord.zerio-scripts.com) instead!
+
+## How to set-up the radio as an item
+
+### "Normal" Inventories
+
+In most inventories, except for ox_inventory and other inventories that store their usage callbacks locally. You'd simply have to go to the `zerio-radio/shared/opentype.lua` file. And change `Shared.OpenType.Value` to `"item"`.
+
+### OX_Inventory
+
+Copy the following item info into `ox_inventory/data/items.lua`
+
+```lua
+['radio'] = {
+    label = 'Radio',
+    weight = 1000,
+    stack = false,
+    allowArmed = true,
+    consume = 0,
+    client = {
+        export = 'zerio-radio.Open',
+        remove = function(total)
+            if total < 1 then
+                TriggerEvent('zerio-radio:client:removedradio')
+            end
+        end
+    }
+},
+```
+
+Change `Shared.OpenType.Value` in `zerio-radio/shared/opentype.lua` to `"custom"`.
+
+## Disconnect player on item drop.
+
+<Callout>
+  The following does **not** apply to ox_inventory. This is automatically
+  handled if you use the snippet above.
+</Callout>
+
+<Tabs items={['ESX', 'QBCore']}>
+  <Tabs.Tab>
+    Open the `es_extended/server/classes/player.lua` file. Then find the function named `removeInventoryItem`.
+
+    We want to add the following snippet after the line triggering `esx:removeInventoryItem`.
+
+    ```lua
+    if tostring(itemName) == "radio" and newCount == 0 then
+        TriggerClientEvent("zerio-radio:client:removedradio", self.source)
+    end
+    ```
+
+  </Tabs.Tab>
+
+  <Tabs.Tab>
+    Open the `qb-inventory/server/functions.lua` file. Then find the function named `RemoveItem`.
+
+    We want to add the following code snippet, before each `return true` of the function. Depending on how new/old your files are, there may be only one, or multiple true returns.
+
+    ```lua
+    if tostring(item) == "radio" then
+        TriggerClientEvent("zerio-radio:client:removedradio", player.PlayerData.source)
+    end
+    ```
+
+  </Tabs.Tab>
+</Tabs>
