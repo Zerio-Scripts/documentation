@@ -17,7 +17,7 @@ const config: DocsThemeConfig = {
   docsRepositoryBase: "https://github.com/Zerio-Scripts/documentation",
   logo: (
     <>
-      <img src="/static/logo.png" width="32" height="32" />
+      <img src="/logo.png" width="32" height="32" />
       <span style={{ marginLeft: ".4em", fontWeight: 800 }}>Zerio-Scripts</span>
     </>
   ),
@@ -25,10 +25,9 @@ const config: DocsThemeConfig = {
     const { asPath } = useRouter();
     const { title: pageTitle } = useConfig();
 
-    // todo: favicon
-
     return (
       <>
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
         <meta
           property="og:url"
           content={`https://docs.zerio-scripts.com${asPath}`}
