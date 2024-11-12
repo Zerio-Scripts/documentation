@@ -1,4 +1,4 @@
-import { Tabs } from 'nextra/components'
+import { Tabs } from "nextra/components";
 
 # Frequently asked questions
 
@@ -11,7 +11,6 @@ If this is empty and you have a question, please turn to the support in our [com
 By default, the commands `/givemultijob` and `/removemultijob` exist. Continue reading here if you wish to integrate with the `SetJob` function, allowing all other commands and such to automatically add the job as a multijob too.
 
 ## SetJob integration
-
 
 <Tabs items={['ESX', 'QBCore']}>
   <Tabs.Tab>
@@ -33,6 +32,7 @@ By default, the commands `/givemultijob` and `/removemultijob` exist. Continue r
         exports["zerio-multijobs"]:UpdateJobRank(self.identifier, self.job.name, self.job.grade)
     end
     ```
+
   </Tabs.Tab>
 
   <Tabs.Tab>
@@ -54,5 +54,6 @@ By default, the commands `/givemultijob` and `/removemultijob` exist. Continue r
         exports["zerio-multijobs"]:UpdateJobRank(self.PlayerData.citizenid, job, tonumber(grade))
     end
     ```
+
   </Tabs.Tab>
 </Tabs>
