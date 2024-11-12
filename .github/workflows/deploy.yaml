@@ -1,0 +1,27 @@
+name: AWS Deploy
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Set node version
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+      - name: Set pnpm version
+        uses: pnpm/action-setup@v3
+        with:
+          run_install: false
+          version: 7
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+      - name: Build project
+        run: pnpm build
+      - name: Restart systemd services
+        run: sudo systemctl restart zs-docs
