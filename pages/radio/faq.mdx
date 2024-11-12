@@ -1,4 +1,4 @@
-import { Callout } from "nextra/components";
+import { Tabs, Callout } from "nextra/components";
 
 # Frequently asked questions
 
@@ -43,26 +43,28 @@ Change `Shared.OpenType.Value` in `zerio-radio/shared/opentype.lua` to `"custom"
   handled if you use the snippet above.
 </Callout>
 
-### QB-Core
+<Tabs items={['ESX', 'QBCore']}>
+  <Tabs.Tab>
+    Open the `es_extended/server/classes/player.lua` file. Then find the function named `removeInventoryItem`.
 
-Open the `qb-inventory/server/functions.lua` file. Then find the function named `RemoveItem`.
+    We want to add the following snippet after the line triggering `esx:removeInventoryItem`.
 
-We want to add the following code snippet, before each `return true` of the function. Depending on how new/old your files are, there may be only one, or multiple true returns.
+    ```lua
+    if tostring(itemName) == "radio" and newCount == 0 then
+        TriggerClientEvent("zerio-radio:client:removedradio", self.source)
+    end
+    ```
+  </Tabs.Tab>
 
-```lua
-if tostring(item) == "radio" then
-    TriggerClientEvent("zerio-radio:client:removedradio", player.PlayerData.source)
-end
-```
+  <Tabs.Tab>
+    Open the `qb-inventory/server/functions.lua` file. Then find the function named `RemoveItem`.
 
-### ESX
+    We want to add the following code snippet, before each `return true` of the function. Depending on how new/old your files are, there may be only one, or multiple true returns.
 
-Open the `es_extended/server/classes/player.lua` file. Then find the function named `removeInventoryItem`.
-
-We want to add the following snippet after the line triggering `esx:removeInventoryItem`.
-
-```lua
-if tostring(itemName) == "radio" and newCount == 0 then
-    TriggerClientEvent("zerio-radio:client:removedradio", self.source)
-end
-```
+    ```lua
+    if tostring(item) == "radio" then
+        TriggerClientEvent("zerio-radio:client:removedradio", player.PlayerData.source)
+    end
+    ```
+  </Tabs.Tab>
+</Tabs>
