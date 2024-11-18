@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# use correct nvm
+# nvm
 export NVM_DIR=$HOME/.nvm;
 source $NVM_DIR/nvm.sh;
-# end of nvm
+# nvm end
 
 # pnpm
 export PNPM_HOME="/home/ubuntu/.local/share/pnpm"
@@ -13,4 +13,6 @@ case ":$PATH:" in
 esac
 # pnpm end
 
+# main
 pnpm start
+# main end
