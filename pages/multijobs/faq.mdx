@@ -12,7 +12,7 @@ By default, the commands `/givemultijob` and `/removemultijob` exist. Continue r
 
 ## SetJob integration
 
-<Tabs items={['ESX', 'QBCore']}>
+<Tabs items={['ESX', 'QBCore', 'QBXCore']}>
   <Tabs.Tab>
     Open the `es_extended/server/classes/player.lua` file. Then find the `setJob` function.
 
@@ -21,7 +21,7 @@ By default, the commands `/givemultijob` and `/removemultijob` exist. Continue r
     ```lua
     local jobs = exports["zerio-multijobs"]:GetJobs(self.identifier)
     local notFound = true
-    for i,v in pairs(jobs) do
+    for _,v in pairs(jobs) do
         if v.name == self.job.name then
             notFound = false
         end
@@ -43,7 +43,7 @@ By default, the commands `/givemultijob` and `/removemultijob` exist. Continue r
     ```lua
     local jobs = exports["zerio-multijobs"]:GetJobs(self.PlayerData.citizenid)
     local notFound = true
-    for i,v in pairs(jobs) do
+    for _,v in pairs(jobs) do
         if v.name == job then
             notFound = false
         end
@@ -52,6 +52,28 @@ By default, the commands `/givemultijob` and `/removemultijob` exist. Continue r
         exports["zerio-multijobs"]:AddJob(self.PlayerData.citizenid, job, tonumber(grade))
     else
         exports["zerio-multijobs"]:UpdateJobRank(self.PlayerData.citizenid, job, tonumber(grade))
+    end
+    ```
+
+  </Tabs.Tab>
+
+  <Tabs.Tab>
+    Open the `qbx_core/server/player.lua` file. Then find the `SetJob` function.
+
+    You'll want to add the following snippet **above** the `return true` line.
+
+    ```lua
+    local jobs = exports["zerio-multijobs"]:GetJobs(self.PlayerData.citizenid)
+    local notFound = true
+    for _,v in pairs(jobs) do
+        if v.name == jobName then
+            notFound = false
+        end
+    end
+    if notFound then
+        exports["zerio-multijobs"]:AddJob(self.PlayerData.citizenid, jobName, tonumber(grade))
+    else
+        exports["zerio-multijobs"]:UpdateJobRank(self.PlayerData.citizenid, jobName, tonumber(grade))
     end
     ```
 
