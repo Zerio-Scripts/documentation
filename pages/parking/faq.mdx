@@ -7,3 +7,35 @@ If this is empty and you have a question, please turn to the support in our [com
 ## Where can I find the job data?
 
 As noted in the installation guide, you can find information like this in the `SETUP FILES` folder of `zerio-parking`.
+
+## Integration with OX_Inventory
+
+Start out with changing `Config.MenuOpenType` to `"custom"` in `zerio-parking/configs/opentype.lua`.
+
+Then you can use the following item data in `ox_inventory/data/items.lua`.
+
+```lua
+['parkingtool'] = {
+    label = 'Parking Cite Tool',
+    weight = 1000,
+    stack = false,
+    allowArmed = true,
+    consume = 0,
+    client = {
+        export = 'zerio-parking.Open',
+    }
+},
+```
+
+```lua
+['parkingticket'] = {
+    label = 'Parking Ticket',
+    weight = 1000,
+    stack = false,
+    allowArmed = true,
+    consume = 0,
+    client = {
+        export = 'zerio-parking.UsedParkingTicket',
+    }
+},
+```
