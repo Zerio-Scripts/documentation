@@ -70,3 +70,43 @@ Change `Shared.OpenType.Value` in `zerio-radio/shared/opentype.lua` to `"custom"
 
   </Tabs.Tab>
 </Tabs>
+
+## Animations & Props
+
+### Change/disable talking animation
+
+You can disable the talking animation by removing/commenting out the `TalkDictionary` & `TalkAnimation` value in `zerio-radio/shared/animation.lua`.
+
+Changing the animation would be done via the same values.
+
+### Change/disable open animation
+
+Changing the animation played upon opening the radio can be done via the `OpenDictionary` & `OpenAnimation` values.
+
+The `in_car` dictionary value is used when you're in the car. The `normal` dictionary value is used when you're not in the car.
+
+The `open` animation value is used when you have the radio currently open while `closed` is used while closing the radio.
+
+Disabling the animation can be done via removing/commenting out the **entire** `OpenDictionary` & `OpenAnimation` values.
+
+### Change/disable talking prop
+
+Changing the talking prop can be done via the `TalkProp`, `TalkBone`, `TalkOffset` & `TalkRotation`.
+
+<Callout>
+  List of player bones can be found
+  [here](https://wiki.rage.mp/index.php?title=Bones). You'd use the `ID` value.
+</Callout>
+
+Disabling the talking prop can be done by removing/commenting out the values mentioned above
+
+### Change/disable open prop
+
+Changing the prop spawned when opening the radio can be done via the `OpenProp`, `OpenBone`, `OpenOffset` & `OpenRotation`.
+
+<Callout>
+  List of player bones can be found
+  [here](https://wiki.rage.mp/index.php?title=Bones). You'd use the `ID` value.
+</Callout>
+
+Disabling the talking prop can be done by removing/commenting out the values mentioned above
