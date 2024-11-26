@@ -75,38 +75,34 @@ Change `Shared.OpenType.Value` in `zerio-radio/shared/opentype.lua` to `"custom"
 
 ### Change/disable talking animation
 
-You can disable the talking animation by removing/commenting out the `TalkDictionary` & `TalkAnimation` value in `zerio-radio/shared/animation.lua`.
+You can disable the talking animation by removing/commenting out the `TalkAnimation` value in `zerio-radio/shared/animation.lua`.
 
-Changing the animation would be done via the same values.
+Changing the animation would be done via the sub values of `TalkAnimation`.
 
 ### Change/disable open animation
 
-Changing the animation played upon opening the radio can be done via the `OpenDictionary` & `OpenAnimation` values.
+Changing the animation played upon opening the radio can be done via the `OpenAnimation` subvalues.
 
-The `in_car` dictionary value is used when you're in the car. The `normal` dictionary value is used when you're not in the car.
-
-The `open` animation value is used when you have the radio currently open while `closed` is used while closing the radio.
-
-Disabling the animation can be done via removing/commenting out the **entire** `OpenDictionary` & `OpenAnimation` values.
+Disabling the animation can be done via removing/commenting out the `OpenAnimation` value.
 
 ### Change/disable talking prop
 
-Changing the talking prop can be done via the `TalkProp`, `TalkBone`, `TalkOffset` & `TalkRotation`.
+Changing the talking prop can be done via the `TalkProp` subvalues.
 
 <Callout>
   List of player bones can be found
   [here](https://wiki.rage.mp/index.php?title=Bones). You'd use the `ID` value.
 </Callout>
 
-Disabling the talking prop can be done by removing/commenting out the values mentioned above
+Disabling the talking prop can be done by removing/commenting out the `TalkProp` value.
 
 ### Change/disable open prop
 
-Changing the prop spawned when opening the radio can be done via the `OpenProp`, `OpenBone`, `OpenOffset` & `OpenRotation`.
+Changing the prop spawned when opening the radio can be done via the `OpenProp`.
 
 <Callout>
   List of player bones can be found
   [here](https://wiki.rage.mp/index.php?title=Bones). You'd use the `ID` value.
 </Callout>
 
-Disabling the talking prop can be done by removing/commenting out the values mentioned above
+Disabling the talking prop can be done by removing/commenting out the `OpenProp` value
