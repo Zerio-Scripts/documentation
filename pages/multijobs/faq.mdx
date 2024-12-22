@@ -58,7 +58,7 @@ By default, the commands `/givemultijob` and `/removemultijob` exist. Continue r
   </Tabs.Tab>
 
   <Tabs.Tab>
-    Open the `qbx_core/server/player.lua` file. Then find the `SetJob` function.
+    Open the `qbx_core/server/player.lua` file. Then find the `SetPlayerPrimaryJob` function.
 
     You'll want to add the following snippet **above** the `return true` line.
 
@@ -71,9 +71,9 @@ By default, the commands `/givemultijob` and `/removemultijob` exist. Continue r
         end
     end
     if notFound then
-        exports["zerio-multijobs"]:AddJob(self.PlayerData.citizenid, jobName, tonumber(grade))
+        exports["zerio-multijobs"]:AddJob(citizenid, jobName, tonumber(grade))
     else
-        exports["zerio-multijobs"]:UpdateJobRank(self.PlayerData.citizenid, jobName, tonumber(grade))
+        exports["zerio-multijobs"]:UpdateJobRank(citizenid, jobName, tonumber(grade))
     end
     ```
 
