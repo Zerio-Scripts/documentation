@@ -63,7 +63,7 @@ By default, the commands `/givemultijob` and `/removemultijob` exist. Continue r
     You'll want to add the following snippet **above** the `return true` line.
 
     ```lua
-    local jobs = exports["zerio-multijobs"]:GetJobs(self.PlayerData.citizenid)
+    local jobs = exports["zerio-multijobs"]:GetJobs(citizenid)
     local notFound = true
     for _,v in pairs(jobs) do
         if v.name == jobName then
