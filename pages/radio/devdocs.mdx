@@ -70,18 +70,28 @@ local removed = exports["zerio-radio"]:RemoveChannel(frequency)
 
 This export would remove a channel from zerio-radio. Or, in other words, make it fully "unlocked" meaning anyone can join it.
 
+#### UpdateChannelLabel
+
+```lua
+local success = exports["zerio-radio"]:UpdateChannelLabel(frequency, label)
+```
+
+This export would update the label of a radio channel.
+
 #### GiveAccessToChannel
 
 ```
-local success = exports["zerio-radio"]:GiveAccessToChannel(frequency, value)
+local success = exports["zerio-radio"]:GiveAccessToChannel(frequency, accessType, value)
 ```
 
-This export would grant a new value access to a specific channel. Forexample, if you have a channel locked to jobs. This would add a new job to the access list. If you have a channel locked to identifiers, it would add a new identifier.
+This export would grant a new value access to a specific channel.
+The `accessType` would be the kind of access you wish to add, forexample `"jobs"`, `"discordRoles"` or so on.
 
 #### RemoveAccessFromChannel
 
 ```lua
-local removed = exports["zerio-radio"]:RemoveAccessFromChannel(frequency, value)
+local removed = exports["zerio-radio"]:RemoveAccessFromChannel(frequency, accessType, value)
 ```
 
 This export would remove access to a specific value from the channel. Or in other words, forexample removing a specific job's, identifier's or such's access.
+The `accessType` would be the kind of access you wish to add, forexample `"jobs"`, `"discordRoles"` or so on.
