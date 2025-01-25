@@ -70,6 +70,18 @@ local removed = exports["zerio-radio"]:RemoveChannel(frequency)
 
 This export would remove a channel from zerio-radio. Or, in other words, make it fully "unlocked" meaning anyone can join it.
 
+#### UpdateSetting
+
+```lua
+exports["zerio-radio"]:UpdateSetting(identifier, key, value)
+exports["zerio-radio"]:UpdateSetting(source, key, value)
+```
+
+This export updates the value of a setting for a specific player. You can either use the players identifier, or their source.
+The value keys/settings are: size, volume, callsign, theme, useMouse, anonymous, allowDrag, memberList, positionX, positionY, position2X, position2Y.
+
+You can have a look at the database table `zerio_radio_settings` for further information about the valid/possible values, or open a ticket in our community server.
+
 #### UpdateChannelLabel
 
 ```lua
