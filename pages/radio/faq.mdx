@@ -8,33 +8,64 @@ If this is empty and you have a question, please turn to the support in our [com
 
 ## How to set-up the radio as an item
 
-### "Normal" Inventories
+<Tabs items={['Normal Inventories', 'OX Inventory']}>
+  <Tabs.Tab>
+    In most inventories, except for ox_inventory and other inventories that store their usage callbacks locally. You'd simply have to go to the `zerio-radio/shared/opentype.lua` file. And change `Shared.OpenType.Value` to `"item"`.
+  </Tabs.Tab>
 
-In most inventories, except for ox_inventory and other inventories that store their usage callbacks locally. You'd simply have to go to the `zerio-radio/shared/opentype.lua` file. And change `Shared.OpenType.Value` to `"item"`.
+  <Tabs.Tab>
+    1. Copy the following item info into `ox_inventory/data/items.lua`
 
-### OX_Inventory
+    ```lua
+      ['radio'] = {
+          label = 'Radio',
+          weight = 1000,
+          stack = false,
+          allowArmed = true,
+          consume = 0,
+          client = {
+              export = 'zerio-radio.Open',
+              remove = function(total)
+                  if total < 1 then
+                      TriggerEvent('zerio-radio:client:removedradio')
+                  end
+              end
+          }
+      },
+    ```
 
-Copy the following item info into `ox_inventory/data/items.lua`
+    2. Change `Shared.OpenType.Value` in `zerio-radio/shared/opentype.lua` to `"custom"`.
 
-```lua
-['radio'] = {
-    label = 'Radio',
-    weight = 1000,
-    stack = false,
-    allowArmed = true,
-    consume = 0,
-    client = {
-        export = 'zerio-radio.Open',
-        remove = function(total)
-            if total < 1 then
-                TriggerEvent('zerio-radio:client:removedradio')
-            end
-        end
-    }
-},
-```
+  </Tabs.Tab>
+</Tabs>
 
-Change `Shared.OpenType.Value` in `zerio-radio/shared/opentype.lua` to `"custom"`.
+## How to set-up the radio scanner as an item
+
+<Tabs items={['Normal Inventories', 'OX Inventory']}>
+  <Tabs.Tab>
+    In most inventories, except for ox_inventory and other inventories that store their usage callbacks locally. You'd simply have to go to the `zerio-radio/shared/scanner.lua` file. And change `Shared.Scanner.OpenType` to `"item"`.
+  </Tabs.Tab>
+
+  <Tabs.Tab>
+    1. Copy the following item info into `ox_inventory/data/items.lua`
+
+    ```lua
+      ['radioscanner'] = {
+          label = 'Radio Scanner',
+          weight = 1000,
+          stack = false,
+          allowArmed = true,
+          consume = 0,
+          client = {
+              export = 'zerio-radio.OpenScanner',
+          }
+      },
+    ```
+
+    2. Change `Shared.Scanner.OpenType` in `zerio-radio/shared/scanner.lua` to `"custom"`.
+
+  </Tabs.Tab>
+</Tabs>
 
 ## Disconnect player on item drop.
 
