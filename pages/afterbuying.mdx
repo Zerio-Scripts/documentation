@@ -1,21 +1,175 @@
-# After buying
+import { Callout, Steps, Tabs, Cards } from "nextra/components";
+import { DownloadIcon, GearIcon, BookmarkIcon, ChatBubbleIcon } from "@radix-ui/react-icons";
 
-After buying a resource, we recommend you look through the documentation for that specific resource.
+# After Buying
 
-Most of the time, if not done automatically, you will have to execute the SQL files (if there are any).
+Congratulations on your purchase! This comprehensive guide will walk you through everything you need to know to successfully install, configure, and maintain your new Zerio-Scripts resource.
 
-You would also, just like any other resource, have to add/start it via your `server.cfg` file.
+## 🚀 Quick Start Checklist
 
-## Configuring the resource
+<Steps>
 
-In all our resources, there are configuration files. Depending on when the resource was made, the file structure may differ.
+### Download Your Files
+1. Check your email for the download confirmation
+2. Visit [FiveM's Portal](https://portal.cfx.re) to download your files
+3. Extract the resource to a temporary location for review
 
-Generally, your configuration files would be one of these:
+### Review Documentation
+1. Read the specific product documentation for your resource
+2. Check the requirements and compatibility information  
+3. Review configuration options before installation
 
-- The `config.lua` file in the main project folder
-- All files in the `shared` folder in the main project folder
-- All files in the `config` folder in the main project folder
+### Install and Configure
+1. Upload files to your server's resources folder
+2. Import SQL files (if applicable)
+3. Add the resource to your `server.cfg`
+4. Configure settings to match your server setup
 
-## Community server
+### Test and Launch
+1. Start your server and test basic functionality
+2. Join our [community Discord](https://discord.zerio-scripts.com) for support
+3. Consider contributing feedback for future improvements
 
-As someone interested, you are always welcome to join our [community server](http://docs.zerio-scripts.com). We **especially** recommend this for our customers, as a lot of important information is sent here.
+</Steps>
+
+## 📁 File Management
+
+### Downloading from the cfx.re Portal
+
+<Callout type="info">
+All Zerio-Scripts products are delivered through FiveM's official Portal, ensuring secure and authenticated downloads.
+</Callout>
+
+1. **Login to the cfx.re Portal**: Visit [portal.cfx.re](https://portal.cfx.re) using your FiveM account
+2. **Find Your Asset**: Locate your purchased resource in the "Granted Assets" section
+3. **Download Files**: Click the download button to get the latest version
+4. **Extract Archive**: Unzip the downloaded file to access the resource folder
+
+## ⚙️ Installation Process
+
+### Method 1: Standard Installation
+
+1. Extract the downloaded ZIP file
+2. Copy the resource folder to `[server-folder]/resources/`
+3. Open your `server.cfg` file in a text editor
+4. Add `ensure zerio-resourcename` (replace with actual resource name)
+5. Save and restart your server
+
+## 🗄️ Database Setup
+
+### SQL File Import
+
+Many resources require database tables. Import these **before** starting the resource:
+
+<Tabs items={['phpMyAdmin', 'Command Line', 'HeidiSQL']}>
+  <Tabs.Tab>
+    1. Open phpMyAdmin in your web browser
+    2. Select your FiveM database
+    3. Click "Import" tab
+    4. Choose the SQL file from the resource's `sql/` folder
+    5. Click "Go" to execute the import
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```bash
+    mysql -u username -p database_name < /path/to/resource/sql/install.sql
+    ```
+    Replace `username` and `database_name` with your actual values.
+  </Tabs.Tab>
+  <Tabs.Tab>
+    1. Open HeidiSQL and connect to your database
+    2. Select your FiveM database
+    3. Go to Tools → Load SQL file
+    4. Select the SQL file from the resource
+    5. Execute the script
+  </Tabs.Tab>
+</Tabs>
+
+<Callout type="warning">
+**Important**: Always backup your database before importing new SQL files. This ensures you can restore your data if something goes wrong.
+</Callout>
+
+## 🛠️ Configuration Guide
+
+### Configuration File Locations
+
+Depending on when the resource was created, configuration files may be located in different places:
+
+<Cards>
+  <Cards.Card
+    icon={<GearIcon />}
+    title="Modern Structure"
+    href="#"
+    arrow
+  />
+  
+  <Cards.Card
+    icon={<BookmarkIcon />}
+    title="Legacy Structure"
+    href="#"
+    arrow
+  />
+</Cards>
+
+## 🔧 Testing Your Installation
+
+### Basic Functionality Test
+
+1. **Server Startup**: Check console for any error messages
+2. **Resource Loading**: Verify the resource starts without warnings
+3. **In-Game Testing**: Join your server and test basic functionality
+4. **Command Testing**: Try any included commands or interactions
+5. **Permission Testing**: Test with different user permission levels
+
+### Common Test Scenarios
+
+- **Player Interactions**: Test all player-facing features
+- **Admin Functions**: Verify administrative capabilities work
+- **Database Integration**: Confirm data is being saved/loaded correctly
+- **Multi-Player**: Test with multiple players if applicable
+- **Error Handling**: Test edge cases and error scenarios
+
+## 📞 Getting Support
+
+### Community Resources
+
+<Cards>
+  <Cards.Card
+    icon={<ChatBubbleIcon />}
+    title="Join Our Discord"
+    href="https://discord.zerio-scripts.com"
+    arrow
+/>
+  
+  <Cards.Card
+    icon={<BookmarkIcon />}
+    title="Product Documentation"
+    href="https://docs.zerio-scripts.com"
+    arrow
+  />
+</Cards>
+
+### When Asking for Help
+
+To get the best support experience, please provide:
+
+1. **Resource Name**: Which Zerio-Scripts product you're having issues with
+2. **Server Framework**: QBCore, ESX, or standalone
+3. **Error Messages**: Full console output including any error messages
+4. **Configuration**: Relevant parts of your configuration files
+5. **Steps to Reproduce**: Detailed steps that lead to the issue
+
+### Important Announcements
+
+Our Discord community is where we share:
+- **Update Notifications**: When new versions are available
+- **Breaking Changes**: Important compatibility information
+- **Feature Announcements**: New features and improvements
+- **Community Tips**: User-generated guides and solutions
+
+<Callout type="info">
+**Pro Tip**: Join our Discord community immediately after purchase. Many common questions are answered in our FAQ channels, and you'll be notified of important updates automatically.
+</Callout>
+
+---
+
+*Successfully installed? Great! Don't forget to check out the specific documentation for your resource to learn about advanced features and configuration options.*

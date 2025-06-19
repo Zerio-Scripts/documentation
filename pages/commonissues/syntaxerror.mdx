@@ -1,7 +1,393 @@
-# Syntax error near \<\\1\>
+import { Callout, Steps, Tabs, Cards } from "nextra/components";
+import { ExclamationTriangleIcon, DownloadIcon, UpdateIcon } from "@radix-ui/react-icons";
 
-If the error \"syntax error near \<\\1\>\" comes up, then that most likely means that there's some kind of issue with the resource files, such as them being corrupted.
+# Syntax Error Near &lt;\\1&gt;
 
-This could happen from different tools used to upload files. Such as Filezilla, which is known to have issues with files from FXAP. If you currently use Filezilla, we instead recommend using [WinSCP](https://winscp.net/eng/download.php).
+The "syntax error near &lt;\\1&gt;" error is a common issue that occurs when FiveM's Lua parser encounters corrupted or malformed resource files. This comprehensive guide will help you understand, diagnose, and resolve this error.
 
-This could also happen, although uncommon, from having outdated server artifacts. If your FiveM server artifacts are so old that they dont have support for the fivem asset system yet. Although, thats not likely as its very old.
+## 🚨 Understanding the Error
+
+When you see this error, it means:
+- **File Corruption**: Resource files have been damaged during transfer or storage
+- **Encoding Issues**: Text encoding problems affecting Lua parsing
+- **Upload Problems**: Issues with how files were transferred to your server
+- **Server Artifacts**: Outdated FiveM server components
+
+### Common Error Variations
+
+You might encounter these similar messages:
+
+```
+[ERROR] Failed to load script: syntax error near <\1>
+[ERROR] Lua script compilation failed: syntax error near <\1>
+[ERROR] Resource loading failed with syntax error near <\1>
+[ERROR] Invalid Lua syntax near <\1>
+```
+
+<Callout type="warning">
+**Binary Corruption**: The `<\1>` symbol typically indicates that binary data or corrupted text has been interpreted as Lua code, causing the parser to fail.
+</Callout>
+
+## 🔍 Root Causes
+
+### Primary Causes
+
+<Steps>
+
+### File Transfer Issues
+**Most Common**: Problems during file upload/download causing corruption
+
+### FTP Client Problems
+Certain FTP clients (especially FileZilla) can corrupt FXAP-protected files
+
+### Encoding Conflicts
+Text encoding mismatches between systems
+
+### Outdated Server Artifacts
+Very old FiveM server versions lacking proper FXAP support
+
+### Storage Issues
+Disk corruption or filesystem problems
+
+</Steps>
+
+## 🛠️ Solutions
+
+### Solution 1: Re-download from Keymaster
+
+<Callout type="info">
+**First Step**: Always start by downloading a fresh copy of the resource from the official source.
+</Callout>
+
+<Steps>
+
+### Access Official Source
+Visit [FiveM Keymaster](https://portal.cfx.re) and log into your account
+
+### Download Fresh Copy
+- Locate your purchased resource in "Granted Assets"
+- Click download to get the latest version
+- Ensure the download completes successfully
+
+### Verify Download
+- Check that the ZIP file isn't corrupted
+- Extract to a temporary location first
+- Compare file sizes with previous versions
+
+### Clean Installation
+- **Backup** your current configuration files
+- **Delete** the corrupted resource folder completely
+- **Extract** the fresh download
+- **Restore** your configuration files
+
+</Steps>
+
+### Solution 2: Fix File Transfer Method
+
+<Tabs items={['Recommended Tools', 'FileZilla Issues', 'Alternative Methods']}>
+  <Tabs.Tab>
+    **Recommended FTP/SFTP Clients:**
+    
+    <Cards>
+      <Cards.Card
+        icon={<DownloadIcon />}
+        title="WinSCP (Windows)"
+        href="https://winscp.net/eng/download.php"
+        arrow
+      >
+        Reliable SFTP client with excellent FXAP compatibility
+      </Cards.Card>
+    </Cards>
+    
+    **Other Good Options:**
+    - **Cyberduck**: Cross-platform with good stability
+    - **FileZilla Pro**: Paid version with better binary handling
+    - **Command Line**: scp, rsync, or native tools
+    - **Panel Upload**: Web-based file managers (cPanel, Plesk)
+    
+    **Transfer Settings:**
+    ```
+    Transfer Mode: Binary
+    Encoding: UTF-8
+    Preserve timestamps: Yes
+    Resume support: Enabled
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    **FileZilla Known Issues:**
+    
+    FileZilla (free version) has documented problems with FXAP files:
+    - **Binary Mode Issues**: Doesn't always use proper binary transfer
+    - **Encoding Problems**: Can corrupt UTF-8 encoded files
+    - **Resume Conflicts**: Resume functionality can cause corruption
+    
+    **FileZilla Workarounds** (if you must use it):
+    1. **Force Binary Mode**:
+       - Go to Transfer → Transfer Type → Binary
+       - Disable automatic mode detection
+    
+    2. **Disable Resume**:
+       - Edit → Settings → Transfers
+       - Uncheck "Enable transfer resume"
+    
+    3. **Fresh Transfers Only**:
+       - Always delete existing files before uploading
+       - Never use "overwrite" or "resume" options
+    
+    **Better Solution**: Switch to WinSCP or another client
+  </Tabs.Tab>
+  <Tabs.Tab>
+    **Alternative Upload Methods:**
+    
+    **Web Panel Upload:**
+    - Use your hosting provider's file manager
+    - Often more reliable than FTP clients
+    - Direct server-side extraction
+    
+    **Direct Server Access:**
+    ```bash
+    # SSH/Console access
+    wget https://direct-download-link.zip
+    unzip resource-file.zip
+    ```
+    
+    **Cloud Storage Method:**
+    1. Upload files to Google Drive/Dropbox
+    2. Download directly on server
+    3. Extract using server tools
+    
+    **Hosting Provider Tools:**
+    - Many hosts offer specialized FiveM resource installers
+    - Check if your provider has built-in tools
+  </Tabs.Tab>
+</Tabs>
+
+### Solution 3: Server Artifacts Update
+
+<Callout type="info">
+**Server Artifacts**: These are the core FiveM server files that need to be kept up-to-date for proper functionality.
+</Callout>
+
+#### Check Your Server Version
+
+<Tabs items={['Windows', 'Linux', 'txAdmin']}>
+  <Tabs.Tab>
+    **Windows Server:**
+    
+    1. **Check Current Version**:
+       - Look at your FiveM server console during startup
+       - Note the server version number displayed
+    
+    2. **Download Latest Artifacts**:
+       - Visit [FiveM Artifacts](https://runtime.fivem.net/artifacts/fivem/build_server_windows/master/)
+       - Download the latest recommended build
+    
+    3. **Update Process**:
+       ```cmd
+       # Stop your server
+       # Backup current artifacts
+       copy FXServer.exe FXServer.exe.backup
+       
+       # Extract new artifacts over existing ones
+       # Start server and test
+       ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    **Linux Server:**
+    
+    1. **Check Current Version**:
+       ```bash
+       ./FXServer +version
+       ```
+    
+    2. **Download Latest**:
+       ```bash
+       # Download latest artifacts
+       wget https://runtime.fivem.net/artifacts/fivem/build_proot_linux/master/latest.tar.xz
+       
+       # Backup current artifacts
+       cp -r artifacts/ artifacts.backup/
+       
+       # Extract new artifacts
+       tar -xJf latest.tar.xz
+       ```
+    
+    3. **Update and Test**:
+       ```bash
+       # Start server with new artifacts
+       ./FXServer +exec server.cfg
+       ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    **txAdmin Managed:**
+    
+    1. **Check txAdmin Version**:
+       - Open txAdmin web panel
+       - Look for update notifications
+    
+    2. **Update Through txAdmin**:
+       - Navigate to System → Server
+       - Look for "Update Server" option
+       - Follow txAdmin's update process
+    
+    3. **Manual Update** (if needed):
+       - Download artifacts manually
+       - Replace through txAdmin file manager
+       - Restart through web panel
+  </Tabs.Tab>
+</Tabs>
+
+### Solution 4: Advanced Troubleshooting
+
+#### File Integrity Check
+
+<Steps>
+
+### Compare File Hashes
+Use hash comparison to verify file integrity:
+
+```bash
+# Generate hash of local file
+md5sum zerio-resource.zip
+
+# Compare with original (if provided)
+# Or compare with a working server's files
+```
+
+### Check File Permissions
+Ensure proper file permissions:
+
+```bash
+# Linux/Unix systems
+chmod -R 755 zerio-resourcename/
+chown -R fivem:fivem zerio-resourcename/
+```
+
+### Validate Lua Syntax
+Test Lua files individually:
+
+```bash
+# Check if Lua files are valid
+lua -p script.lua
+# Should return no output if syntax is correct
+```
+
+### Binary Analysis
+Check for binary corruption:
+
+```bash
+# Look for null bytes or binary data in text files
+hexdump -C config.lua | head -10
+```
+
+</Steps>
+
+## 🧪 Testing Your Fix
+
+### Verification Steps
+
+<Steps>
+
+### Clean Console Start
+Start with a fresh server console to see clear error messages
+
+### Monitor Resource Loading
+Watch the console during resource startup for any syntax errors
+
+### Test Basic Functionality
+Verify the resource loads and basic features work
+
+### Check All Files
+Ensure all resource files are properly loaded
+
+</Steps>
+
+### Success Indicators
+
+✅ **No syntax errors** in console output  
+✅ **Resource starts successfully** without warnings  
+✅ **All features** accessible and working  
+✅ **Configuration files** load properly  
+
+## 🔄 Prevention Strategies
+
+### Best Practices
+
+**File Transfer:**
+- Always use binary transfer mode
+- Use recommended FTP clients (WinSCP, Cyberduck)
+- Verify file integrity after transfers
+- Keep backup copies of working configurations
+
+**Server Maintenance:**
+- Regularly update server artifacts
+- Monitor for corruption warnings
+- Keep server storage healthy
+- Use reliable hosting providers
+
+**Resource Management:**
+- Download resources only from official sources
+- Keep original ZIP files for quick re-deployment
+- Document working configurations
+- Test changes in development environments
+
+### Monitoring Tools
+
+**File Integrity Monitoring:**
+```bash
+# Create checksums for important files
+find resources/ -name "*.lua" -exec md5sum {} \; > checksums.txt
+
+# Later, verify integrity
+md5sum -c checksums.txt
+```
+
+**Automated Backup:**
+```bash
+#!/bin/bash
+# backup-resources.sh
+DATE=$(date +%Y%m%d_%H%M%S)
+tar -czf "backup_resources_$DATE.tar.gz" resources/
+```
+
+## ❓ Frequently Asked Questions
+
+**Q: Why does this only happen with some resources?**  
+A: FXAP-protected resources are more sensitive to file corruption due to their encryption and validation systems.
+
+**Q: Can I fix corrupted files manually?**  
+A: Generally no. It's safer and faster to re-download from the official source rather than attempting manual repairs.
+
+**Q: Will this affect my configuration files?**  
+A: Usually not, but you should backup configurations before re-downloading resources.
+
+**Q: How can I prevent this in the future?**  
+A: Use reliable FTP clients, keep server artifacts updated, and always use binary transfer mode.
+
+## 🚨 Emergency Recovery
+
+If you're experiencing widespread syntax errors:
+
+<Steps>
+
+### Immediate Actions
+1. **Stop the server** to prevent further issues
+2. **Backup current state** before making changes
+3. **Identify affected resources** from console logs
+
+### Quick Recovery
+1. **Re-download** the most critical resources first
+2. **Test each resource** individually before adding more
+3. **Monitor console** for any remaining errors
+
+### Full Recovery
+1. **Document all custom configurations**
+2. **Re-download all affected resources**
+3. **Restore configurations systematically**
+4. **Test full server functionality**
+
+</Steps>
+
+---
+
+*Need additional help? Join our [Discord community](https://discord.zerio-scripts.com) where our team and experienced community members can provide personalized assistance.*
