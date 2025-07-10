@@ -57,6 +57,7 @@ Yes, all employees show regardless of online status.
         local salary = exports["zerio-bossmenu"]:GetEmployeeActiveSalary(identifier, jobName)
         ```
     </Tabs.Tab>
+
 </Tabs>
 
 ## 🔧 Framework Integration
@@ -64,7 +65,7 @@ Yes, all employees show regardless of online status.
 ### Supported Frameworks
 
 - **ESX** (es_extended)
-- **QBCore** (qb-core) 
+- **QBCore** (qb-core)
 - **QBXCore** (qbx_core)
 
 Auto-detected in `configs/framework.lua`.
@@ -83,6 +84,7 @@ Configure in `configs/main.lua` → `Config.ManagementScript`:
 ### Multijob Support
 
 Supported systems (auto-detected):
+
 - `zerio-multijobs`
 - `ps-multijob`
 - `randol_multijob`
@@ -100,6 +102,7 @@ Orders deduct payment immediately, deliver after `Config.VehicleDeliveryTime` (d
 ### Garage integration
 
 Use exports:
+
 ```lua
 exports["zerio-bossmenu"]:UpdateVehicleStatus(plate, "out")
 exports["zerio-bossmenu"]:UpdateVehicleGarage(plate, garageName)
@@ -114,6 +117,7 @@ Configured by `Config.VehicleSellBackPercentage` (default: 50%).
 ### Salary limits
 
 Set per-job in `configs/main.lua`:
+
 ```lua
 Config.MaxSalaries = {
     ["police"] = 15000,
@@ -130,6 +134,7 @@ Edit `server/functions.lua` functions: `GetSocietyMoney`, `AddSocietyMoney`, `Re
 ### Item ordering setup
 
 1. Configure stash names in `configs/main.lua`:
+
    ```lua
    Config.StashNames = {
        ["police"] = "policelocker",
@@ -146,6 +151,7 @@ Auto-detected: ox_inventory, qb-inventory, qs-inventory.
 ### Item metadata
 
 Configure in `configs/main.lua`:
+
 ```lua
 Config.ItemMetadata = {
     ["weapon_pistol"] = {
@@ -175,5 +181,6 @@ Verify: SQL import, database permissions, oxmysql working.
 - Adjust distances in `configs/opentype.lua`
 
 <Callout type="info">
-  **Need more help?** Join our [Discord community](https://discord.zerio-scripts.com) for support.
+  **Need more help?** Join our [Discord
+  community](https://discord.zerio-scripts.com) for support.
 </Callout>

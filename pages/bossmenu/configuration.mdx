@@ -5,7 +5,9 @@ import { Callout, Tabs } from "nextra/components";
 This comprehensive guide covers all configuration options available in Zerio Bossmenu. Each configuration file serves a specific purpose and allows you to customize the script to your server's needs.
 
 <Callout type="warning">
-  **Important**: Always restart your server or the resource after making configuration changes. Some changes may require database updates or framework modifications.
+  **Important**: Always restart your server or the resource after making
+  configuration changes. Some changes may require database updates or framework
+  modifications.
 </Callout>
 
 ## Configuration Files Overview
@@ -41,6 +43,7 @@ Config.ManagementScript = "esx_society"
 ```
 
 **Supported Options:**
+
 - `esx_society` - ESX society system
 - `qb-management` - QBCore management
 - `qb-banking` - QBCore banking
@@ -49,7 +52,8 @@ Config.ManagementScript = "esx_society"
 - `fd_banking` - FD Banking
 
 <Callout type="info">
-  **Custom Banking**: You can add support for custom banking systems by modifying the banking functions in `server/functions.lua`.
+  **Custom Banking**: You can add support for custom banking systems by
+  modifying the banking functions in `server/functions.lua`.
 </Callout>
 
 ### Employee Management
@@ -69,6 +73,7 @@ Config.TrackWorkSessions = true  -- Enable work session monitoring
 ```
 
 When enabled, this feature tracks:
+
 - Employee clock-in/clock-out times
 - Session duration
 - Activity logging
@@ -86,6 +91,7 @@ Config.MaxSalaries = {
 ```
 
 **Usage:**
+
 - Set maximum salary per job to prevent abuse
 - Use `nil` or omit entry for no limit
 - Applies to both individual and role-based salaries
@@ -107,6 +113,7 @@ Config.PlateSecondLength = 3  -- Length of second part of plate
 ```
 
 **Examples:**
+
 - `ABC123` (PlateFirstLength=3, PlateHasSpace=false, PlateSecondLength=3)
 - `ABC 123` (PlateFirstLength=3, PlateHasSpace=true, PlateSecondLength=3)
 
@@ -150,7 +157,8 @@ Enable for troubleshooting. Adds extra console output for debugging purposes.
 ## Framework Configuration (`configs/framework.lua`)
 
 <Callout type="info">
-  **Auto-Detection**: This file usually doesn't need modification as framework detection is automatic.
+  **Auto-Detection**: This file usually doesn't need modification as framework
+  detection is automatic.
 </Callout>
 
 ```lua
@@ -167,6 +175,7 @@ end
 ```
 
 **Manual Override** (if needed):
+
 ```lua
 Config.Framework = "esx"  -- Force framework type
 Config.FrameworkResourceName = "my_custom_esx"  -- Custom resource name
@@ -182,37 +191,23 @@ Config.HelpTextType = "normal"
 
 **Available Options:**
 
-<Tabs items={['Normal', 'Target', 'Proximity']}>
+<Tabs items={["Normal", "Target", "Proximity"]}>
   <Tabs.Tab>
-    **Normal** - Standard floating help text
-    
-    ```lua
-    Config.HelpTextType = "normal"
-    Config.OpenKey = 38  -- E key (default)
-    ```
-    
-    Shows standard FiveM help text when near boss menu positions.
+    **Normal** - Standard floating help text ```lua Config.HelpTextType =
+    "normal" Config.OpenKey = 38 -- E key (default) ``` Shows standard FiveM
+    help text when near boss menu positions.
   </Tabs.Tab>
-  
+
+<Tabs.Tab>
+  **Target** - Targeting script integration ```lua Config.HelpTextType =
+  "target" Config.TargetScript = "ox_target" -- or "qb-target", "qtarget" ```
+  Integrates with popular targeting scripts for immersive interaction.
+</Tabs.Tab>
+
   <Tabs.Tab>
-    **Target** - Targeting script integration
-    
-    ```lua
-    Config.HelpTextType = "target"
-    Config.TargetScript = "ox_target"  -- or "qb-target", "qtarget"
-    ```
-    
-    Integrates with popular targeting scripts for immersive interaction.
-  </Tabs.Tab>
-  
-  <Tabs.Tab>
-    **Proximity** - Zerio proximity prompts
-    
-    ```lua
-    Config.HelpTextType = "proximity"
-    ```
-    
-    Requires `zerio-proximityprompt` resource for enhanced proximity interactions.
+    **Proximity** - Zerio proximity prompts ```lua Config.HelpTextType =
+    "proximity" ``` Requires `zerio-proximityprompt` resource for enhanced
+    proximity interactions.
   </Tabs.Tab>
 </Tabs>
 
@@ -223,6 +218,7 @@ Config.TargetScript = "ox_target"
 ```
 
 **Supported Scripts:**
+
 - `ox_target` - Overextended target
 - `qb-target` - QBCore target
 - `qtarget` - Standalone qtarget
@@ -289,21 +285,25 @@ Config.ActivityRetentionDays = 30 -- How many days to keep activity logs
 ### Common Problems
 
 **Menu Not Opening:**
+
 1. Check `Config.HelpTextType` matches your setup
 2. Verify `Config.TargetScript` if using target mode
 3. Ensure boss menu positions are created via admin menu
 
 **Framework Integration Issues:**
+
 1. Verify `Config.Framework` detection
 2. Check `Config.FrameworkResourceName` matches your setup
 3. Ensure proper load order in server.cfg
 
 **Banking Problems:**
+
 1. Confirm `Config.ManagementScript` matches your banking system
 2. Verify banking integration in `server/functions.lua`
 3. Check society/gang accounts exist
 
 **Permission Issues:**
+
 1. Review admin permissions configuration
 2. Verify job grades have proper access
 3. Check framework permission system integration
@@ -318,15 +318,17 @@ After configuration changes:
 4. **Review Logs**: Check for any warning messages
 
 <Callout type="info">
-  **Configuration Templates**: Example configurations for common setups are available in our Discord community.
+  **Configuration Templates**: Example configurations for common setups are
+  available in our Discord community.
 </Callout>
 
 ## Next Steps
 
 After completing configuration:
+
 1. Set up boss menu positions using the admin command
 2. Configure job-specific vehicle and item catalogs
 3. Test employee management features
 4. Review and adjust permissions as needed
 
-For advanced customization options, see the [Developer Documentation](/bossmenu/devdocs) section. 
+For advanced customization options, see the [Developer Documentation](/bossmenu/devdocs) section.

@@ -1,7 +1,7 @@
 import { Callout, Steps, Cards, Tabs } from "nextra/components";
 import {
   ChatBubbleIcon,
-  BugIcon,
+  Pencil1Icon,
   QuestionMarkCircledIcon,
   ExclamationTriangleIcon
 } from "@radix-ui/react-icons";
@@ -190,18 +190,9 @@ Config.Target = 'ox_target'
     title="Discord Community"
     href="https://discord.zerio-scripts.com"
     arrow
-  >
-    Join our active Discord server for real-time community support
-  </Cards.Card>
-
-{" "}
-<Cards.Card icon={<BugIcon />} title="Bug Reporting" arrow>
-  Use our structured bug reporting channels for systematic issue tracking
-</Cards.Card>
-
-  <Cards.Card icon={<QuestionMarkCircledIcon />} title="General Help" arrow>
-    Get assistance with configuration, setup, and general questions
-  </Cards.Card>
+  />
+  <Cards.Card icon={<Pencil1Icon />} title="Bug Reporting" arrow />
+  <Cards.Card icon={<QuestionMarkCircledIcon />} title="General Help" arrow />
 </Cards>
 
 ### Support Process

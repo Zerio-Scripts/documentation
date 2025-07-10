@@ -5,7 +5,8 @@ import { Steps, Callout, Tabs } from "nextra/components";
 Follow this comprehensive guide to properly install and configure Zerio Bossmenu on your FiveM server.
 
 <Callout type="info">
-  **Before You Begin**: Ensure you have a compatible framework (ESX, QBCore, or QBXCore) and database system (oxmysql) installed.
+  **Before You Begin**: Ensure you have a compatible framework (ESX, QBCore, or
+  QBXCore) and database system (oxmysql) installed.
 </Callout>
 
 ## Prerequisites
@@ -42,7 +43,8 @@ ensure zerio-bossmenu
 ```
 
 <Callout type="info">
-  **Load Order**: Ensure `zerio-bossmenu` is loaded **after** your framework (ESX/QBCore) and database resource (oxmysql/etc).
+  **Load Order**: Ensure `zerio-bossmenu` is loaded **after** your framework
+  (ESX/QBCore) and database resource (oxmysql/etc).
 </Callout>
 
 ### Step 4: Configuration
@@ -64,6 +66,7 @@ Configure the resource by editing the files in the `configs/` folder:
 The admin command is configurable in `configs/adminmenu.lua`. By default, it's typically `/bossmenuadmin` (exact command may vary based on configuration).
 
 Use this command to:
+
 - Create boss menu positions
 - Manage 3D models
 - Configure job-specific settings
@@ -85,32 +88,38 @@ Configure admin permissions in your framework's permission system.
 ### Common Issues
 
 **Resource Not Starting:**
+
 - Check console for errors
 - Verify all SQL tables were created
 - Ensure proper load order in server.cfg
 
 **Menu Not Opening:**
+
 - Check if boss menu positions are created
 - Verify player has appropriate job/permissions
 - Check interaction type configuration
 
 **Database Errors:**
+
 - Verify SQL files were imported correctly
 - Check database permissions
 - Ensure oxmysql/database resource is working
 
 **Framework Integration Issues:**
+
 - Double-check integration code placement
 - Verify backup folders have write permissions
 - Restart server after framework modifications
 
 <Callout type="info">
-  **Need Help?** Join our [Discord community](https://discord.zerio-scripts.com) for support or check our comprehensive FAQ section.
+  **Need Help?** Join our [Discord community](https://discord.zerio-scripts.com)
+  for support or check our comprehensive FAQ section.
 </Callout>
 
 ## Next Steps
 
 After successful installation:
+
 1. Read the [Configuration Guide](/bossmenu/configuration) for detailed customization options
 2. Check the [FAQ](/bossmenu/faq) for common setup questions
 3. Review the [Developer Documentation](/bossmenu/devdocs) if you plan to integrate with other resources
