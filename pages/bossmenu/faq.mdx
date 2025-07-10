@@ -12,10 +12,10 @@ You can add new jobs, models, positions and such via the `/bossmenuadmin` comman
 
 <Tabs items={['ESX', 'QBCore', 'QBXCore']}>
     <Tabs.Tab>
-        Open the `es_extended/server/paycheck.lua` file, and find the `local salary = xPlayer.job.grade_salary` line and replace that with the line below:
+        Open the `es_extended/server/paycheck.lua` file, and find the `local salary = ...` line and replace that with the line below:
 
         ```lua
-        local salary = ESX.Jobs[xPlayer.job.name].grades[tostring(xPlayer.job.grade)].salary
+        local salary = exports["zerio-bossmenu"]:GetEmployeeActiveSalary(xPlayer.identifier, xPlayer.job.name)
         ```
 
         Also, make sure that your other scripts actually listen to the `es_extended:updatedJobs` event, though.
@@ -148,7 +148,7 @@ You can add new jobs, models, positions and such via the `/bossmenuadmin` comman
             end
             cb(SaveResourceFile(GetCurrentResourceName(), "shared/gangs.lua", data, -1))
         end)
-        
+
         AddEventHandler("qb-core:server:updateSharedJobsFile", function(data, cb)
             local oldData = LoadResourceFile(GetCurrentResourceName(), "shared/jobs.lua")
             if oldData then
@@ -162,13 +162,14 @@ You can add new jobs, models, positions and such via the `/bossmenuadmin` comman
 
         For scripts you want to integrate with this, you can listen to qbox's official `qbx_core:server:onJobUpdate` and `qbx_core:client:onJobUpdate` events.
     </Tabs.Tab>
+
 </Tabs>
 
 ## How to set up support for individual salaries
 
 <Tabs items={['ESX', 'QBCore', 'QBXCore']}>
     <Tabs.Tab>
-        Open the `es_extended/server/modules/paycheck.lua` file, find the `local salary = xPlayer.job.grade_salary` line and replace that with the line below:
+        Open the `es_extended/server/modules/paycheck.lua` file, find the `local salary = ....` line and replace that with the line below:
 
         ```lua
         local salary = exports["zerio-bossmenu"]:GetEmployeeActiveSalary(xPlayer.identifier, xPlayer.job.name)
@@ -192,4 +193,5 @@ You can add new jobs, models, positions and such via the `/bossmenuadmin` comman
         local payment = exports["zerio-bossmenu"]:GetEmployeeActiveSalary(Player.PlayerData.citizenid, Player.PlayerData.job.name)
         ```
     </Tabs.Tab>
+
 </Tabs>
