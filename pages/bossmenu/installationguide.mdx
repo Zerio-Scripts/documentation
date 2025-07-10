@@ -1,15 +1,116 @@
+import { Steps, Callout, Tabs } from "nextra/components";
+
 # Installation Guide
 
-To install this resource, you need to follow these steps:
+Follow this comprehensive guide to properly install and configure Zerio Bossmenu on your FiveM server.
 
-1. Download the resource from the GitHub repository.
-2. Extract the resource to your server's resources folder.
-3. Add the following to your server.cfg:
+<Callout type="info">
+  **Before You Begin**: Ensure you have a compatible framework (ESX, QBCore, or QBXCore) and database system (oxmysql) installed.
+</Callout>
 
+## Prerequisites
+
+Before installing Zerio Bossmenu, verify you have the following:
+
+- **Framework**: ESX, QBCore, or QBXCore
+- **Database**: oxmysql
+- **Server Access**: Some kind of access to your server files
+- **Database Access**: MySQL/MariaDB database
+
+## Installation Steps
+
+<Steps>
+
+### Step 1: Download and Extract
+
+1. Download the `zerio-bossmenu` resource from the [fivem portal](https://portal.cfx.re)
+2. Extract the resource to your server's `resources` folder
+3. Ensure the folder is named `zerio-bossmenu`
+
+### Step 2: Database Setup
+
+Execute the SQL files in your database in the following order:
+
+- **Main Tables**: Import `sql/main.sql` - Creates all necessary tables
+
+### Step 3: Server Configuration
+
+Add the resource to your `server.cfg`:
+
+```cfg
+ensure zerio-bossmenu
 ```
-ensure bossmenu
-```
 
-## Configuration
+<Callout type="info">
+  **Load Order**: Ensure `zerio-bossmenu` is loaded **after** your framework (ESX/QBCore) and database resource (oxmysql/etc).
+</Callout>
 
-The resource is configured via the `configs` folder.
+### Step 4: Configuration
+
+Configure the resource by editing the files in the `configs/` folder:
+
+### Step 5: First Start/Use
+
+1. **Restart Your Server**: Fully restart your server to load all changes
+2. **Create Bossmenu Position**: Use the admin menu to create your first boss menu position
+3. **Test Basic Functionality**: Hire an employee and test basic menu functions
+
+</Steps>
+
+## Post-Installation
+
+### Admin Command
+
+The admin command is configurable in `configs/adminmenu.lua`. By default, it's typically `/bossmenuadmin` (exact command may vary based on configuration).
+
+Use this command to:
+- Create boss menu positions
+- Manage 3D models
+- Configure job-specific settings
+- Set up vehicle and item catalogs
+
+### Permissions
+
+Configure admin permissions in your framework's permission system.
+
+### Testing
+
+1. **Basic Functionality**: Test hiring/firing employees
+2. **Financial Operations**: Test withdrawing/depositing money
+3. **Vehicle System**: Test vehicle ordering (if configured)
+4. **Item System**: Test item ordering (if configured)
+
+## Troubleshooting
+
+### Common Issues
+
+**Resource Not Starting:**
+- Check console for errors
+- Verify all SQL tables were created
+- Ensure proper load order in server.cfg
+
+**Menu Not Opening:**
+- Check if boss menu positions are created
+- Verify player has appropriate job/permissions
+- Check interaction type configuration
+
+**Database Errors:**
+- Verify SQL files were imported correctly
+- Check database permissions
+- Ensure oxmysql/database resource is working
+
+**Framework Integration Issues:**
+- Double-check integration code placement
+- Verify backup folders have write permissions
+- Restart server after framework modifications
+
+<Callout type="info">
+  **Need Help?** Join our [Discord community](https://discord.zerio-scripts.com) for support or check our comprehensive FAQ section.
+</Callout>
+
+## Next Steps
+
+After successful installation:
+1. Read the [Configuration Guide](/bossmenu/configuration) for detailed customization options
+2. Check the [FAQ](/bossmenu/faq) for common setup questions
+3. Review the [Developer Documentation](/bossmenu/devdocs) if you plan to integrate with other resources

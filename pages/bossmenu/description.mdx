@@ -3,28 +3,134 @@ import { VideoIcon } from "@radix-ui/react-icons";
 
 # Description
 
-A featurefilled menu allowing the bosses in your server to manage every aspect of their business!
+**The ultimate business management solution for FiveM servers**
+
+Zerio-Bossmenu is a comprehensive, feature-rich boss menu system that lets job/gang leaders to manage every aspect of their business. From employee management to vehicle fleets, financial oversight to administrative tasks - everything you need to run a successful business at your fingertips.
 
 <br />
 
 <Cards.Card
   icon={<VideoIcon />}
-  title="Preview"
+  title="Preview Video"
   href="https://youtu.be/h4vvz2NTLFI"
   arrow
 />
 
-## Requirements
+## 🚀 Core Features
 
-- SQL resource: oxmysql, ghmattimysql, mysql-async
-- Framework: QBCore, ESX
+### 👥 Employee Management
 
-## Supported by default
+- **Smart Hiring System**: Hire players close to you with distance-based filtering
+- **Advanced Role Management**: Create, modify, and delete job grades/roles
+- **Individual Salary Control**: Set personalized salaries for each employee
+- **Performance Tracking**: Monitor hours worked and employee activity
+- **Bonus System**: Reward employees with bonuses
+- **Access Permissions**: Precise control over who can access different menu features
 
-- Job/Society money: esx_society, okokBanking, qb-management, qb-banking, okokBanking, renewedbanking, fd_banking
-- Target script: ox_target, qtarget
+### 💰 Financial Management
 
-<Callout>
-  Support for any job/society script can be added via the
-  `zerio-bossmenu/server/functions.lua` file.
+- **Transaction Logging**: All transactions are logged
+- **Budget Control**: Set maximum salary limits per job to prevent abuse
+
+### 🚗 Vehicle Fleet Management
+
+- **Vehicle Ordering**: Purchase job vehicles that get delivered to your garage via our bossmenu
+- **Fleet Tracking**: Monitor all business vehicles
+- **Garage Integration**: Full compatibility with major garage systems
+- **Vehicle Selling**: Sell back vehicles for partial refunds (customizable)
+- **Condition Monitoring**: Track engine, body, and fuel status
+- **Access Control**: Manage which employees can access specific vehicles
+
+### 📦 Inventory & Supply Management
+
+- **Item Ordering System**: Order supplies and equipment for your business
+- **Custom Item Catalogs**: Configure available items per job via the admin menu
+- **Delivery Tracking**: Monitor order status and delivery times
+- **Stash Integration**: Automatic delivery to organization stashes/inventories
+- **Order Cancellation**: Cancel orders with configurable refund rates
+
+### 📊 Advanced Logging & Analytics
+
+- **Comprehensive Activity Logs**: Track all user actions with detailed information
+- **Work Session Tracking**: Monitor employee clock-in/clock-out times
+- **Performance Metrics**: Analyze employee productivity and engagement
+- **Audit Trail**: Complete history of all organization activities
+
+### ⚙️ Administration Features
+
+- **Position Management**: Create and manage boss menu locations with 3D models, all in-game via an 3D editor
+- **Model Customization**: Configure 3D models with custom positioning and camera angles
+- **Real-time Updates**: Live synchronization of job/gang changes across the server
+
+## 🔧 Framework Compatibility
+
+### Supported Frameworks
+
+- **ESX**: Full compatibility with es_extended
+- **QBCore**: Complete integration with qb-core
+- **QBXCore**: Native support for qbx_core
+
+### Database Support
+
+- oxmysql
+
+## 🎯 Integration Support
+
+### Banking Systems
+
+- esx_society
+- okokBanking
+- qb-management
+- qb-banking
+- renewedbanking
+- fd_banking
+
+You can also add support for any other banking script with job/society money functionality
+
+### Target Scripts
+
+- ox_target
+- qtarget
+- qb-target
+
+### Multijob Systems
+
+- zerio-multijobs
+- ps-multijob
+
+Contact us to suggest other multijob resources to be added
+
+### Garage Scripts
+
+- zerio-garage
+
+Contact us to suggest other garage resources to be added
+
+### Inventory Scripts
+
+- ox_inventory
+- qb-inventory
+- qs-inventory
+
+And most other major inventories, contact us if you're unsure, or want explicit support for another inventory.
+
+<Callout type="info">
+  **Custom Integration Support**: The script is designed with extensibility in
+  mind. Custom integrations can be easily added through the modular functions
+  system in `server/functions.lua` and `client/functions.lua`. Contact us first if you're unsure!
+</Callout>
+
+## ✨ Why Choose Zerio Bossmenu?
+
+- **🔒 Secure**: Advanced permission system with comprehensive logging
+- **🎨 Modern UI**: Clean, intuitive interface with responsive design
+- **⚡ Performance**: Optimized for minimal server impact
+- **🔧 Configurable**: Extensive configuration options for every feature
+- **🌍 Multilingual**: Support for multiple languages
+- **🛠️ Developer Friendly**: Extensive export system for custom integrations
+- **📈 Scalable**: Handles organizations of any size efficiently
+
+<Callout type="warning">
+  **Professional Support**: Full documentation, active community support, and
+  regular updates ensure your server's future is in good hands
 </Callout>

@@ -1,7 +1,526 @@
+import { Callout, Tabs } from "nextra/components";
+
 # Developer Documentation
 
-Information you as a developer, wanting to extend the resource might want to know will be listed here.
+This guide provides comprehensive information for developers who want to integrate with or extend Zerio Bossmenu functionality.
 
-Such as notable exports, or such.
+## Available Exports
 
-If empty, then nothing notable exists at the moment.
+Zerio Bossmenu provides a robust set of exports for both server-side and client-side integration.
+
+### Client Exports
+
+#### `Open()`
+Opens the boss menu interface for the player.
+
+```lua
+-- Open the boss menu
+exports["zerio-bossmenu"]:Open()
+```
+
+### Server Exports
+
+#### Employee Management
+
+##### `GetEmployeeActiveSalary(identifier, jobName)`
+Retrieves the active salary for a specific employee. Returns individual salary if set, otherwise falls back to role-based salary.
+
+**Parameters:**
+- `identifier` (string): Player identifier
+- `jobName` (string): Job name
+
+**Returns:** `number` - Employee's current salary
+
+```lua
+-- Get employee salary
+local salary = exports["zerio-bossmenu"]:GetEmployeeActiveSalary("license:abc123", "police")
+print("Employee salary: $" .. salary)
+```
+
+#### Vehicle Management
+
+##### `GetJobVehicles(jobName, isGang)`
+Retrieves all owned vehicles for a specific job or gang.
+
+**Parameters:**
+- `jobName` (string): Job name
+- `isGang` (boolean): Whether it's a gang (true) or job (false)
+
+**Returns:** `table` - Array of vehicle data
+
+```lua
+-- Get all police vehicles
+local vehicles = exports["zerio-bossmenu"]:GetJobVehicles("police", false)
+for _, vehicle in pairs(vehicles) do
+    print("Vehicle: " .. vehicle.vehicle_label .. " | Plate: " .. vehicle.plate)
+end
+```
+
+##### `GetJobVehiclesAtGarage(jobName, isGang, garageName)`
+Get all job vehicles at a specific garage location.
+
+**Parameters:**
+- `jobName` (string): Job name
+- `isGang` (boolean): Whether it's a gang
+- `garageName` (string): Garage identifier
+
+**Returns:** `table` - Array of vehicle data
+
+```lua
+-- Get vehicles at specific garage
+local vehicles = exports["zerio-bossmenu"]:GetJobVehiclesAtGarage("police", false, "police_garage")
+```
+
+##### `GetVehicleByPlate(plate)`
+Retrieve specific vehicle information by license plate.
+
+**Parameters:**
+- `plate` (string): Vehicle license plate
+
+**Returns:** `table|nil` - Vehicle data or nil if not found
+
+```lua
+-- Get vehicle by plate
+local vehicle = exports["zerio-bossmenu"]:GetVehicleByPlate("POLICE01")
+if vehicle then
+    print("Vehicle found: " .. vehicle.vehicle_label)
+end
+```
+
+##### `GetAvailableVehiclesForJob(jobName, isGang)`
+Get all purchasable vehicles configured for a job.
+
+**Parameters:**
+- `jobName` (string): Job name
+- `isGang` (boolean): Whether it's a gang
+
+**Returns:** `table` - Array of available vehicles
+
+```lua
+-- Get available vehicles for purchase
+local availableVehicles = exports["zerio-bossmenu"]:GetAvailableVehiclesForJob("police", false)
+```
+
+##### `UpdateVehicleGarage(plate, garageName)`
+Update the garage location for a specific vehicle.
+
+**Parameters:**
+- `plate` (string): Vehicle license plate
+- `garageName` (string): New garage name
+
+**Returns:** `boolean` - Success status
+
+```lua
+-- Move vehicle to different garage
+local success = exports["zerio-bossmenu"]:UpdateVehicleGarage("POLICE01", "police_garage_2")
+```
+
+##### `UpdateVehicleStatus(plate, status)`
+Update vehicle status (for garage script integration).
+
+**Parameters:**
+- `plate` (string): Vehicle license plate
+- `status` (string): Status ("available" or "out")
+
+**Returns:** `boolean` - Success status
+
+```lua
+-- Mark vehicle as taken out
+local success = exports["zerio-bossmenu"]:UpdateVehicleStatus("POLICE01", "out")
+```
+
+##### `UpdateVehicleCondition(plate, engine, body, fuel)`
+Update vehicle condition parameters.
+
+**Parameters:**
+- `plate` (string): Vehicle license plate
+- `engine` (number): Engine health (0-100)
+- `body` (number): Body health (0-100)  
+- `fuel` (number): Fuel level (0-100)
+
+**Returns:** `boolean` - Success status
+
+```lua
+-- Update vehicle condition
+local success = exports["zerio-bossmenu"]:UpdateVehicleCondition("POLICE01", 95, 85, 75)
+```
+
+##### `UpdateVehicleMods(plate, mods)`
+Update vehicle modifications data.
+
+**Parameters:**
+- `plate` (string): Vehicle license plate
+- `mods` (table|string): Modifications data (table or JSON string)
+
+**Returns:** `boolean` - Success status
+
+```lua
+-- Update vehicle mods
+local mods = { engine = 3, transmission = 2, armor = 4 }
+local success = exports["zerio-bossmenu"]:UpdateVehicleMods("POLICE01", mods)
+```
+
+##### `IsJobVehicle(plate, jobName, isGang)`
+Check if a vehicle belongs to a specific job.
+
+**Parameters:**
+- `plate` (string): Vehicle license plate
+- `jobName` (string): Job name
+- `isGang` (boolean): Whether it's a gang
+
+**Returns:** `boolean` - Whether vehicle belongs to the job
+
+```lua
+-- Check if vehicle belongs to police
+local isPoliceVehicle = exports["zerio-bossmenu"]:IsJobVehicle("POLICE01", "police", false)
+```
+
+##### `GetJobVehicleCount(jobName, isGang, vehicleModel)`
+Get count of vehicles owned by a job.
+
+**Parameters:**
+- `jobName` (string): Job name
+- `isGang` (boolean): Whether it's a gang
+- `vehicleModel` (string, optional): Specific vehicle model to count
+
+**Returns:** `number` - Vehicle count
+
+```lua
+-- Get total police vehicles
+local totalVehicles = exports["zerio-bossmenu"]:GetJobVehicleCount("police", false)
+
+-- Get specific model count
+local policeCarCount = exports["zerio-bossmenu"]:GetJobVehicleCount("police", false, "police")
+```
+
+##### `GetVehiclesByStatus(status, jobName, isGang)`
+Get all vehicles with a specific status.
+
+**Parameters:**
+- `status` (string): Vehicle status
+- `jobName` (string, optional): Filter by job name
+- `isGang` (boolean, optional): Filter by gang status
+
+**Returns:** `table` - Array of vehicle data
+
+```lua
+-- Get all vehicles that are currently out
+local outVehicles = exports["zerio-bossmenu"]:GetVehiclesByStatus("out")
+
+-- Get police vehicles that are out
+local policeOutVehicles = exports["zerio-bossmenu"]:GetVehiclesByStatus("out", "police", false)
+```
+
+## Events
+
+### Server Events
+
+#### Job/Gang Update Events
+
+<Tabs items={['QBCore', 'ESX']}>
+  <Tabs.Tab>
+    **QBCore Events**
+
+    These events are triggered when job/gang grades are modified:
+
+    - `zerio-bossmenu:server:createdJobGrade`
+    - `zerio-bossmenu:client:createdJobGrade`
+    - `zerio-bossmenu:server:updatedJobGrade` 
+    - `zerio-bossmenu:client:updatedJobGrade`
+    - `zerio-bossmenu:server:deletedJobGrade`
+    - `zerio-bossmenu:client:deletedJobGrade`
+    - `zerio-bossmenu:server:createdGangGrade`
+    - `zerio-bossmenu:client:createdGangGrade`
+    - `zerio-bossmenu:server:updatedGangGrade`
+    - `zerio-bossmenu:client:updatedGangGrade`
+    - `zerio-bossmenu:server:deletedGangGrade`
+    - `zerio-bossmenu:client:deletedGangGrade`
+
+    **Shared Data Events:**
+    - `zerio-bossmenu:server:updatedSharedJobs`
+    - `zerio-bossmenu:client:updatedSharedJobs`
+    - `zerio-bossmenu:server:updatedSharedGangs`
+    - `zerio-bossmenu:client:updatedSharedGangs`
+
+    ```lua
+    -- Listen for job updates
+    AddEventHandler("zerio-bossmenu:server:updatedSharedJobs", function(jobsData)
+        print("Jobs updated!")
+        -- Handle updated jobs data
+    end)
+    ```
+
+    Please contact us for further information and help for your specific use case.
+  </Tabs.Tab>
+  
+  <Tabs.Tab>
+    **ESX Events**
+
+    ESX integration works through the standard `es_extended:updatedJobs` event.
+
+    ```lua
+    -- Listen for ESX job updates
+    AddEventHandler("es_extended:updatedJobs", function(jobs)
+        print("ESX jobs updated!")
+        -- Handle updated jobs
+    end)
+    ```
+
+    Please contact us for further information and help for your specific use case.
+  </Tabs.Tab>
+</Tabs>
+
+## Integration Examples
+
+### Custom Payroll Integration
+
+```lua
+-- Custom payroll system
+function ProcessCustomPayroll(playerId)
+    local Player = GetPlayer(playerId) -- Your framework's get player function
+    local jobName = GetPlayerJob(Player).name
+    local identifier = GetPlayerIdentifier(Player)
+    
+    -- Get individual salary from bossmenu
+    local salary = exports["zerio-bossmenu"]:GetEmployeeActiveSalary(identifier, jobName)
+    
+    if salary > 0 then
+        -- Pay the employee
+        AddMoney(Player, salary)
+        print("Paid employee " .. GetPlayerName(playerId) .. " $" .. salary)
+    end
+end
+```
+
+## Database Schema
+
+### Database Tables
+
+For developers who need direct database access, here are all the tables used by Zerio Bossmenu:
+
+#### `zerio_bossmenu_transactions`
+Financial transaction history.
+
+**Key Fields:**
+- `plridentifier`: Player who made the transaction
+- `plrname`: Player name
+- `amount`: Transaction amount
+- `reason`: Reason for transaction
+- `job`: Job/gang name
+- `is_gang`: Gang flag (0/1)
+- `date`: Timestamp
+- `type`: Transaction type (deposit/withdrawal)
+
+#### `zerio_bossmenu_permissions`
+Employee permissions and access levels.
+
+**Key Fields:**
+- `identifier`: Player identifier
+- `job`: Job name
+- `is_gang`: Gang flag (0/1)
+- `permission`: Permission level
+- `last_access`: Last access timestamp
+- `created_at`: Permission grant timestamp
+
+#### `zerio_bossmenu_sessions`
+Boss menu session tracking.
+
+**Key Fields:**
+- `identifier`: Player identifier
+- `job`: Job name
+- `is_gang`: Gang flag (0/1)
+- `login_time`: Session start timestamp
+- `logout_time`: Session end timestamp
+- `session_duration`: Total session time
+
+#### `zerio_bossmenu_activities`
+Detailed activity logging for all actions.
+
+**Key Fields:**
+- `identifier`: Player who performed action
+- `player_name`: Player name
+- `job`: Job/gang name
+- `is_gang`: Gang flag (0/1)
+- `action`: Action performed
+- `details`: Action details (JSON)
+- `target_identifier`: Target player (if applicable)
+- `amount`: Amount involved (if applicable)
+- `timestamp`: When action occurred
+
+#### `zerio_bossmenu_work_sessions`
+Employee work session tracking (clock in/out).
+
+**Key Fields:**
+- `identifier`: Player identifier
+- `player_name`: Player name
+- `job`: Job name
+- `is_gang`: Gang flag (0/1)
+- `clock_in_time`: Work start timestamp
+- `clock_out_time`: Work end timestamp
+- `session_duration`: Total work time
+- `is_active`: Whether session is ongoing
+
+#### `zerio_bossmenu_hire_data`
+Employee hire information and individual salaries.
+
+**Key Fields:**
+- `identifier`: Player identifier
+- `job`: Job name
+- `is_gang`: Gang flag (0/1)
+- `notes`: Hire notes
+- `salary`: Individual salary (NULL for role-based)
+- `hire_date`: Timestamp of hire
+- `fire_date`: Timestamp of termination (NULL if active)
+
+#### `zerio_bossmenu_positions`
+Boss menu position locations and settings.
+
+**Key Fields:**
+- `job_name`: Job identifier
+- `screen_pos`: Screen position coordinates
+- `trigger_pos`: Interaction trigger position
+- `model_name`: 3D model identifier
+- `spawn_prop`: Whether to spawn physical prop
+- `is_gang`: Gang flag (0/1)
+
+#### `zerio_bossmenu_models`
+3D model configuration data.
+
+**Key Fields:**
+- `model_name`: Model identifier
+- `offset`: Position offset coordinates
+- `scale`: Model scale values
+- `rotation`: Model rotation values
+- `camera_offset`: Camera position offset
+- `camera_fov`: Camera field of view
+- `camera_rotation_offset`: Camera rotation offset
+
+#### `zerio_bossmenu_logs`
+Comprehensive system and activity logging.
+
+**Key Fields:**
+- `timestamp`: When action occurred
+- `action_type`: Type of action performed
+- `action_category`: Category of action
+- `user_identifier`: Who performed the action
+- `user_name`: User display name
+- `job_name`: Related job
+- `is_gang`: Gang flag (0/1)
+- `action_details`: JSON details of the action
+- `severity`: Log severity level (LOW/MEDIUM/HIGH/CRITICAL)
+- `ip_address`: User IP address
+- `user_agent`: User agent string
+
+#### `zerio_bossmenu_available_items`
+Items available for purchase by each job.
+
+**Key Fields:**
+- `job_name`: Job identifier
+- `is_gang`: Gang flag (0/1)
+- `item_name`: Item spawn name
+- `price`: Item price
+- `category`: Item category
+- `is_enabled`: Whether item is available
+- `created_at`, `updated_at`: Timestamps
+
+#### `zerio_bossmenu_ordered_items`
+Item order tracking and history.
+
+**Key Fields:**
+- `job_name`: Job that placed order
+- `is_gang`: Gang flag (0/1)
+- `ordered_by_identifier`: Who placed the order
+- `ordered_by_name`: Player name
+- `item_name`: Item ordered
+- `quantity`: Amount ordered
+- `price_per_item`: Individual item price
+- `total_cost`: Total order cost
+- `status`: Order status (pending/delivered/cancelled)
+- `order_date`: When order was placed
+- `delivery_date`: When order was delivered
+
+#### `zerio_bossmenu_available_vehicles`
+Vehicles available for purchase by each job.
+
+**Key Fields:**
+- `job_name`: Job identifier
+- `is_gang`: Gang flag (0/1)
+- `vehicle_model`: Vehicle spawn name
+- `vehicle_label`: Display name
+- `price`: Purchase price
+- `category`: Vehicle category
+- `description`: Vehicle description
+- `is_enabled`: Whether available for purchase
+
+#### `zerio_bossmenu_owned_vehicles`
+Job/gang owned vehicle fleet management.
+
+**Key Fields:**
+- `job_name`: Job identifier
+- `is_gang`: Gang flag (0/1)
+- `vehicle_model`: Vehicle spawn name
+- `vehicle_label`: Display name
+- `plate`: Vehicle license plate
+- `garage_name`: Current garage location
+- `fuel`, `engine`, `body`: Condition values
+- `mods`: Vehicle modifications (JSON)
+- `status`: Vehicle status (available/out)
+- `purchased_by_identifier`: Who purchased vehicle
+- `purchase_price`: Original purchase price
+- `purchase_date`: When purchased
+- `last_used`: Last usage timestamp
+- `minimum_grade`: Minimum grade to access
+
+#### `zerio_bossmenu_ordered_vehicles`
+Vehicle order tracking and delivery.
+
+**Key Fields:**
+- `job_name`: Job that placed order
+- `is_gang`: Gang flag (0/1)
+- `ordered_by_identifier`: Who placed the order
+- `ordered_by_name`: Player name
+- `vehicle_model`: Vehicle ordered
+- `vehicle_label`: Vehicle display name
+- `price`: Order price
+- `garage_name`: Delivery garage
+- `plate`: Generated license plate
+- `status`: Order status (pending/delivered/cancelled)
+- `order_date`: When order was placed
+- `delivery_date`: When vehicle was delivered
+
+<Callout type="warning">
+  **Direct Database Access**: While direct database access is possible, it's recommended to use the provided exports whenever possible to ensure data consistency and proper event triggering.
+</Callout>
+
+## Custom Banking Integration
+
+To add support for your custom banking system:
+
+1. **Edit `server/functions.lua`**
+2. **Add your banking logic to these functions:**
+   - `GetJobMoney(name, isGang)`
+   - `AddJobMoney(name, amount, isGang, reason)`
+   - `RemoveJobMoney(name, amount, isGang, reason)`
+
+```lua
+-- Example custom banking integration
+function GetJobMoney(name, isGang)
+    -- Add your banking logic here
+    local money = exports["my-banking"]:GetAccountBalance(name)
+    return money or 0
+end
+
+function AddJobMoney(name, amount, isGang, reason)
+    -- Add your banking logic here
+    return exports["my-banking"]:AddMoney(name, amount, reason or "Boss menu transaction")
+end
+
+function RemoveJobMoney(name, amount, isGang, reason)
+    -- Add your banking logic here
+    return exports["my-banking"]:RemoveMoney(name, amount, reason or "Boss menu transaction")
+end
+```
+
+<Callout type="info">
+  **Need Help?** Join our [Discord community](https://discord.zerio-scripts.com) for developer support and to share your integrations with the community.
+</Callout>
