@@ -10,176 +10,6 @@ import {
 
 Encountering an issue that's not covered in our common problems guide? Don't worry! This page will help you troubleshoot unknown issues and get the support you need to resolve any problems you're experiencing.
 
-## 🔍 Before Reporting a Bug
-
-Before reaching out for help, let's make sure we've exhausted the basic troubleshooting steps and gather the information needed for effective support.
-
-<Callout type="info">
-  **Community-First Approach**: Many issues are quickly resolved by our helpful
-  community members who have encountered similar problems. Checking with the
-  community first often leads to faster solutions!
-</Callout>
-
-### Quick Self-Diagnosis
-
-<Steps>
-
-### Check the Obvious
-
-- Is your server actually running?
-- Are there any obvious error messages in console?
-- Did you recently change anything that might be related?
-- Are other resources working normally?
-
-### Review Recent Changes
-
-- New resource installations
-- Configuration modifications
-- Server updates or migrations
-- Framework changes (QBCore/ESX updates)
-
-### Test Isolation
-
-- Does the issue happen with other resources disabled?
-- Can you reproduce it consistently?
-- Does it affect all players or just specific ones?
-- Is it related to specific actions or random?
-
-### Documentation Review
-
-- Have you checked all relevant documentation sections?
-- Are you following the correct installation procedures?
-- Is your setup matching the stated requirements?
-
-</Steps>
-
-## 🛠️ Advanced Troubleshooting
-
-### Systematic Problem-Solving
-
-<Tabs
-  items={[
-    "Resource Issues",
-    "Server Problems",
-    "Player-Specific Issues",
-    "Performance Problems"
-  ]}
->
-  <Tabs.Tab>
-    **Resource-Specific Problems:** 1. **Single Resource Testing**: - Disable
-    all other resources except essentials - Test if the problem persists -
-    Re-enable resources one by one to identify conflicts 2. **Configuration
-    Validation**: ```lua -- Check for common config errors Config = Config or {}
-    -- Verify required settings exist if not Config.Framework then print("ERROR:
-    Framework not configured!") end ``` 3. **Dependency Verification**: - Ensure
-    all required resources are installed - Check startup order in server.cfg -
-    Verify versions are compatible 4. **Fresh Installation Test**: - Download a
-    clean copy from Keymaster - Install in a separate folder - Test with minimal
-    configuration
-  </Tabs.Tab>
-  <Tabs.Tab>
-    **Server-Wide Issues:** 1. **Server Artifact Issues**: - Check FiveM server
-    version - Update to latest recommended artifacts - Review server console for
-    system-level errors 2. **Database Problems**: ```sql -- Test database
-    connectivity SHOW TABLES; SHOW PROCESSLIST; -- Check for table corruption
-    CHECK TABLE your_table_name; ``` 3. **Resource Conflicts**: - Review
-    server.cfg for duplicate ensures - Check for port conflicts - Look for
-    overlapping functionality 4. **Performance Diagnostics**: ``` # Monitor
-    server resources resmon # In-game command # Check memory usage profiler
-    record 100 profiler view ```
-  </Tabs.Tab>
-  <Tabs.Tab>
-    **Player-Specific Issues:** 1. **Permission Problems**: - Verify user roles
-    and permissions - Test with admin account - Check framework-specific
-    permission systems 2. **Client-Side Issues**: - Ask affected players to
-    clear FiveM cache - Check for client-side script errors - Test with
-    different players 3. **Database User Data**: ```sql -- Check player data
-    integrity SELECT * FROM users WHERE identifier = 'player_id'; -- Look for
-    corrupted or missing data SELECT COUNT(*) FROM characters WHERE citizenid IS
-    NULL; ``` 4. **Network Issues**: - Check player connection stability -
-    Verify server-side event handling - Test with players from different
-    locations
-  </Tabs.Tab>
-  <Tabs.Tab>
-    **Performance-Related Problems:** 1. **Resource Monitor Usage**: ``` # Use
-    in-game performance tools resmon # Check specific resource performance
-    profiler record 500 profiler view resource_name ``` 2. **Database
-    Optimization**: ```sql -- Check for slow queries SHOW PROCESSLIST; --
-    Analyze table performance ANALYZE TABLE table_name; ``` 3. **Memory
-    Analysis**: - Monitor server RAM usage - Check for memory leaks - Review
-    garbage collection patterns 4. **Network Performance**: - Test server
-    response times - Monitor bandwidth usage - Check for packet loss issues
-  </Tabs.Tab>
-</Tabs>
-
-## 📋 Gathering Information for Support
-
-### Essential Information Checklist
-
-When you're ready to report a bug, gather this information to help us assist you effectively:
-
-#### System Information
-
-- **Resource Name**: Which Zerio-Scripts product is affected
-- **Server Framework**: QBCore, ESX, or standalone
-- **FiveM Version**: Server artifact version number
-- **Operating System**: Windows, Linux distribution and version
-- **Hosting Type**: Self-hosted, VPS, dedicated server, or game hosting
-
-#### Error Details
-
-- **Complete Console Output**: Include timestamps and context
-- **Reproduction Steps**: Detailed steps to recreate the issue
-- **Frequency**: Does it happen always, sometimes, or rarely?
-- **Affected Users**: All players, specific roles, or just admins?
-
-#### Configuration Information
-
-```lua
--- Share relevant config sections (remove sensitive data)
-Config.Framework = 'qb-core'
-Config.Database = 'oxmysql'
-Config.Target = 'ox_target'
--- ... other relevant settings
-```
-
-#### Recent Changes
-
-- What changed recently on your server?
-- Any new resources or updates?
-- Configuration modifications?
-- Server migrations or updates?
-
-### Sample Bug Report Template
-
-```markdown
-**Resource**: zerio-bossmenu
-**Framework**: QBCore
-**Issue**: Players cannot access boss menu
-
-**Steps to Reproduce**:
-
-1. Player with boss job approaches the interaction point
-2. Presses E to interact
-3. Nothing happens, no menu appears
-
-**Console Output**:
-[2024-01-15 14:30:22] [ERROR] zerio-bossmenu: attempt to index nil value
-[2024-01-15 14:30:22] [ERROR] zerio-bossmenu: Error in function checkPermissions
-
-**Configuration**:
-
-- Framework: QBCore latest
-- Target: ox_target
-- Jobs configured: police, ambulance
-
-**Additional Info**:
-
-- Issue started after updating QBCore yesterday
-- Affects all boss-level players
-- Other resources working normally
-```
-
 ## 🤝 Getting Support
 
 ### Community Support Channels
@@ -189,10 +19,17 @@ Config.Target = 'ox_target'
     icon={<ChatBubbleIcon />}
     title="Discord Community"
     href="https://discord.zerio-scripts.com"
-    arrow
   />
-  <Cards.Card icon={<Pencil1Icon />} title="Bug Reporting" arrow />
-  <Cards.Card icon={<QuestionMarkCircledIcon />} title="General Help" arrow />
+  <Cards.Card 
+    icon={<Pencil1Icon />} 
+    title="Bug Reporting"
+    href="#"
+  />
+  <Cards.Card 
+    icon={<QuestionMarkCircledIcon />} 
+    title="General Help"
+    href="#"
+  />
 </Cards>
 
 ### Support Process
@@ -202,7 +39,7 @@ Config.Target = 'ox_target'
 ### Community First
 
 1. **Search Discord**: Check if someone has had the same issue
-2. **Ask in General Help**: Post your question in the appropriate channel
+2. **Ask in Customer Support**: Post your question in the appropriate channel
 3. **Provide Context**: Share relevant details from your information gathering
 
 ### Escalate if Needed
