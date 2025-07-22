@@ -26,21 +26,11 @@ Boss menu → Employees → Hire Employee → Select nearby player → Choose gr
 
 Hire distance: `Config.MaxHireDistance` in `configs/main.lua` (default: 20 units, -1 for unlimited).
 
-### How do individual salaries work?
-
-Set custom salaries per employee that override role-based defaults. Integrates with framework paycheck systems.
-
-### Can I fire offline employees?
-
-Yes, all employees show regardless of online status.
-
-## 💰 Individual Salary Integration
-
 ### How do I enable individual salaries?
 
 <Tabs items={['ESX', 'QBCore/QBXCore']}>
     <Tabs.Tab>
-        In `es_extended/server/paycheck.lua`, replace salary calculation with:
+        In `es_extended/server/paycheck.lua`, find the `local salary = ...` line and replace it with:
 
         ```lua
         local salary = exports["zerio-bossmenu"]:GetEmployeeActiveSalary(xPlayer.identifier, xPlayer.job.name)
@@ -51,11 +41,172 @@ Yes, all employees show regardless of online status.
         **QBCore**: In `qb-core/server/functions.lua` (PaycheckInterval function)
         **QBXCore**: In `qbx_core/server/loops.lua` (pay function)
 
-        Replace salary calculation with:
+        Find the `local payment = ...` line and replace it with:
 
         ```lua
-        local salary = exports["zerio-bossmenu"]:GetEmployeeActiveSalary(identifier, jobName)
+        local payment = exports["zerio-bossmenu"]:GetEmployeeActiveSalary(identifier, jobName)
         ```
+    </Tabs.Tab>
+
+</Tabs>
+
+### Can I fire offline employees?
+
+Yes, all employees show regardless of online status.
+
+### Setting up job role editing
+
+<Tabs items={['ESX', 'QBCore', 'QBXCore']}>
+    <Tabs.Tab>
+        Open the `es_extended/server/paycheck.lua` file, and find the `local salary = ...` line and replace that with the line below:
+
+        ```lua
+        local salary = exports["zerio-bossmenu"]:GetEmployeeActiveSalary(xPlayer.identifier, xPlayer.job.name)
+        ```
+
+        Also, make sure that your other scripts actually listen to the `es_extended:updatedJobs` event, though.
+    </Tabs.Tab>
+
+    <Tabs.Tab>
+        Open the `qb-core/shared/jobs.lua` file, and paste the following snippet at the bottom of the file:
+
+        ```lua
+        -- INTEGRATION FOR ZERIO-BOSSMENU, DO NOT TOUCH THIS IN ANY WAY!!!! --
+        if GetResourceState("zerio-bossmenu") ~= "missing" then
+            local prefix = IsDuplicityVersion() and "server" or "client"
+            local registerEvent = IsDuplicityVersion() and AddEventHandler or RegisterNetEvent
+
+            registerEvent("zerio-bossmenu:" .. prefix .. ":createdJobGrade", function(jobName, gradeLevel, gradeName, salary)
+                if not QBShared.Jobs[jobName] then return end
+                gradeLevel = tostring(gradeLevel)
+                if not QBShared.Jobs[jobName].grades[gradeLevel] then return end
+                QBShared.Jobs[jobName].grades[gradeLevel] = { name = gradeName, payment = salary }
+                QBCore.Shared.Jobs[jobName].grades[gradeLevel] = { name = gradeName, payment = salary }
+                TriggerEvent("zerio-bossmenu:" .. prefix .. ":updatedSharedJobs", QBShared.Jobs)
+            end)
+
+            registerEvent("zerio-bossmenu:" .. prefix .. ":updatedJobGrade", function(jobName, gradeLevel, gradeName, salary)
+                if not QBShared.Jobs[jobName] then return end
+                gradeLevel = tostring(gradeLevel)
+                if not QBShared.Jobs[jobName].grades[gradeLevel] then return end
+                QBShared.Jobs[jobName].grades[gradeLevel].name = gradeName
+                QBShared.Jobs[jobName].grades[gradeLevel].payment = salary
+                QBCore.Shared.Jobs[jobName].grades[gradeLevel].name = gradeName
+                QBCore.Shared.Jobs[jobName].grades[gradeLevel].payment = salary
+                TriggerEvent("zerio-bossmenu:" .. prefix .. ":updatedSharedJobs", QBShared.Jobs)
+            end)
+
+            registerEvent("zerio-bossmenu:" .. prefix .. ":deletedJobGrade", function(jobName, gradeLevel)
+                if not QBShared.Jobs[jobName] then return end
+                gradeLevel = tostring(gradeLevel)
+                QBShared.Jobs[jobName].grades[gradeLevel] = nil
+                QBCore.Shared.Jobs[jobName].grades[gradeLevel] = nil
+                TriggerEvent("zerio-bossmenu:" .. prefix .. ":updatedSharedJobs", QBShared.Jobs)
+            end)
+
+            if IsDuplicityVersion() then
+                AddEventHandler("qb-core:server:updateSharedJobsFile", function(data, cb)
+                    local oldData = LoadResourceFile(GetCurrentResourceName(), "shared/jobs.lua")
+                    if oldData then
+                        SaveResourceFile(GetCurrentResourceName(), "backups/jobs" .. tostring(os.time()) .. ".lua", oldData, -1)
+                    end
+                    cb(SaveResourceFile(GetCurrentResourceName(), "shared/jobs.lua", data, -1))
+                end)
+            end
+        else
+            CreateThread(function()
+                while true do
+                    warn("Tried to load zerio-bossmenu job integration, but zerio-bossmenu seems to be missing?")
+                    Wait(500)
+                end
+            end)
+        end
+        -- END OF ZERIO-BOSSMENU INTEGRATION --
+        ```
+
+        Open the `qb-core/shared/gangs.lua` file, and paste the following snippet at the bottom of the file:
+
+        ```lua
+        -- INTEGRATION FOR ZERIO-BOSSMENU, DO NOT TOUCH THIS IN ANY WAY!!!! --
+        if GetResourceState("zerio-bossmenu") ~= "missing" then
+            local prefix = IsDuplicityVersion() and "server" or "client"
+            local registerEvent = IsDuplicityVersion() and AddEventHandler or RegisterNetEvent
+
+            registerEvent("zerio-bossmenu:" .. prefix .. ":createdGangGrade", function(jobName, gradeLevel, gradeName)
+                if not QBShared.Gangs[jobName] then return end
+                gradeLevel = tostring(gradeLevel)
+                if not QBShared.Gangs[jobName].grades[gradeLevel] then return end
+                QBShared.Gangs[jobName].grades[gradeLevel] = { name = gradeName }
+                QBCore.Shared.Gangs[jobName].grades[gradeLevel] = { name = gradeName }
+                TriggerEvent("zerio-bossmenu:" .. prefix .. ":updatedSharedGangs", QBShared.Gangs)
+            end)
+
+            registerEvent("zerio-bossmenu:" .. prefix .. ":updatedGangGrade", function(jobName, gradeLevel, gradeName)
+                if not QBShared.Gangs[jobName] then return end
+                gradeLevel = tostring(gradeLevel)
+                if not QBShared.Gangs[jobName].grades[gradeLevel] then return end
+                QBShared.Gangs[jobName].grades[gradeLevel].name = gradeName
+                QBCore.Shared.Gangs[jobName].grades[gradeLevel].name = gradeName
+                TriggerEvent("zerio-bossmenu:" .. prefix .. ":updatedSharedGangs", QBShared.Gangs)
+            end)
+
+            registerEvent("zerio-bossmenu:" .. prefix .. ":deletedGangGrade", function(jobName, gradeLevel)
+                if not QBShared.Gangs[jobName] then return end
+                gradeLevel = tostring(gradeLevel)
+                QBShared.Gangs[jobName].grades[gradeLevel] = nil
+                QBCore.Shared.Gangs[jobName].grades[gradeLevel] = nil
+                TriggerEvent("zerio-bossmenu:" .. prefix .. ":updatedSharedGangs", QBShared.Gangs)
+            end)
+
+            if IsDuplicityVersion() then
+                AddEventHandler("qb-core:server:updateSharedGangsFile", function(data, cb)
+                    local oldData = LoadResourceFile(GetCurrentResourceName(), "shared/gangs.lua")
+                    if oldData then
+                        SaveResourceFile(GetCurrentResourceName(), "backups/jobs" .. tostring(os.time()) .. ".lua", oldData, -1)
+                    end
+                    cb(SaveResourceFile(GetCurrentResourceName(), "shared/gangs.lua", data, -1))
+                end)
+            end
+        else
+            CreateThread(function()
+                while true do
+                    warn("Tried to load zerio-bossmenu job integration, but zerio-bossmenu seems to be missing?")
+                    Wait(500)
+                end
+            end)
+        end
+        -- END OF ZERIO-BOSSMENU INTEGRATION --
+        ```
+
+        Create a folder called `backups` in your `qb-core` folder, and make sure that the `qb-core` folder is writable.
+
+        For scripts you want to integrate with this, you can listen to the `zerio-bossmenu:server:updatedSharedJobs`, `zerio-bossmenu:client:updatedSharedJobs`, `zerio-bossmenu:server:updatedSharedGangs` and `zerio-bossmenu:client:updatedSharedGangs` events.
+    </Tabs.Tab>
+
+    <Tabs.Tab>
+        Open the `qbx_core/server/events.lua` file, and paste the following snippet at the bottom of the file:
+
+        ```lua
+        AddEventHandler("qb-core:server:updateSharedGangsFile", function(data, cb)
+            local oldData = LoadResourceFile(GetCurrentResourceName(), "shared/gangs.lua")
+            if oldData then
+                SaveResourceFile(GetCurrentResourceName(), "backups/gangs" .. tostring(os.time()) .. ".lua", oldData, -1)
+            end
+            cb(SaveResourceFile(GetCurrentResourceName(), "shared/gangs.lua", data, -1))
+        end)
+
+        AddEventHandler("qb-core:server:updateSharedJobsFile", function(data, cb)
+            local oldData = LoadResourceFile(GetCurrentResourceName(), "shared/jobs.lua")
+            if oldData then
+                SaveResourceFile(GetCurrentResourceName(), "backups/jobs" .. tostring(os.time()) .. ".lua", oldData, -1)
+            end
+            cb(SaveResourceFile(GetCurrentResourceName(), "shared/jobs.lua", data, -1))
+        end)
+        ```
+
+        Create a folder called `backups` in your `qbx_core` folder, and make sure that the `qbx_core` folder is writable.
+
+        For scripts you want to integrate with this, you can listen to qbox's official `qbx_core:server:onJobUpdate` and `qbx_core:client:onJobUpdate` events.
     </Tabs.Tab>
 
 </Tabs>
