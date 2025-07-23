@@ -75,6 +75,16 @@ If you're using pma-voice and do not get "mic clicks" when using the radio, remo
 
 This gets caused by zerio-radio trying to put away the weapon when talking over the radio, which you can disable by setting `Shared.RemoveWeaponOnTalkingOnRadio` to `false` in `zerio-radio/shared/main.lua`.
 
+## How do I disable pma-voice's default animation?
+
+For zerio-radio to be able to play its animation's, you need to disable pma-voice's default radio animations, as they otherwise overwrite zerio-radio's animations.
+
+You can do this by adding the following snippet to your `server.cfg` file:
+
+```
+setr voice_enableRadioAnim 0
+```
+
 ## Disconnect player on item drop.
 
 <Callout>
