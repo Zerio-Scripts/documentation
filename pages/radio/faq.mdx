@@ -67,6 +67,14 @@ If this is empty and you have a question, please turn to the support in our [com
   </Tabs.Tab>
 </Tabs>
 
+## I have issues with mic clicks.
+
+If you're using pma-voice and do not get "mic clicks" when using the radio, remove [this line](https://github.com/AvarianKnight/pma-voice/blob/main/client/init/main.lua#L220) from pma-voice.
+
+## Players can cancel combat rolls by talking over the radio.
+
+This gets caused by zerio-radio trying to put away the weapon when talking over the radio, which you can disable by setting `Shared.RemoveWeaponOnTalkingOnRadio` to `false` in `zerio-radio/shared/main.lua`.
+
 ## Disconnect player on item drop.
 
 <Callout>
