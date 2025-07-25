@@ -12,7 +12,7 @@ const config: DocsThemeConfig = {
     link: "https://github.com/Zerio-Scripts/documentation"
   },
   chat: {
-    link: "http://discord.zerio-scripts.com"
+    link: "https://discord.zerio-scripts.com"
   },
   docsRepositoryBase: "https://github.com/Zerio-Scripts/documentation",
   logo: (

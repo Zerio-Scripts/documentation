@@ -1,0 +1,334 @@
+import { Callout, Tabs } from "nextra/components";
+
+# Configuration Guide
+
+This comprehensive guide covers all configuration options available in Zerio Bossmenu. Each configuration file serves a specific purpose and allows you to customize the script to your server's needs.
+
+<Callout type="warning">
+  **Important**: Always restart your server or the resource after making
+  configuration changes. Some changes may require database updates or framework
+  modifications.
+</Callout>
+
+## Configuration Files Overview
+
+Zerio Bossmenu uses multiple configuration files located in the `configs/` folder:
+
+- **`main.lua`** - Core settings, currency, limits, and features
+- **`framework.lua`** - Framework detection and compatibility (shouldnt need editing)
+- **`opentype.lua`** - Interaction methods - options related to opening the Bossmenu
+- **`server.lua`** - Server-side settings such as discord webhooks
+- **`adminmenu.lua`** - Administrative menu configuration
+
+## Main Configuration (`configs/main.lua`)
+
+### Localization & Display
+
+```lua
+Config.Locale = "en"  -- Language file to use
+Config.Currency = "USD"  -- Official JavaScript currency code
+Config.CurrencySymbol = "$"  -- Symbol used in input fields
+Config.TimeFormat = "en-US"  -- JavaScript time format
+```
+
+**Available Locales:**
+Check the `locales/` folder for available language files.
+
+You can create new ones at any time.
+
+### Banking Integration
+
+```lua
+Config.ManagementScript = "esx_society"
+```
+
+**Supported Options:**
+
+- `esx_society` - ESX society system
+- `qb-management` - QBCore management
+- `qb-banking` - QBCore banking
+- `okokBanking` - okokBanking (does NOT work with gangs)
+- `renewedbanking` - Renewed Banking
+- `fd_banking` - FD Banking
+
+<Callout type="info">
+  **Custom Banking**: You can add support for custom banking systems by
+  modifying the banking functions in `server/functions.lua`.
+</Callout>
+
+### Employee Management
+
+```lua
+Config.MaxHireDistance = 20  -- Max distance to show in hire list (-1 for no limit)
+Config.DefaultJob = "unemployed"  -- Job assigned after firing
+Config.DefaultGrade = 0  -- Grade assigned after firing
+Config.DefaultGang = "none"  -- Gang assigned after firing (gangs)
+Config.DefaultGangGrade = 0  -- Gang grade assigned after firing
+```
+
+### Work Session Tracking
+
+```lua
+Config.TrackWorkSessions = true  -- Enable work session monitoring
+```
+
+When enabled, this feature tracks:
+
+- Employee clock-in/clock-out times
+- Session duration
+- Activity logging
+- Performance metrics
+
+### Salary Limits
+
+```lua
+Config.MaxSalaries = {
+    ["police"] = 15000,
+    ["ambulance"] = 12000,
+    ["mechanic"] = 8000,
+    -- Add more jobs as needed
+}
+```
+
+**Usage:**
+
+- Set maximum salary per job to prevent abuse
+- Use `nil` or omit entry for no limit
+- Applies to both individual and role-based salaries
+
+### Vehicle Management
+
+```lua
+Config.VehicleDeliveryTime = 1 * 60  -- Delivery time in seconds (1 minute)
+Config.VehicleCancelRefundPercentage = 75  -- Refund % when cancelling orders (0-100)
+Config.VehicleSellBackPercentage = 50  -- Refund % when selling vehicles (0-100)
+```
+
+### Vehicle Plate Configuration
+
+```lua
+Config.PlateFirstLength = 3  -- Length of first part of plate
+Config.PlateHasSpace = false  -- Whether plates have spaces
+Config.PlateSecondLength = 3  -- Length of second part of plate
+```
+
+**Examples:**
+
+- `ABC123` (PlateFirstLength=3, PlateHasSpace=false, PlateSecondLength=3)
+- `ABC 123` (PlateFirstLength=3, PlateHasSpace=true, PlateSecondLength=3)
+
+### Item Ordering
+
+```lua
+Config.ItemDeliveryTime = 1 * 60  -- Delivery time in seconds
+Config.OrderCancelRefundPercentage = 75  -- Refund % for cancelled orders
+
+-- Stash configuration
+Config.StashNames = {
+    ["police"] = "policelocker",
+    ["ambulance"] = "ambulance_stash",
+    -- Add more job stashes
+}
+
+-- Item metadata (optional)
+Config.ItemMetadata = {
+    -- This can be used to add extra metadata to the ordered items
+    ["bread"] = {
+        ["category"] = "food",
+    }
+}
+```
+
+### Logging System
+
+```lua
+Config.CleanOldLogs = true  -- Enable automatic log cleanup
+Config.LogRetentionDays = 90  -- Keep logs for X days (-1 to disable)
+```
+
+### Debug Mode
+
+```lua
+Config.Debug = false  -- Enable debug output
+```
+
+Enable for troubleshooting. Adds extra console output for debugging purposes.
+
+## Framework Configuration (`configs/framework.lua`)
+
+<Callout type="info">
+  **Auto-Detection**: This file usually doesn't need modification as framework
+  detection is automatic.
+</Callout>
+
+```lua
+-- Auto-detection logic
+if GetResourceState("es_extended") ~= "missing" then
+    Config.Framework = "esx"
+    Config.FrameworkResourceName = "es_extended"
+    Config.FrameworkEvent = "esx:getSharedObject"
+elseif GetResourceState("qb-core") ~= "missing" or GetResourceState("qbx_core") ~= "missing" then
+    Config.Framework = "qbcore"
+    Config.IsQBox = GetResourceState("qbx_core") ~= "missing"
+    Config.FrameworkResourceName = Config.IsQBox and "qbx_core" or "qb-core"
+end
+```
+
+**Manual Override** (if needed):
+
+```lua
+Config.Framework = "esx"  -- Force framework type
+Config.FrameworkResourceName = "my_custom_esx"  -- Custom resource name
+```
+
+## Interaction Configuration (`configs/opentype.lua`)
+
+### Interaction Method
+
+```lua
+Config.HelpTextType = "normal"
+```
+
+**Available Options:**
+
+<Tabs items={["Normal", "Target", "Proximity"]}>
+  <Tabs.Tab>
+    **Normal** - Standard floating help text ```lua Config.HelpTextType =
+    "normal" Config.OpenKey = 38 -- E key (default) ``` Shows standard FiveM
+    help text when near boss menu positions.
+  </Tabs.Tab>
+
+<Tabs.Tab>
+  **Target** - Targeting script integration ```lua Config.HelpTextType =
+  "target" Config.TargetScript = "ox_target" -- or "qb-target", "qtarget" ```
+  Integrates with popular targeting scripts for immersive interaction.
+</Tabs.Tab>
+
+  <Tabs.Tab>
+    **Proximity** - Zerio proximity prompts ```lua Config.HelpTextType =
+    "proximity" ``` Requires `zerio-proximityprompt` resource for enhanced
+    proximity interactions.
+  </Tabs.Tab>
+</Tabs>
+
+### Target Script Options
+
+```lua
+Config.TargetScript = "ox_target"
+```
+
+**Supported Scripts:**
+
+- `ox_target` - Overextended target
+- `qb-target` - QBCore target
+- `qtarget` - Standalone qtarget
+
+### Distance Configuration
+
+```lua
+Config.Dists = {
+    ["HelpText"] = 2.5,  -- Distance to show help text
+    ["Usage"] = 2.0,     -- Distance to allow interaction
+    ["DUIRender"] = 20.0 -- Distance to render 3D models
+}
+
+Config.DistanceCheckWait = 500  -- How often to check distance (ms)
+```
+
+### Controls
+
+```lua
+Config.OpenKey = 38  -- Control ID for opening menu
+```
+
+Refer to [FiveM Controls Reference](https://docs.fivem.net/docs/game-references/controls/) for more options.
+
+## Server Configuration (`configs/server.lua`)
+
+This file contains server-side specific settings such as discord webhooks.
+
+```lua
+Config.Logs = {
+  Enabled = false,  -- If set to true discord logs will be enabled.
+
+  Color = 16484351, -- Color for embeds, you can use https://www.spycolor.com/ to see the color code (its the "decimal value")
+
+  Username = "Zerio-Bossmenu",
+  CommunityName = "Zerio-Scripts",
+
+  CommunityLogo = "", -- Image link
+  FooterIcon = "",    -- Image link
+  Avatar = "",        -- Image link
+
+  Webhooks = {
+    ACTION = "Webhook Link"
+  }
+}
+```
+
+## Admin Menu Configuration (`configs/adminmenu.lua`)
+
+```lua
+Config.AdminCommand = "bossmenuadmin"  -- Command to open admin menu
+
+-- Session tracking settings
+Config.TrackingSessions = true
+Config.SessionTimeout = 30 * 60 -- 30 minutes in seconds
+
+-- Activity tracking settings
+Config.TrackingActivities = true
+Config.ActivityRetentionDays = 30 -- How many days to keep activity logs
+```
+
+## Troubleshooting Configuration Issues
+
+### Common Problems
+
+**Menu Not Opening:**
+
+1. Check `Config.HelpTextType` matches your setup
+2. Verify `Config.TargetScript` if using target mode
+3. Ensure boss menu positions are created via admin menu
+
+**Framework Integration Issues:**
+
+1. Verify `Config.Framework` detection
+2. Check `Config.FrameworkResourceName` matches your setup
+3. Ensure proper load order in server.cfg
+
+**Banking Problems:**
+
+1. Confirm `Config.ManagementScript` matches your banking system
+2. Verify banking integration in `server/functions.lua`
+3. Check society/gang accounts exist
+
+**Permission Issues:**
+
+1. Review admin permissions configuration
+2. Verify job grades have proper access
+3. Check framework permission system integration
+
+### Validation
+
+After configuration changes:
+
+1. **Restart Server**: Full server restart required
+2. **Check Console**: Look for configuration errors
+3. **Test Features**: Verify each configured feature works
+4. **Review Logs**: Check for any warning messages
+
+<Callout type="info">
+  **Configuration Templates**: Example configurations for common setups are
+  available in our Discord community.
+</Callout>
+
+## Next Steps
+
+After completing configuration:
+
+1. Set up boss menu positions using the admin command
+2. Configure job-specific vehicle and item catalogs
+3. Test employee management features
+4. Review and adjust permissions as needed
+
+For advanced customization options, see the [Developer Documentation](/bossmenu/devdocs) section.

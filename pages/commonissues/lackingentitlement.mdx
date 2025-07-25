@@ -1,9 +1,262 @@
-# Lacking entitlement
+import { Callout, Steps, Tabs } from "nextra/components";
+import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 
-If you start a resource, and get an error/warning concerning \"lacking entitlement\".
+# Lacking Entitlement
 
-Then one of the following reasons would be the cause:
+The "lacking entitlement" error is one of the most common issues when starting FiveM resources protected by **FiveM Asset Protection (FXAP)**. This comprehensive guide will help you understand why this happens and how to resolve it.
 
-- You havent restarted your FiveM server after buying the resource. This is when asset ownership is refreshed.
-- Your FiveM server's license key isnt owned by the same account that owns the FiveM asset you bought.
-  > This is mostly common amongst gameservers. As they generate a license key for you. And in that case, just switch to your own key and it will be solved.
+## 🚨 Understanding the Error
+
+When you see a "lacking entitlement" error, it means the FiveM server cannot verify that you own the asset you're trying to use. This is a security feature designed to protect developers' intellectual property.
+
+### Common Error Messages
+
+You might see variations of these messages:
+
+```
+[ERROR] Resource 'zerio-bossmenu' is lacking entitlement
+[WARN] Server lacking entitlement to resource zerio-resourcename
+[ERROR] Failed to start resource: lacking entitlement
+```
+
+<Callout type="info">
+  **Asset Protection Purpose**: FXAP ensures that only legitimate purchasers can
+  use protected resources, supporting developers and maintaining the FiveM
+  ecosystem's integrity.
+</Callout>
+
+## 🔍 Root Causes
+
+### Primary Causes
+
+<Steps>
+
+### License Key Mismatch
+
+**Most Common Issue**: Your server's license key is not owned by the same FiveM account that purchased the asset.
+
+### Server Not Restarted
+
+The entitlement cache needs to be refreshed after purchasing a new asset.
+
+### Incorrect Asset Download
+
+The resource files may not be properly downloaded from the official Keymaster.
+
+### Account Issues
+
+Problems with your FiveM account or Cfx.re account linking.
+
+</Steps>
+
+## 🛠️ Solutions
+
+### Solution 1: Verify License Key Ownership
+
+<Tabs items={["Self-Hosted Server", "Game Server Provider"]}>
+  <Tabs.Tab>
+    **For Self-Hosted Servers:** 1. **Check Your License Key**: - Visit [Cfx.re
+    Keymaster](https://portal.cfx.re) - Log in with your FiveM account - Find
+    your server's license key in the "Server Keys" section 2. **Verify
+    Ownership**: - Ensure the account owning the license key is the same one
+    that purchased the asset - Check the "Granted Assets" section to see your
+    purchased resources 3. **Update License Key** (if needed): - Generate a new
+    license key under your purchasing account - Update your `server.cfg` with
+    the new key: ```cfg sv_licenseKey "your-new-license-key-here" ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    **For Game Server Providers:** Many hosting providers generate license keys
+    under their own accounts. You'll need to use your own key: 1. **Generate
+    Your Own License Key**: - Visit [Cfx.re Keymaster](https://portal.cfx.re) -
+    Create a new server license key under your account 2. **Contact Your Host**:
+    - Ask them to update your server configuration with your personal license
+    key - Some hosts have panels where you can change this yourself 3.
+    **Alternative Solution**: - Some hosts offer "asset bridging" services -
+    Contact support to ask about transferring asset entitlements
+  </Tabs.Tab>
+</Tabs>
+
+### Solution 2: Server Restart
+
+<Callout type="warning">
+  **Important**: Simply restarting the resource is not enough. You must restart
+  the entire FiveM server process.
+</Callout>
+
+**Complete Server Restart Process:**
+
+1. **Stop the Server**:
+
+   ```bash
+   # For screen sessions
+   screen -r fivem
+   # Press Ctrl+C to stop
+
+   # For txAdmin
+   # Use the web panel stop button
+
+   # For Windows
+   # Close the server window or use task manager
+   ```
+
+2. **Wait 30 Seconds**:
+   - Allow time for FiveM to properly disconnect from services
+   - This ensures entitlement cache is cleared
+
+3. **Start the Server**:
+
+   ```bash
+   # Restart using your normal method
+   # Screen, txAdmin, or direct execution
+   ```
+
+4. **Verify Entitlement**:
+   - Check console output during startup
+   - Look for successful resource loading messages
+
+### Solution 3: Re-download from Keymaster
+
+Sometimes files become corrupted or outdated:
+
+<Steps>
+
+### Access Keymaster
+
+Visit [portal.cfx.re](https://portal.cfx.re) and log in
+
+### Find Your Asset
+
+Navigate to "Granted Assets" and locate your purchased resource
+
+### Download Fresh Copy
+
+Click the download button to get the latest version
+
+### Replace Files
+
+- **Backup** your current configuration files
+- **Delete** the old resource folder completely
+- **Extract** the new download
+- **Restore** your configuration files
+
+### Test Installation
+
+Start your server and verify the resource loads correctly
+
+</Steps>
+
+### Solution 4: Account Verification
+
+<Tabs
+  items={[
+    "Check Account Linking",
+    "Verify Purchase History",
+    "Contact Support"
+  ]}
+>
+  <Tabs.Tab>
+    **Verify Account Connections:** 1. **Check Cfx.re Account**: - Visit [Cfx.re
+    Account Settings](https://account.cfx.re) - Verify your account information
+    is correct - Check linked social accounts 2. **Steam/Discord Linking**: -
+    Ensure Steam/Discord accounts are properly linked - These may affect asset
+    entitlements 3. **Email Verification**: - Confirm your email address is
+    verified - Check for any account security issues
+  </Tabs.Tab>
+  <Tabs.Tab>
+    **Verify Your Purchases:** 1. **Check Purchase History**: - Visit your
+    Zerio-Scripts store account - Verify the purchase was completed successfully
+    - Check for any payment issues 2. **Keymaster Assets**: - Log into Keymaster
+    with the purchasing account - Verify the asset appears in "Granted Assets" -
+    Check asset expiration dates (if applicable) 3. **Payment Verification**: -
+    Check your payment method for successful charges - Look for any chargebacks
+    or payment disputes
+  </Tabs.Tab>
+  <Tabs.Tab>
+    **Contact Official Support:** If other solutions don't work: 1. **Gather
+    Information**: - Your FiveM account details - Purchase confirmation emails -
+    Server license key - Screenshots of error messages 2. **Contact
+    Zerio-Scripts**: - Join our [Discord](https://discord.zerio-scripts.com) -
+    Create a support ticket - Provide all gathered information 3. **FiveM
+    Support** (if needed): - For Keymaster or account issues - Visit [FiveM
+    Support](https://forum.cfx.re)
+  </Tabs.Tab>
+</Tabs>
+
+## 🔄 Prevention Tips
+
+### Best Practices
+
+**For Server Owners:**
+
+- Always use license keys from your own account
+- Keep your Cfx.re account information up-to-date
+- Document which assets are purchased under which accounts
+- Regularly backup your license keys and server configurations
+
+**For Game Server Customers:**
+
+- Purchase assets with your personal FiveM account
+- Request your hosting provider to use your license key
+- Keep asset purchase confirmations and receipts
+- Consider self-hosting for better asset control
+
+### Common Mistakes to Avoid
+
+❌ **Using provider-generated license keys** for purchased assets  
+❌ **Sharing license keys** between different accounts  
+❌ **Downloading resources** from unofficial sources  
+❌ **Not restarting the server** after purchasing new assets  
+❌ **Using cracked or modified** versions of protected resources
+
+## 🧪 Testing Your Fix
+
+After applying any solution:
+
+<Steps>
+
+### Clear Console
+
+Start with a fresh server console to see new messages clearly
+
+### Monitor Startup
+
+Watch the console during server startup for entitlement messages
+
+### Test Resource Loading
+
+Verify the resource starts without warnings
+
+### In-Game Testing
+
+Join the server and test basic resource functionality
+
+### Check Other Resources
+
+Ensure other assets still work correctly
+
+</Steps>
+
+### Success Indicators
+
+✅ No "lacking entitlement" errors in console  
+✅ Resource starts successfully  
+✅ All features accessible in-game  
+✅ No performance warnings related to entitlement
+
+## ❓ Frequently Asked Questions
+
+**Q: Why did this suddenly start happening?**  
+A: Common causes include server provider changes, license key rotations, or asset transfers between accounts.
+
+**Q: Can I transfer assets between accounts?**  
+A: Asset transfers are handled by FiveM/Cfx.re directly. Contact them for assistance with account transfers.
+
+**Q: Will this affect my other resources?**  
+A: Entitlement issues typically only affect the specific resource with problems, but license key changes can impact all protected assets.
+
+**Q: How long do entitlement checks take?**  
+A: Entitlement verification happens during server startup and usually completes within seconds.
+
+---
+
+_Still experiencing issues? Join our [Discord community](https://discord.zerio-scripts.com) for personalized support from our team and community members._

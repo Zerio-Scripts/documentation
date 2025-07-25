@@ -1,3 +1,202 @@
-# Common issues
+import { Callout, Cards } from "nextra/components";
+import {
+  ExclamationTriangleIcon,
+  QuestionMarkCircledIcon,
+  Pencil1Icon,
+  ChatBubbleIcon
+} from "@radix-ui/react-icons";
 
-This category contains a lot of the common issues, that can apply to any FiveM resource using FXAP (FiveM Asset Protection)
+# Common Issues
+
+This comprehensive troubleshooting guide addresses the most frequently encountered issues when using Zerio-Scripts resources with **FiveM Asset Protection (FXAP)**. Most problems can be resolved quickly by following the solutions provided below.
+
+<Callout type="info">
+  **Quick Help**: If you're experiencing an immediate issue, use **Ctrl+F** (or
+  **Cmd+F** on Mac) to search for specific error messages or keywords on this
+  page.
+</Callout>
+
+## 🔍 Issue Categories
+
+<Cards>
+  <Cards.Card
+    icon={<ExclamationTriangleIcon />}
+    title="Lacking Entitlement"
+    href="/commonissues/lackingentitlement"
+    arrow
+  />
+
+{" "}
+
+<Cards.Card
+  icon={<Pencil1Icon />}
+  title="Syntax Errors"
+  href="/commonissues/syntaxerror"
+  arrow
+/>
+
+  <Cards.Card
+    icon={<QuestionMarkCircledIcon />}
+    title="Other Bugs"
+    href="/commonissues/otherbugs"
+    arrow
+  />
+</Cards>
+
+## 🚨 Emergency Troubleshooting
+
+### Most Common Issues (Quick Fixes)
+
+**Resource Won't Start:**
+
+1. Check if all dependencies are installed and started
+2. Verify the resource is properly named (no spaces, special characters)
+3. Ensure SQL files have been imported
+4. Check console for specific error messages
+
+**"Lacking Entitlement" Error:**
+
+1. Restart your FiveM server completely
+2. Verify your license key ownership matches your purchase account
+3. Check if the resource is properly downloaded from Keymaster
+
+**Players Can't Access Features:**
+
+1. Verify framework compatibility (QBCore vs ESX)
+2. Check job permissions and grades
+3. Ensure target system is configured correctly
+4. Test with admin permissions first
+
+**Database Errors:**
+
+1. Confirm SQL files have been imported
+2. Check database connection configuration
+3. Verify table names match the resource expectations
+4. Test database connectivity
+
+## 🛠️ General Troubleshooting Steps
+
+### Step 1: Check the Basics
+
+- ✅ **Server Status**: Is your FiveM server running?
+- ✅ **Resource Loading**: Is the resource listed in server.cfg?
+- ✅ **File Integrity**: Are all resource files present and unmodified?
+- ✅ **Permissions**: Does the server have read/write access to files?
+
+### Step 2: Review Configuration
+
+- ✅ **Framework Setup**: Is your framework (QBCore/ESX) configured correctly?
+- ✅ **Database Settings**: Are database credentials correct?
+- ✅ **Dependencies**: Are all required resources started before this one?
+- ✅ **Target System**: Is your target system (ox_target, qtarget) working?
+
+### Step 3: Check Console Output
+
+- ✅ **Error Messages**: Look for red error messages in console
+- ✅ **Warning Messages**: Review yellow warning messages
+- ✅ **Resource Status**: Verify the resource started successfully
+- ✅ **Performance**: Check for performance-related warnings
+
+### Step 4: Test Functionality
+
+- ✅ **Basic Features**: Test core functionality first
+- ✅ **User Permissions**: Test with different permission levels
+- ✅ **Multi-Player**: Test with multiple players if applicable
+- ✅ **Edge Cases**: Test unusual scenarios or inputs
+
+## 📋 Information to Gather Before Seeking Help
+
+When reporting issues, please provide the following information to help us assist you more effectively:
+
+### Required Information
+
+1. **Resource Name**: Which Zerio-Scripts product is causing issues
+2. **Server Framework**: QBCore, ESX, or standalone setup
+3. **FiveM Version**: Your server's FiveM version number
+4. **Error Messages**: Complete console output including timestamps
+5. **Configuration**: Relevant sections of your config files
+
+### Helpful Additional Information
+
+- **Server Specifications**: RAM, CPU, operating system
+- **Other Resources**: List of other resources that might conflict
+- **Recent Changes**: Any recent server modifications or updates
+- **Reproduction Steps**: Detailed steps to reproduce the issue
+- **Screenshots/Videos**: Visual evidence of the problem
+
+### Console Log Example
+
+When sharing console logs, include relevant context:
+
+```
+[2024-01-15 10:30:45] [INFO] Starting resource: zerio-bossmenu
+[2024-01-15 10:30:45] [ERROR] zerio-bossmenu: Database connection failed
+[2024-01-15 10:30:45] [ERROR] zerio-bossmenu: Please check your database configuration
+[2024-01-15 10:30:45] [WARN] zerio-bossmenu: Resource failed to start properly
+```
+
+## 🤝 Getting Additional Help
+
+### Community Support Channels
+
+<Cards>
+  <Cards.Card
+    icon={<ChatBubbleIcon />}
+    title="Discord Community"
+    href="https://discord.zerio-scripts.com"
+    arrow
+  >
+    Join our active community for real-time support and help from other users
+  </Cards.Card>
+</Cards>
+
+### Support Guidelines
+
+**Before Creating a Support Ticket:**
+
+1. Check this troubleshooting guide thoroughly
+2. Search our Discord for similar issues
+3. Test with minimal configuration/other resources disabled
+4. Document the issue with screenshots or videos
+
+**When Creating a Support Request:**
+
+- **Be Specific**: Provide exact error messages and steps
+- **Be Patient**: Our team responds as quickly as possible
+- **Be Collaborative**: We may ask for additional information
+- **Be Respectful**: Help us maintain a positive community
+
+### Response Times
+
+- **Critical Issues**: 2-6 hours during business hours
+- **General Issues**: 12-24 hours
+- **Feature Requests**: 1-3 business days
+- **Documentation Updates**: 1-2 business days
+
+<Callout type="default">
+  **Community First**: Many issues are resolved quickly by our helpful community
+  members. Don't hesitate to ask for help in our Discord channels before
+  creating formal support tickets.
+</Callout>
+
+## 🔄 Keep This Guide Updated
+
+This troubleshooting guide is continuously updated based on:
+
+- **Community Feedback**: Issues reported by users like you
+- **New Features**: Updates that may introduce new configuration requirements
+- **Framework Changes**: Updates to QBCore, ESX, and other dependencies
+- **Best Practices**: Improved solutions discovered by our community
+
+### Contributing to This Guide
+
+Help make this guide better by:
+
+- **Reporting Issues**: Let us know about problems not covered here
+- **Sharing Solutions**: If you've found a fix, share it with the community
+- **Suggesting Improvements**: Ideas for making this guide more helpful
+- **Documentation**: Help us keep information current and accurate
+
+---
+
+_Still need help? Don't worry - our community and support team are here to help you get your resources working perfectly!_

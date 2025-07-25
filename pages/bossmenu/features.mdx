@@ -1,0 +1,170 @@
+import { Callout, Cards } from "nextra/components";
+import {
+  PersonIcon,
+  GearIcon,
+  RocketIcon,
+  ArchiveIcon
+} from "@radix-ui/react-icons";
+
+# Features Overview
+
+Core functionality of Zerio Bossmenu for FiveM servers.
+
+## 🏢 Main Features
+
+<Cards>
+  <Cards.Card
+    icon={<PersonIcon />}
+    title="Employee Management"
+    href="#employee-management"
+  />
+  <Cards.Card
+    icon={<GearIcon />}
+    title="Job Grades & Permissions"
+    href="#job-grades--permissions"
+  />
+  <Cards.Card
+    icon={<RocketIcon />}
+    title="Financial Management"
+    href="#financial-management"
+  />
+  <Cards.Card
+    icon={<ArchiveIcon />}
+    title="Vehicle & Item Ordering"
+    href="#vehicle--item-ordering"
+  />
+</Cards>
+
+## Employee Management
+
+### Hiring & Firing
+
+- Hire nearby players with distance filtering
+- Fire employees (online or offline)
+- Change employee job grades/ranks
+- Individual salary overrides per employee
+
+### Employee Features
+
+- Employee list with job grade information
+- Work session tracking (clock in/out times)
+- Boss access permissions (grant/revoke)
+- Employee notes and hire date tracking
+
+## Job Grades & Permissions
+
+### Grade Management
+
+- Create, edit, delete job grades in-game
+- Set grade names and salary amounts
+- Real-time framework synchronization (ESX/QBCore)
+- Boss access control per employee
+
+### Framework Integration
+
+- ESX, QBCore, QBXCore support
+- Automatic job/gang detection
+- Multijob system compatibility (zerio-multijobs, ps-multijob, randol_multijob)
+
+## Financial Management
+
+### Banking Operations
+
+- Deposit/withdraw money from society accounts
+- Transaction history with reasons
+- Multiple banking system support:
+  - esx_society, qb-management, qb-banking
+  - okokBanking, renewedbanking, fd_banking
+- Configurable salary limits per job
+
+### Financial Features
+
+- Give employee bonuses
+- Track all transactions with timestamps
+- Webhook notifications for financial actions
+
+## Vehicle & Item Ordering
+
+### Vehicle Management
+
+- Order vehicles for job/gang fleet
+- Vehicle delivery system with configurable timing
+- Garage integration with status tracking
+- Sell back vehicles with refund percentage
+- Track vehicle condition (engine, body, fuel)
+
+### Item Ordering
+
+- Order items from configurable catalogs
+- Delivery to job-specific stashes
+- Item metadata support
+- Order cancellation with refunds
+
+## Administrative Features
+
+### Position Management
+
+- 3D boss menu positioning with visual editor
+- Multiple positions per job/gang
+- Camera controls and model positioning
+- Admin command access (`/bossmenuadmin`)
+
+### Interaction Methods
+
+- Normal help text display
+- Target script integration (ox_target, qb-target)
+- Proximity prompt support
+- Manual export opening
+
+## Technical Features
+
+### Database & Logging
+
+- Comprehensive activity logging
+- Session tracking for admin actions
+- Automatic log cleanup with retention settings
+- Complete audit trail for all actions
+
+### Performance
+
+- Optimized database queries with indexing
+- Configurable distance checks and rendering
+- Resource usage monitoring
+- Automatic cleanup of old data
+
+### Integration Support
+
+- Server exports for vehicle management
+- Client export for opening menu
+- Event system for real-time updates
+- Custom banking system integration
+
+## Configuration
+
+### Customizable Settings
+
+- Hire distance limits
+- Delivery times for vehicles/items
+- Refund percentages
+- Stash names per job
+- Maximum salary limits
+- Currency and time formatting
+
+### Framework Compatibility
+
+- Auto-detects ESX/QBCore/QBXCore
+- Works with popular inventory systems
+- Integrates with existing garage scripts
+- Supports gang systems
+
+<Callout type="info">
+  **Simple Setup**: Most features work out of the box with minimal configuration
+  required.
+</Callout>
+
+## Getting Started
+
+1. **[Installation Guide](/bossmenu/installationguide)** - Setup instructions
+2. **[Configuration Guide](/bossmenu/configuration)** - Customize settings
+3. **[FAQ](/bossmenu/faq)** - Common questions
+4. **[Developer Docs](/bossmenu/devdocs)** - Exports and integration

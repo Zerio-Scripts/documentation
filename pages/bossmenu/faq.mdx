@@ -1,11 +1,337 @@
-# Frequently asked questions
+import { Callout, Tabs } from "nextra/components";
 
-A list of frequently asked questions can be seen below.
+# Frequently Asked Questions
 
-If this is empty and you have a question, please turn to the support in our [community server](http://discord.zerio-scripts.com) instead!
+Find answers to common questions about Zerio Bossmenu. For additional support, join our [Discord community](https://discord.zerio-scripts.com).
 
-## Adding a new job
+## 🚀 Getting Started
 
-Adding a new job to the script is as simple as adding it to the `Config.Positions` list in the `zerio-bossmenu/config.lua` file.
+### How do I create boss menu positions?
 
-You can copy one of the existing jobs and then simply change the values.
+Use `/bossmenuadmin` (configurable in `configs/adminmenu.lua`) to access the admin interface and create positions for your jobs/gangs.
+
+### Why can't I access the boss menu?
+
+Check: correct job, position exists for your job, sufficient job grade, within interaction distance.
+
+### How do I add new jobs?
+
+Jobs are auto-detected from your framework. Add to your framework's job system, then create positions via admin menu.
+
+## 💼 Employee Management
+
+### How do I hire employees?
+
+Boss menu → Employees → Hire Employee → Select nearby player → Choose grade.
+
+Hire distance: `Config.MaxHireDistance` in `configs/main.lua` (default: 20 units, -1 for unlimited).
+
+### How do I enable individual salaries?
+
+<Tabs items={['ESX', 'QBCore/QBXCore']}>
+    <Tabs.Tab>
+        In `es_extended/server/paycheck.lua`, find the `local salary = ...` line and replace it with:
+
+        ```lua
+        local salary = exports["zerio-bossmenu"]:GetEmployeeActiveSalary(xPlayer.identifier, xPlayer.job.name)
+        ```
+    </Tabs.Tab>
+
+    <Tabs.Tab>
+        **QBCore**: In `qb-core/server/functions.lua` (PaycheckInterval function)
+        **QBXCore**: In `qbx_core/server/loops.lua` (pay function)
+
+        Find the `local payment = ...` line and replace it with:
+
+        ```lua
+        local payment = exports["zerio-bossmenu"]:GetEmployeeActiveSalary(identifier, jobName)
+        ```
+    </Tabs.Tab>
+
+</Tabs>
+
+### Can I fire offline employees?
+
+Yes, all employees show regardless of online status.
+
+### Setting up job role editing
+
+<Tabs items={['ESX', 'QBCore', 'QBXCore']}>
+    <Tabs.Tab>
+        Open the `es_extended/server/paycheck.lua` file, and find the `local salary = ...` line and replace that with the line below:
+
+        ```lua
+        local salary = exports["zerio-bossmenu"]:GetEmployeeActiveSalary(xPlayer.identifier, xPlayer.job.name)
+        ```
+
+        Also, make sure that your other scripts actually listen to the `es_extended:updatedJobs` event, though.
+    </Tabs.Tab>
+
+    <Tabs.Tab>
+        Open the `qb-core/shared/jobs.lua` file, and paste the following snippet at the bottom of the file:
+
+        ```lua
+        -- INTEGRATION FOR ZERIO-BOSSMENU, DO NOT TOUCH THIS IN ANY WAY!!!! --
+        if GetResourceState("zerio-bossmenu") ~= "missing" then
+            local prefix = IsDuplicityVersion() and "server" or "client"
+            local registerEvent = IsDuplicityVersion() and AddEventHandler or RegisterNetEvent
+
+            registerEvent("zerio-bossmenu:" .. prefix .. ":createdJobGrade", function(jobName, gradeLevel, gradeName, salary)
+                if not QBShared.Jobs[jobName] then return end
+                gradeLevel = tostring(gradeLevel)
+                if not QBShared.Jobs[jobName].grades[gradeLevel] then return end
+                QBShared.Jobs[jobName].grades[gradeLevel] = { name = gradeName, payment = salary }
+                QBCore.Shared.Jobs[jobName].grades[gradeLevel] = { name = gradeName, payment = salary }
+                TriggerEvent("zerio-bossmenu:" .. prefix .. ":updatedSharedJobs", QBShared.Jobs)
+            end)
+
+            registerEvent("zerio-bossmenu:" .. prefix .. ":updatedJobGrade", function(jobName, gradeLevel, gradeName, salary)
+                if not QBShared.Jobs[jobName] then return end
+                gradeLevel = tostring(gradeLevel)
+                if not QBShared.Jobs[jobName].grades[gradeLevel] then return end
+                QBShared.Jobs[jobName].grades[gradeLevel].name = gradeName
+                QBShared.Jobs[jobName].grades[gradeLevel].payment = salary
+                QBCore.Shared.Jobs[jobName].grades[gradeLevel].name = gradeName
+                QBCore.Shared.Jobs[jobName].grades[gradeLevel].payment = salary
+                TriggerEvent("zerio-bossmenu:" .. prefix .. ":updatedSharedJobs", QBShared.Jobs)
+            end)
+
+            registerEvent("zerio-bossmenu:" .. prefix .. ":deletedJobGrade", function(jobName, gradeLevel)
+                if not QBShared.Jobs[jobName] then return end
+                gradeLevel = tostring(gradeLevel)
+                QBShared.Jobs[jobName].grades[gradeLevel] = nil
+                QBCore.Shared.Jobs[jobName].grades[gradeLevel] = nil
+                TriggerEvent("zerio-bossmenu:" .. prefix .. ":updatedSharedJobs", QBShared.Jobs)
+            end)
+
+            if IsDuplicityVersion() then
+                AddEventHandler("qb-core:server:updateSharedJobsFile", function(data, cb)
+                    local oldData = LoadResourceFile(GetCurrentResourceName(), "shared/jobs.lua")
+                    if oldData then
+                        SaveResourceFile(GetCurrentResourceName(), "backups/jobs" .. tostring(os.time()) .. ".lua", oldData, -1)
+                    end
+                    cb(SaveResourceFile(GetCurrentResourceName(), "shared/jobs.lua", data, -1))
+                end)
+            end
+        else
+            CreateThread(function()
+                while true do
+                    warn("Tried to load zerio-bossmenu job integration, but zerio-bossmenu seems to be missing?")
+                    Wait(500)
+                end
+            end)
+        end
+        -- END OF ZERIO-BOSSMENU INTEGRATION --
+        ```
+
+        Open the `qb-core/shared/gangs.lua` file, and paste the following snippet at the bottom of the file:
+
+        ```lua
+        -- INTEGRATION FOR ZERIO-BOSSMENU, DO NOT TOUCH THIS IN ANY WAY!!!! --
+        if GetResourceState("zerio-bossmenu") ~= "missing" then
+            local prefix = IsDuplicityVersion() and "server" or "client"
+            local registerEvent = IsDuplicityVersion() and AddEventHandler or RegisterNetEvent
+
+            registerEvent("zerio-bossmenu:" .. prefix .. ":createdGangGrade", function(jobName, gradeLevel, gradeName)
+                if not QBShared.Gangs[jobName] then return end
+                gradeLevel = tostring(gradeLevel)
+                if not QBShared.Gangs[jobName].grades[gradeLevel] then return end
+                QBShared.Gangs[jobName].grades[gradeLevel] = { name = gradeName }
+                QBCore.Shared.Gangs[jobName].grades[gradeLevel] = { name = gradeName }
+                TriggerEvent("zerio-bossmenu:" .. prefix .. ":updatedSharedGangs", QBShared.Gangs)
+            end)
+
+            registerEvent("zerio-bossmenu:" .. prefix .. ":updatedGangGrade", function(jobName, gradeLevel, gradeName)
+                if not QBShared.Gangs[jobName] then return end
+                gradeLevel = tostring(gradeLevel)
+                if not QBShared.Gangs[jobName].grades[gradeLevel] then return end
+                QBShared.Gangs[jobName].grades[gradeLevel].name = gradeName
+                QBCore.Shared.Gangs[jobName].grades[gradeLevel].name = gradeName
+                TriggerEvent("zerio-bossmenu:" .. prefix .. ":updatedSharedGangs", QBShared.Gangs)
+            end)
+
+            registerEvent("zerio-bossmenu:" .. prefix .. ":deletedGangGrade", function(jobName, gradeLevel)
+                if not QBShared.Gangs[jobName] then return end
+                gradeLevel = tostring(gradeLevel)
+                QBShared.Gangs[jobName].grades[gradeLevel] = nil
+                QBCore.Shared.Gangs[jobName].grades[gradeLevel] = nil
+                TriggerEvent("zerio-bossmenu:" .. prefix .. ":updatedSharedGangs", QBShared.Gangs)
+            end)
+
+            if IsDuplicityVersion() then
+                AddEventHandler("qb-core:server:updateSharedGangsFile", function(data, cb)
+                    local oldData = LoadResourceFile(GetCurrentResourceName(), "shared/gangs.lua")
+                    if oldData then
+                        SaveResourceFile(GetCurrentResourceName(), "backups/jobs" .. tostring(os.time()) .. ".lua", oldData, -1)
+                    end
+                    cb(SaveResourceFile(GetCurrentResourceName(), "shared/gangs.lua", data, -1))
+                end)
+            end
+        else
+            CreateThread(function()
+                while true do
+                    warn("Tried to load zerio-bossmenu job integration, but zerio-bossmenu seems to be missing?")
+                    Wait(500)
+                end
+            end)
+        end
+        -- END OF ZERIO-BOSSMENU INTEGRATION --
+        ```
+
+        Create a folder called `backups` in your `qb-core` folder, and make sure that the `qb-core` folder is writable.
+
+        For scripts you want to integrate with this, you can listen to the `zerio-bossmenu:server:updatedSharedJobs`, `zerio-bossmenu:client:updatedSharedJobs`, `zerio-bossmenu:server:updatedSharedGangs` and `zerio-bossmenu:client:updatedSharedGangs` events.
+    </Tabs.Tab>
+
+    <Tabs.Tab>
+        Open the `qbx_core/server/events.lua` file, and paste the following snippet at the bottom of the file:
+
+        ```lua
+        AddEventHandler("qb-core:server:updateSharedGangsFile", function(data, cb)
+            local oldData = LoadResourceFile(GetCurrentResourceName(), "shared/gangs.lua")
+            if oldData then
+                SaveResourceFile(GetCurrentResourceName(), "backups/gangs" .. tostring(os.time()) .. ".lua", oldData, -1)
+            end
+            cb(SaveResourceFile(GetCurrentResourceName(), "shared/gangs.lua", data, -1))
+        end)
+
+        AddEventHandler("qb-core:server:updateSharedJobsFile", function(data, cb)
+            local oldData = LoadResourceFile(GetCurrentResourceName(), "shared/jobs.lua")
+            if oldData then
+                SaveResourceFile(GetCurrentResourceName(), "backups/jobs" .. tostring(os.time()) .. ".lua", oldData, -1)
+            end
+            cb(SaveResourceFile(GetCurrentResourceName(), "shared/jobs.lua", data, -1))
+        end)
+        ```
+
+        Create a folder called `backups` in your `qbx_core` folder, and make sure that the `qbx_core` folder is writable.
+
+        For scripts you want to integrate with this, you can listen to qbox's official `qbx_core:server:onJobUpdate` and `qbx_core:client:onJobUpdate` events.
+    </Tabs.Tab>
+
+</Tabs>
+
+## 🔧 Framework Integration
+
+### Supported Frameworks
+
+- **ESX** (es_extended)
+- **QBCore** (qb-core)
+- **QBXCore** (qbx_core)
+
+Auto-detected in `configs/framework.lua`.
+
+### Supported Banking Systems
+
+Configure in `configs/main.lua` → `Config.ManagementScript`:
+
+- `esx_society` (ESX default)
+- `qb-management` (QBCore default)
+- `qb-banking`
+- `okokBanking` (jobs only, not gangs)
+- `renewedbanking`
+- `fd_banking`
+
+### Multijob Support
+
+Supported systems (auto-detected):
+
+- `zerio-multijobs`
+- `ps-multijob`
+- `randol_multijob`
+
+## 🚗 Vehicle Management
+
+### How do I add purchasable vehicles?
+
+Admin menu → Available Vehicles → Add Vehicle. Configure spawn name, price, job assignment.
+
+### Vehicle delivery
+
+Orders deduct payment immediately, deliver after `Config.VehicleDeliveryTime` (default: 1 minute).
+
+### Garage integration
+
+Use exports:
+
+```lua
+exports["zerio-bossmenu"]:UpdateVehicleStatus(plate, "out")
+exports["zerio-bossmenu"]:UpdateVehicleGarage(plate, garageName)
+```
+
+### Sell back refund
+
+Configured by `Config.VehicleSellBackPercentage` (default: 50%).
+
+## 💰 Financial Management
+
+### Salary limits
+
+Set per-job in `configs/main.lua`:
+
+```lua
+Config.MaxSalaries = {
+    ["police"] = 15000,
+    ["ambulance"] = 12000,
+}
+```
+
+### Custom banking integration
+
+Edit `server/functions.lua` functions: `GetSocietyMoney`, `AddSocietyMoney`, `RemoveSocietyMoney`.
+
+## 📦 Item Management
+
+### Item ordering setup
+
+1. Configure stash names in `configs/main.lua`:
+
+   ```lua
+   Config.StashNames = {
+       ["police"] = "policelocker",
+   }
+   ```
+
+2. Add available items via admin menu
+3. Items deliver after `Config.ItemDeliveryTime` (default: 1 minute)
+
+### Supported inventory systems
+
+Auto-detected: ox_inventory, qb-inventory, qs-inventory.
+
+### Item metadata
+
+Configure in `configs/main.lua`:
+
+```lua
+Config.ItemMetadata = {
+    ["weapon_pistol"] = {
+        ["serial"] = "auto-generated",
+    }
+}
+```
+
+## 🔧 Troubleshooting
+
+### Resource not starting
+
+Check: SQL imported, dependencies loaded, file permissions.
+
+### Menu not opening
+
+Check: position created, job grade sufficient, interaction distance, target script config.
+
+### Database errors
+
+Verify: SQL import, database permissions, oxmysql working.
+
+### Performance issues
+
+- Set `Config.Debug = false`
+- Enable `Config.CleanOldLogs = true`
+- Adjust distances in `configs/opentype.lua`
+
+<Callout type="info">
+  **Need more help?** Join our [Discord
+  community](https://discord.zerio-scripts.com) for support.
+</Callout>

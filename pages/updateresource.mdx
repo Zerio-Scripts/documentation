@@ -1,12 +1,382 @@
-# Updating a resource
+import { Callout, Steps, Tabs, Cards } from "nextra/components";
+import {
+  UpdateIcon,
+  DownloadIcon,
+  BackupIcon,
+  ExclamationTriangleIcon
+} from "@radix-ui/react-icons";
 
-Updating a resource is as simple as redownloading the files from [keymaster](https://keymaster.fivem.net).
+# Updating Resources
 
-Or, in other words. Remove your old resource files, and replace them with the new files.
+Keeping your Zerio-Scripts resources up-to-date ensures you have the latest features, security improvements, and bug fixes. This guide covers everything you need to know about safely updating your resources.
 
-Often, if nothing else is specified, your configuration files can be kept.
-Even better, most of the time, we try to post a specific file list of what was changed in our community server.
+## 🔔 Update Notifications
 
-## How do I know if its outdated?
+### How to Know When Updates Are Available
 
-You will get a warning in your Server Console saying its outdated, keep your eyes open and it should be impossible to miss!
+<Cards>
+  <Cards.Card
+    icon={<ExclamationTriangleIcon />}
+    title="Console Warnings"
+    arrow
+    href="#"
+  />
+
+{" "}
+
+<Cards.Card
+  icon={<UpdateIcon />}
+  title="Discord Announcements"
+  href="https://discord.zerio-scripts.com"
+  arrow
+/>
+
+  <Cards.Card
+    icon={<DownloadIcon />}
+    title="Keymaster Portal"
+    href="https://keymaster.fivem.net"
+    arrow
+  />
+</Cards>
+
+### Console Warning Example
+
+When a resource is outdated, you'll see a message similar to:
+
+```
+[WARN] zerio-bossmenu: This resource is outdated!
+      Current version: v1.2.0, Latest version: v1.3.0
+      Please update from: https://keymaster.fivem.net
+```
+
+<Callout type="warning">
+  **Don't Ignore Updates**: Outdated resources may have security
+  vulnerabilities, compatibility issues, or missing features. We strongly
+  recommend keeping all resources current.
+</Callout>
+
+## 📋 Pre-Update Checklist
+
+<Steps>
+
+### Create a Complete Backup
+
+Before updating any resource, **always** create a backup:
+
+- Full server files backup
+- Database backup
+- Configuration files backup
+- Custom modifications documentation
+
+### Review Update Notes
+
+Check our Discord or documentation for:
+
+- Breaking changes that might affect your setup
+- New configuration options
+- Database schema changes
+- Compatibility requirements
+
+### Plan Maintenance Window
+
+- Schedule updates during low-traffic periods
+- Notify your community about potential downtime
+- Have a rollback plan ready
+
+### Test Environment
+
+If possible, test updates on a development server first:
+
+- Clone your production environment
+- Test all functionality after updating
+- Verify custom modifications still work
+
+</Steps>
+
+## 🔄 Update Process
+
+### Method 1: Standard Update (Recommended)
+
+<Tabs items={["Windows", "Linux", "txAdmin"]}>
+  <Tabs.Tab>
+    **Windows Server Update:** 1. **Stop your FiveM server** 2. **Download
+    latest version** from [Keymaster](https://keymaster.fivem.net) 3. **Backup
+    current resource**: Copy `zerio-resourcename` to a backup folder 4.
+    **Extract new files**: Unzip the downloaded update 5. **Replace old files**:
+    Delete old resource folder and replace with new one 6. **Restore
+    configurations**: Copy your custom configuration files back 7. **Check SQL
+    updates**: Import any new SQL files if provided 8. **Start server**: Restart
+    your FiveM server 9. **Test functionality**: Verify everything works
+    correctly
+  </Tabs.Tab>
+  <Tabs.Tab>
+    **Linux Server Update:** ```bash # Stop your server first screen -r fivem #
+    Ctrl+C to stop, then Ctrl+A+D to detach # Navigate to resources directory cd
+    /path/to/server/resources/ # Backup current resource cp -r
+    zerio-resourcename/ zerio-resourcename-backup/ # Remove old version rm -rf
+    zerio-resourcename/ # Extract new version unzip
+    /path/to/downloaded/zerio-resource.zip # Restore your config files cp
+    zerio-resourcename-backup/config.lua zerio-resourcename/ # Start server
+    screen -r fivem # Start your server again ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    **txAdmin Web Panel:** 1. **Access txAdmin panel** in your web browser 2.
+    **Stop the server** using the web interface 3. **Use Resource Manager** to
+    upload the new version 4. **Replace existing resource** when prompted 5.
+    **Import SQL updates** if any are provided 6. **Start the server** through
+    the web panel 7. **Monitor live console** for any errors
+  </Tabs.Tab>
+</Tabs>
+
+### Method 2: In-Place Update (Advanced Users)
+
+This method updates files without full replacement:
+
+1. **Compare file structures** between old and new versions
+2. **Replace modified files** individually
+3. **Merge configuration changes** manually
+4. **Test thoroughly** before going live
+
+<Callout type="error">
+  **Risk Warning**: In-place updates can be risky if not done correctly. We
+  recommend the standard replacement method for most users.
+</Callout>
+
+## ⚙️ Configuration Migration
+
+### Preserving Your Settings
+
+Most updates maintain backward compatibility with existing configurations, but sometimes manual migration is needed:
+
+#### Automatic Configuration Migration
+
+Many newer resources include automatic migration systems:
+
+```lua
+-- The resource will detect and upgrade old config formats
+Config.AutoMigrate = true -- Usually enabled by default
+```
+
+#### Manual Configuration Updates
+
+When manual updates are required:
+
+1. **Compare config files**: Use a text editor with diff capabilities
+2. **Identify new options**: Look for new configuration sections
+3. **Preserve customizations**: Keep your existing settings where possible
+4. **Add new requirements**: Include any new mandatory settings
+
+#### Configuration Backup Strategy
+
+```bash
+# Before updating, save your configs
+cp config.lua config.lua.backup
+cp -r shared/ shared.backup/
+cp -r config/ config.backup/
+```
+
+### Common Configuration Changes
+
+**Framework Updates:**
+
+```lua
+-- Old format
+Config.Framework = 'qb-core'
+
+-- New format (example)
+Config.Framework = {
+    name = 'qb-core',
+    version = 'latest'
+}
+```
+
+**New Feature Toggles:**
+
+```lua
+-- New features are often disabled by default
+Config.NewFeature = {
+    enabled = false,
+    setting1 = 'default_value',
+    setting2 = true
+}
+```
+
+## 🗃️ Database Updates
+
+### SQL Schema Updates
+
+Some updates include database schema changes:
+
+<Steps>
+
+### Check for SQL Files
+
+Look for new SQL files in the updated resource:
+
+- `sql/update_v1.3.0.sql`
+- `sql/migration_latest.sql`
+- Update notes mentioning database changes
+
+### Backup Your Database
+
+**Always backup before running SQL updates:**
+
+```sql
+-- Create a backup
+mysqldump -u username -p database_name > backup_before_update.sql
+```
+
+### Import Update Scripts
+
+Import any provided SQL update files:
+
+```bash
+mysql -u username -p database_name < sql/update_v1.3.0.sql
+```
+
+### Verify Changes
+
+Check that the database updates completed successfully:
+
+- Review console output for errors
+- Verify new tables/columns exist
+- Test resource functionality
+
+</Steps>
+
+<Callout type="info">
+  **Database Compatibility**: Most updates include both full install SQL files
+  and incremental update files. Use the update files if you're upgrading from a
+  previous version.
+</Callout>
+
+## 🧪 Post-Update Testing
+
+### Comprehensive Testing Checklist
+
+After updating, thoroughly test your resource:
+
+**Basic Functionality:**
+
+- ✅ Resource starts without errors
+- ✅ No console warnings or errors
+- ✅ Basic commands work correctly
+- ✅ User interface displays properly
+
+**Data Integrity:**
+
+- ✅ Existing data loads correctly
+- ✅ New data saves properly
+- ✅ Database queries execute successfully
+- ✅ User permissions work as expected
+
+**Integration Testing:**
+
+- ✅ Framework integration still works
+- ✅ Other resources remain compatible
+- ✅ Target systems function correctly
+- ✅ Society/job systems operate normally
+
+**Performance Testing:**
+
+- ✅ No significant performance degradation
+- ✅ Memory usage remains stable
+- ✅ No new lag or stuttering
+- ✅ Multi-player testing successful
+
+## 🚨 Troubleshooting Updates
+
+### Common Update Issues
+
+**Configuration Errors:**
+
+```
+Error: Config option 'OldSetting' is deprecated
+Solution: Update your config.lua to use the new setting names
+```
+
+**Database Schema Mismatches:**
+
+```
+Error: Unknown column 'new_field' in 'table_name'
+Solution: Import the database update SQL file
+```
+
+**Framework Compatibility:**
+
+```
+Error: QBCore function not found
+Solution: Ensure your framework is up-to-date
+```
+
+### Rollback Procedure
+
+If an update causes issues:
+
+<Steps>
+
+### Stop the Server
+
+Immediately stop your FiveM server to prevent data corruption
+
+### Restore Files
+
+Replace the updated resource with your backup:
+
+```bash
+rm -rf zerio-resourcename/
+cp -r zerio-resourcename-backup/ zerio-resourcename/
+```
+
+### Restore Database
+
+If database changes were made:
+
+```bash
+mysql -u username -p database_name < backup_before_update.sql
+```
+
+### Restart and Verify
+
+Start your server and verify everything works as before
+
+### Report Issues
+
+Contact support with detailed information about the problem
+
+</Steps>
+
+## 📢 Update Best Practices
+
+### Recommended Schedule
+
+- **Check for updates**: Weekly
+- **Apply critical updates**: Within 24-48 hours
+- **Schedule major updates**: During maintenance windows
+- **Test updates**: On development servers first
+
+### Automation Tips
+
+Consider creating update scripts for frequently updated resources:
+
+```bash
+#!/bin/bash
+# update-resource.sh
+RESOURCE_NAME="zerio-bossmenu"
+BACKUP_DIR="/backups/$(date +%Y%m%d)"
+
+# Create backup
+mkdir -p $BACKUP_DIR
+cp -r resources/$RESOURCE_NAME $BACKUP_DIR/
+
+# Download and extract new version
+# (Add your download logic here)
+
+# Restart server
+screen -S fivem -X stuff "refresh\n"
+screen -S fivem -X stuff "restart $RESOURCE_NAME\n"
+```
+
+---
+
+_Stay updated and secure! Regular updates ensure your server runs smoothly with the latest features and security improvements._
