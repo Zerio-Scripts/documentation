@@ -24,7 +24,7 @@
   "homepage": "https://github.com/Zerio-Scripts/documentation#readme",
   "dependencies": {
     "@radix-ui/react-icons": "^1.3.2",
-    "next": "^15.0.3",
+    "next": "15.0.7",
     "nextra": "^3.2.3",
     "nextra-theme-docs": "^3.2.3",
     "react": "^18.3.1",
