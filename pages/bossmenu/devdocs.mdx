@@ -21,6 +21,25 @@ exports["zerio-bossmenu"]:Open()
 
 ### Server Exports
 
+#### Money Management
+
+##### `CreateTransaction(identifier, plrName, amount, reason, job, date, type, isGang)`
+
+Creates a new transaction for a specific player. This is used to track all transactions made by the bossmenu.
+
+**Parameters:**
+
+- `identifier` (string): Player identifier
+- `plrName` (string): Player name
+- `amount` (number): Transaction amount
+- `reason` (string): Transaction reason
+- `job` (string): Job name
+- `date` (string): Transaction date, you can use Lua's `os.time()` function to get the current timestamp.
+- `type` (string): Transaction type, can be "deposit" or "withdraw".
+- `isGang` (boolean): Whether it's a gang
+
+**Returns:** `boolean` - Success status
+
 #### Employee Management
 
 ##### `GetEmployeeActiveSalary(identifier, jobName)`
