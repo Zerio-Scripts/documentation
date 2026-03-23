@@ -37,6 +37,22 @@ It returns whether the player could connect, or not. If false is returned, then 
   frequency to 0.
 </Callout>
 
+#### GetCallsign
+
+```lua
+local callsign = exports["zerio-radio"]:GetCallsign()
+```
+
+This export returns the local player's current callsign as a string. If the player has no callsign set, an empty string is returned.
+
+#### SetCallsign
+
+```lua
+exports["zerio-radio"]:SetCallsign(callsign)
+```
+
+This export sets the local player's callsign. The change is replicated to the server and persisted in the database. If the player is currently in a radio channel, other members on the same frequency will see the updated callsign in real-time.
+
 ### Server
 
 #### DoesChannelExist
@@ -107,3 +123,25 @@ local removed = exports["zerio-radio"]:RemoveAccessFromChannel(frequency, access
 
 This export would remove access to a specific value from the channel. Or in other words, forexample removing a specific job's, identifier's or such's access.
 The `accessType` would be the kind of access you wish to add, forexample `"jobs"`, `"discordRoles"` or so on.
+
+#### GetCallsign
+
+```lua
+local callsign = exports["zerio-radio"]:GetCallsign(source)
+local callsign = exports["zerio-radio"]:GetCallsign(identifier)
+```
+
+This export returns the callsign of a specific player. You can pass either the player's server source (number) or their identifier (string).
+
+If the player has no callsign set, an empty string is returned.
+
+#### SetCallsign
+
+```lua
+exports["zerio-radio"]:SetCallsign(source, callsign)
+exports["zerio-radio"]:SetCallsign(identifier, callsign)
+```
+
+This export sets the callsign of a specific player. You can pass either the player's server source (number) or their identifier (string). The change is persisted in the database.
+
+If the player is currently in a radio channel, other members on the same frequency will see the updated callsign in real-time.
