@@ -1,5 +1,225 @@
+import { Callout, Steps } from "nextra/components";
+
 # Installation Guide
 
-Installing this resource is as simple as dragging and dropping it into your resources folder, then simply start it.
+This guide will walk you through installing zerio-garage v3 on your FiveM server.
 
-Make sure to execute the SQL file too.
+## Prerequisites
+
+Before installing, ensure you have:
+- A FiveM server running build 5181 or higher
+- Either ESX or QB-Core framework installed and configured
+- A MySQL database with oxmysql, ghmattimysql, or mysql-async
+- PolyZone resource installed
+
+<Callout type="warning">
+  Make sure to stop any existing garage resources (qb-garages, esx_vehicleshop garages, etc.) before installing zerio-garage to avoid conflicts.
+</Callout>
+
+## Installation Steps
+
+<Steps>
+
+### Download and Extract
+
+Download zerio-garage from your purchase source and extract it to your server's resources folder:
+
+```
+resources/
+  └── [zerio]/
+      └── zerio-garage/
+```
+
+<Callout type="info">
+  It's recommended to place zerio-garage in a subfolder like `[zerio]` to keep your resources organized.
+</Callout>
+
+### Database Setup
+
+Execute the SQL files in order:
+
+1. **First**, run `sql/main.sql` to create the database structure
+2. **Then**, run `sql/data.sql` to populate with default garages and example data
+
+<Callout type="info">
+  The `data.sql` file includes ready-to-use public garages, impound lots, and example job garages. You can modify or remove these after installation via the in-game admin panel or directly in the database.
+</Callout>
+
+**Using HeidiSQL or similar tool**:
+- Open your database management tool
+- Select your server's database
+- Execute `main.sql` first
+- Execute `data.sql` second
+
+**Using command line**:
+```bash
+mysql -u username -p database_name < sql/main.sql
+mysql -u username -p database_name < sql/data.sql
+```
+
+### Configure the Resource
+
+Before starting the resource, configure it for your server:
+
+1. Open `configs/core.lua` and set your locale:
+   ```lua
+   Config.Locale = "en"  -- en, de, es, fr, etc.
+   Config.BrowserLocale = "en-US"  -- en-US, de-DE, es-ES, fr-FR, etc.
+   ```
+
+2. Configure interaction type in `configs/interactions.lua`:
+   ```lua
+   Config.Interaction.Type = "normal"  -- or "target", "proximity", "custom"
+   ```
+
+3. Review and adjust other settings in the `configs/` folder as needed
+
+### Add to server.cfg
+
+Add zerio-garage to your `server.cfg`:
+
+```cfg
+ensure zerio-garage
+```
+
+<Callout type="warning">
+  Make sure zerio-garage starts AFTER your framework (ESX/QB-Core) and BEFORE any resources that depend on it (housing scripts, phone scripts, etc.).
+</Callout>
+
+**Example load order**:
+```cfg
+# Framework
+ensure es_extended
+# or
+ensure qb-core
+
+# Dependencies
+ensure oxmysql
+ensure PolyZone
+
+# Zerio Garage
+ensure zerio-garage
+
+# Housing (if integrating)
+ensure qs-housing
+```
+
+### Start Your Server
+
+Start or restart your FiveM server. Check the console for successful initialization:
+
+```
+[zerio-garage] Detected framework: QB-Core
+[zerio-garage] Loaded 15 garage configurations from database
+[zerio-garage] Garage admin system initialized
+```
+
+### Test the Installation
+
+1. Join your server
+2. Go to any default garage location (e.g., Legion Square, coordinates: `211.879, -808.111, 30.832`)
+3. You should see a garage marker and be able to interact with it
+4. Test storing and retrieving a vehicle
+
+</Steps>
+
+## Post-Installation
+
+### Add Your Own Garages
+
+You have two options for adding custom garages:
+
+**Option 1: In-Game Admin Panel** (Recommended)
+1. Use `/garageadmin` command
+2. Click "Create New Garage"
+3. Use the placement editor to position everything visually
+4. Save
+
+**Option 2: Database**
+1. Insert into `zerio_garage_configs` table
+2. Add spawn points to `zerio_garage_spawn_points` table
+3. Add putback points to `zerio_garage_putback_points` table
+4. Use `/reloadgarages` command or restart the resource
+
+### Configure Features
+
+Review the configuration files in the `configs/` folder:
+
+- Enable/disable vehicle sales, transfers, and sharing
+- Configure police impound system
+- Set up webhook logging
+- Adjust vehicle behavior and damage settings
+
+See the [Configuration Guide](/garage/configurationguide) for detailed information on all available settings.
+
+### Set Up Webhooks (Optional)
+
+If you want Discord webhook logging:
+
+1. Create webhook(s) in your Discord server
+2. Add the webhook URLs to `configs/logging.lua`
+3. Enable the log types you want to track
+
+### Customize Localization (Optional)
+
+To add or modify translations:
+
+1. Copy an existing locale file from `locales/` (e.g., `en.lua`)
+2. Rename it to your language code (e.g., `de.lua`)
+3. Translate all the strings
+4. Set `Config.Locale` in `configs/core.lua` to your language code
+
+## Framework-Specific Setup
+
+### ESX
+
+No additional setup required. The resource will automatically detect and integrate with ESX.
+
+**Optional**: If using an old ESX version, verify the vehicle table name in your database matches `owned_vehicles`. If different, you'll need to adjust `framework/server.lua`.
+
+### QB-Core
+
+No additional setup required. The resource will automatically detect and integrate with QB-Core.
+
+**QB-Phone Integration**: See the [FAQ section on QB-Phone](/garage/faq#qb-phone-support) for integration steps.
+
+## Troubleshooting Installation
+
+### "No supported framework detected" error
+
+**Cause**: Neither ESX nor QB-Core is running on your server.
+
+**Solution**: 
+- Ensure your framework is started before zerio-garage in `server.cfg`
+- Check that your framework resource is named correctly (`es_extended` or `qb-core`)
+
+### Database connection errors
+
+**Cause**: Database connection issues or SQL resource not running.
+
+**Solution**:
+- Ensure oxmysql (or your SQL resource) is started before zerio-garage
+- Check your database credentials in your SQL resource configuration
+- Verify the SQL files executed successfully without errors
+
+### UI not loading / blank screen
+
+**Cause**: UI path is set to development mode in `fxmanifest.lua`.
+
+**Solution**: 
+- Comment out `ui_page "http://localhost:5173"`
+- Uncomment `ui_page 'html/index.html'`
+- Restart the resource
+
+### Markers not showing
+
+**Cause**: Markers might be disabled by default or PolyZone is missing.
+
+**Solution**:
+- Check that PolyZone is installed and started
+- Verify markers are enabled in garage configuration (`marker_enabled = 1`)
+- Check if you're close enough to the garage location
+
+## Need Help?
+
+If you're still having issues, join our [community server](https://discord.zerio-scripts.com) and create a support ticket.

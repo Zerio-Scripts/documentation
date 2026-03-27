@@ -3,7 +3,7 @@ import { VideoIcon } from "@radix-ui/react-icons";
 
 # Description
 
-Allow players to gather materials and decide themselves what to craft. Instead of just straight up giving them items.
+Zerio Garage v3 is a comprehensive vehicle garage system for FiveM servers, providing an advanced and feature-rich solution for managing personal, job, gang, and impound vehicles.
 
 <br />
 
@@ -14,11 +14,77 @@ Allow players to gather materials and decide themselves what to craft. Instead o
   arrow
 />
 
+## Key Features
+
+### Core Systems
+- **Personal Garages**: Store and retrieve personal vehicles with customizable spawn points
+- **Impound Lots**: Retrieve impounded vehicles for a fee
+- **Job Garages**: Dedicated garages for job-specific vehicles with grade restrictions
+- **Gang Garages**: Gang-exclusive vehicle storage and management
+- **Private Garages**: Admin-controlled exclusive garages with custom access lists
+- **Housing Integration**: Server-side exports for seamless housing script integration
+
+### Vehicle Management
+- **Vehicle Transfers**: Transfer vehicles between garages with time delays and costs
+- **Vehicle Sales**: Sell vehicles to other players with buyer acceptance flow
+- **Vehicle Sharing**: Share vehicle access with other players temporarily
+- **Vehicle Nicknames**: Set custom names for your vehicles
+- **Favorite Vehicles**: Mark vehicles as favorites for quick access
+- **Vehicle Preview**: 3D camera system to preview vehicles before taking them out
+
+### Job/Gang Features
+- **Customization Presets**: Save and apply vehicle configurations (liveries, extras)
+- **Grade Restrictions**: Limit vehicle access by job/gang grade
+- **Tracking System**: Monitor when vehicles are taken out and by whom
+- **Zerio Bossmenu Integration**: Dynamic vehicle management through bossmenu
+
+### Police Features
+- **Police Impound Command**: Law enforcement can impound vehicles with custom fees and reasons
+- **Impound Logging**: Complete audit trail of impound actions
+- **Owner Notifications**: Notify vehicle owners when their vehicles are impounded
+
+### Admin Tools
+- **In-Game Admin Panel**: Complete CRUD interface for managing garages
+- **Placement Editor**: Visual editor for placing garages, spawns, NPCs, and props
+- **Plate Changer**: Change vehicle plates with database synchronization
+- **Admin Car Command**: Spawn vehicles instantly (ESX-only by default)
+- **Audit Logging**: Track all admin actions for security
+
+### User Experience
+- **Modern Vue 3 UI**: Beautiful, responsive interface built with Vue 3 and TailwindCSS
+- **Multiple Interaction Systems**: Support for target systems, proximity prompts, and traditional help text
+- **Flexible Text UI**: Support for multiple text UI systems (ox_lib, qb-core, okokTextUI, jg-textui, ESX, CD DrawTextUI)
+- **NPC & Prop Decoration**: Add atmosphere with NPCs or props at garage locations
+- **Vehicle Type Filtering**: Restrict garages to specific vehicle types (boats only, no planes, etc.)
+- **Multi-Language Support**: Full localization system
+
 ## Requirements
 
-- SQL resource: oxmysql, ghmattimysql, mysql-async
-- Framework: QBCore / ESX
+### Essential
+- **Database**: oxmysql (recommended), ghmattimysql, or mysql-async
+- **Framework**: QBCore or ESX
+- **FiveM**: Server artifacts build 5181 or higher
 
-## Supported
+### Optional Dependencies
+- **Target Systems**: ox_target, qb-target, or qtarget (if using target interaction mode)
+- **Proximity Prompts**: zerio-proximityprompt (if using proximity interaction mode)
+- **Text UI Systems**: ox_lib, okokTextUI, jg-textui, esx_textui, or cd_drawtextui (optional)
+- **PolyZone**: Required for zone-based interactions
+- **Zerio Bossmenu**: For dynamic job vehicle management
 
-- Target systems: OX_Target, QB-Target
+## Compatibility
+
+### Frameworks
+- **ESX**: Full support for ESX Legacy and older versions
+- **QBCore**: Full support with QB-Phone integration
+
+### Target Systems
+- ox_target
+- qb-target
+- qtarget
+
+### Interaction Modes
+- Normal help text (multiple styles)
+- Target systems
+- Proximity prompts
+- Custom integration support

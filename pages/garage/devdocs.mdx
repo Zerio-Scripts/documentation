@@ -1,7 +1,264 @@
 # Developer Documentation
 
-Information you as a developer, wanting to extend the resource might want to know will be listed here.
+This page contains technical information for developers who want to integrate with or extend zerio-garage.
 
-Such as notable exports, or such.
+## Server-Side Exports
 
-If empty, then nothing notable exists at the moment.
+### Garage Management
+
+#### GetGarages
+
+Retrieves all configured public garages.
+
+```lua
+local garages = exports['zerio-garage']:GetGarages()
+```
+
+**Returns**: `table` - Array of garage configurations
+
+**Example**:
+```lua
+local garages = exports['zerio-garage']:GetGarages()
+for _, garage in ipairs(garages) do
+    print("Garage: " .. garage.name)
+    print("Location: " .. json.encode(garage.marker))
+end
+```
+
+---
+
+#### GetImpounds
+
+Retrieves all configured impound lots.
+
+```lua
+local impounds = exports['zerio-garage']:GetImpounds()
+```
+
+**Returns**: `table` - Array of impound configurations
+
+---
+
+#### GetJobGarages
+
+Retrieves all configured job garages.
+
+```lua
+local jobGarages = exports['zerio-garage']:GetJobGarages()
+```
+
+**Returns**: `table` - Array of job garage configurations
+
+---
+
+#### GetGangGarages
+
+Retrieves all configured gang garages (QB-Core only).
+
+```lua
+local gangGarages = exports['zerio-garage']:GetGangGarages()
+```
+
+**Returns**: `table` - Array of gang garage configurations
+
+**Note**: This export is only available when the framework supports gang garages (QB-Core).
+
+---
+
+### Housing Integration
+
+#### OpenHousingGarage
+
+Opens the garage UI for a player, showing their stored vehicles. Used by housing scripts to integrate garage functionality.
+
+```lua
+exports['zerio-garage']:OpenHousingGarage(source, garageId, label, spawns)
+```
+
+**Parameters**:
+- `source` (`number`): Player server ID
+- `garageId` (`string`): Unique garage identifier (used as database key and for transfers)
+- `label` (`string`): Display name shown in UI
+- `spawns` (`vector4` or `table<vector4>`): One or more spawn points where vehicles will appear
+
+**Example**:
+```lua
+-- Single spawn point
+exports['zerio-garage']:OpenHousingGarage(
+    source,
+    "house_123",
+    "My Beach House",
+    vector4(-1000.0, 500.0, 30.0, 90.0)
+)
+
+-- Multiple spawn points
+exports['zerio-garage']:OpenHousingGarage(
+    source,
+    "house_456",
+    "Mansion Garage",
+    {
+        vector4(-1000.0, 500.0, 30.0, 90.0),
+        vector4(-1005.0, 500.0, 30.0, 90.0),
+        vector4(-1010.0, 500.0, 30.0, 90.0)
+    }
+)
+```
+
+**Security Note**: Your housing script must validate access before calling this export. zerio-garage will perform an additional security check but the primary access control is your responsibility.
+
+---
+
+#### StoreHousingVehicle
+
+Stores the vehicle the player is currently sitting in. Used by housing scripts for garage storage functionality.
+
+```lua
+exports['zerio-garage']:StoreHousingVehicle(source, garageId, label)
+```
+
+**Parameters**:
+- `source` (`number`): Player server ID
+- `garageId` (`string`): Unique garage identifier (must match the one used in OpenHousingGarage)
+- `label` (`string`): Display name used in notifications
+
+**Example**:
+```lua
+exports['zerio-garage']:StoreHousingVehicle(source, "house_123", "My Beach House")
+```
+
+**Note**: The player must be in a vehicle. If not, they'll receive a notification and nothing happens.
+
+---
+
+### Admin Functions
+
+#### ReloadGarageConfigs
+
+Reloads all garage configurations from the database and syncs to all clients.
+
+```lua
+exports['zerio-garage']:ReloadGarageConfigs()
+```
+
+**Use Case**: Call this after manually modifying the database or when you need to force a configuration refresh.
+
+---
+
+#### IsAdmin
+
+Checks if a player has admin permissions.
+
+```lua
+local isAdmin = exports['zerio-garage']:IsAdmin(source)
+```
+
+**Parameters**:
+- `source` (`number`): Player server ID
+
+**Returns**: `boolean` - True if player has admin permissions
+
+---
+
+## Client-Side Exports
+
+### UI State
+
+#### IsUIOpen
+
+Checks if the garage UI is currently open.
+
+```lua
+local isOpen = exports['zerio-garage']:IsUIOpen()
+```
+
+**Returns**: `boolean` - True if the garage UI is open
+
+**Use Case**: Use this to prevent other UI interactions while the garage menu is active.
+
+---
+
+## Commands
+
+### Admin Commands
+
+| Command | Description | Permission | Framework |
+|---------|-------------|------------|-----------|
+| `/garageadmin` | Opens the in-game admin panel for managing garages | Admin | Both |
+| `/reloadgarages` | Reloads garage configurations from database | Admin | Both |
+| `/admincar [model]` | Spawns a vehicle instantly | Admin | ESX only* |
+| `/changeplate` | Changes a vehicle's plate | Admin | Both |
+| `/impound` | Impounds nearby vehicle | Police | Both |
+
+\* On QB-Core, the `/admincar` command is disabled by default as qb-core provides its own vehicle spawn command. This can be enabled in `configs/features.lua`.
+
+---
+
+## Database Structure
+
+Zerio Garage v3 uses a modern database structure with multiple tables:
+
+### Main Tables
+
+- `zerio_garage_configs`: Stores all garage configurations (garages, impounds, job/gang garages)
+- `zerio_garage_spawn_points`: Vehicle spawn points for each garage
+- `zerio_garage_putback_points`: Points where players can store vehicles
+- `zerio_garage_vehicles`: Static job/gang vehicles (when not using zerio-bossmenu)
+
+### Feature Tables
+
+- `zerio_garage_vehicle_transfers`: Active vehicle transfers between garages
+- `zerio_garage_vehicle_shares`: Vehicle sharing permissions
+- `zerio_garage_active_sales`: Pending vehicle sale transactions
+- `zerio_garage_vehicle_sales`: Completed sales history
+- `zerio_garage_favorite_vehicles`: Player's favorited vehicles
+- `zerio_garage_impound_logs`: Police impound action logs
+- `zerio_garage_vehicle_presets`: Job vehicle customization presets
+- `zerio_garage_showroom_slots`: Garage showroom display configurations
+- `zerio_garage_custom_labels`: Custom vehicle name overrides
+- `zerio_garage_private_access`: Private garage access control lists
+- `zerio_garage_admin_audit_log`: Admin action audit trail
+
+### Schema Modifications
+
+Zerio Garage adds the following column to your framework's vehicle table:
+
+- `nickname` (varchar): Stores custom vehicle nicknames
+
+**QBCore**: Adds to `player_vehicles` table  
+**ESX**: Adds to `owned_vehicles` table
+
+---
+
+## Configuration Files
+
+The resource uses multiple configuration files organized by functionality:
+
+- `configs/core.lua`: Core settings (locale, debug, browser locale)
+- `configs/garage.lua`: Garage behavior and payment settings
+- `configs/vehicle.lua`: Vehicle spawning and condition management
+- `configs/features.lua`: Advanced features (sales, transfers, admin commands)
+- `configs/interactions.lua`: Interaction system configuration
+- `configs/logging.lua`: Webhook and logging settings
+
+See the [Configuration Guide](/garage/configurationguide) for detailed information.
+
+---
+
+## Custom Interaction Systems
+
+Zerio Garage supports custom interaction systems. See `client/interactions/example.lua` in the resource for implementation details.
+
+**Interface Requirements**:
+- `GetName()`: Return unique system identifier
+- `Init()`: Initialize the system
+- `Cleanup()`: Clean up resources
+- `ShowGarageInteraction()`: Display garage interaction
+- `HideGarageInteraction()`: Hide garage interaction
+- `ShowPutbackInteraction()`: Display putback interaction
+- `HidePutbackInteraction()`: Hide putback interaction
+
+---
+
+## Framework API
+
+Both frameworks are abstracted through a unified API layer located in `framework/client.lua` and `framework/server.lua`. This abstraction layer handles all framework-specific calls internally, making the core code framework-agnostic.
