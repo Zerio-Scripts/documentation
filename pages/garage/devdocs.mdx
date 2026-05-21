@@ -17,6 +17,7 @@ local garages = exports['zerio-garage']:GetGarages()
 **Returns**: `table` - Array of garage configurations
 
 **Example**:
+
 ```lua
 local garages = exports['zerio-garage']:GetGarages()
 for _, garage in ipairs(garages) do
@@ -76,12 +77,14 @@ exports['zerio-garage']:OpenHousingGarage(source, garageId, label, spawns)
 ```
 
 **Parameters**:
+
 - `source` (`number`): Player server ID
 - `garageId` (`string`): Unique garage identifier (used as database key and for transfers)
 - `label` (`string`): Display name shown in UI
 - `spawns` (`vector4` or `table<vector4>`): One or more spawn points where vehicles will appear
 
 **Example**:
+
 ```lua
 -- Single spawn point
 exports['zerio-garage']:OpenHousingGarage(
@@ -117,11 +120,13 @@ exports['zerio-garage']:StoreHousingVehicle(source, garageId, label)
 ```
 
 **Parameters**:
+
 - `source` (`number`): Player server ID
 - `garageId` (`string`): Unique garage identifier (must match the one used in OpenHousingGarage)
 - `label` (`string`): Display name used in notifications
 
 **Example**:
+
 ```lua
 exports['zerio-garage']:StoreHousingVehicle(source, "house_123", "My Beach House")
 ```
@@ -153,6 +158,7 @@ local isAdmin = exports['zerio-garage']:IsAdmin(source)
 ```
 
 **Parameters**:
+
 - `source` (`number`): Player server ID
 
 **Returns**: `boolean` - True if player has admin permissions
@@ -181,13 +187,13 @@ local isOpen = exports['zerio-garage']:IsUIOpen()
 
 ### Admin Commands
 
-| Command | Description | Permission | Framework |
-|---------|-------------|------------|-----------|
-| `/garageadmin` | Opens the in-game admin panel for managing garages | Admin | Both |
-| `/reloadgarages` | Reloads garage configurations from database | Admin | Both |
-| `/admincar [model]` | Spawns a vehicle instantly | Admin | ESX only* |
-| `/changeplate` | Changes a vehicle's plate | Admin | Both |
-| `/impound` | Impounds nearby vehicle | Police | Both |
+| Command             | Description                                        | Permission | Framework  |
+| ------------------- | -------------------------------------------------- | ---------- | ---------- |
+| `/garageadmin`      | Opens the in-game admin panel for managing garages | Admin      | Both       |
+| `/reloadgarages`    | Reloads garage configurations from database        | Admin      | Both       |
+| `/admincar [model]` | Spawns a vehicle instantly                         | Admin      | ESX only\* |
+| `/changeplate`      | Changes a vehicle's plate                          | Admin      | Both       |
+| `/impound`          | Impounds nearby vehicle                            | Police     | Both       |
 
 \* On QB-Core, the `/admincar` command is disabled by default as qb-core provides its own vehicle spawn command. This can be enabled in `configs/features.lua`.
 
@@ -249,6 +255,7 @@ See the [Configuration Guide](/garage/configurationguide) for detailed informati
 Zerio Garage supports custom interaction systems. See `client/interactions/example.lua` in the resource for implementation details.
 
 **Interface Requirements**:
+
 - `GetName()`: Return unique system identifier
 - `Init()`: Initialize the system
 - `Cleanup()`: Clean up resources

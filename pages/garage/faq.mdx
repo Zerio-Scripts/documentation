@@ -13,6 +13,7 @@ Common questions and solutions for zerio-garage v3. If your question isn't answe
 Blips are enabled by default for all garages. To disable them:
 
 **Option 1: Via Admin Panel**
+
 1. Open the admin panel with `/garageadmin`
 2. Find the garage you want to modify
 3. Toggle off the "Blip Enabled" option
@@ -27,6 +28,7 @@ Set `blip_enabled = 0` for the garage in the `zerio_garage_configs` table.
 Markers are enabled by default. To disable them:
 
 **Option 1: Via Admin Panel**
+
 1. Open the admin panel with `/garageadmin`
 2. Find the garage you want to modify
 3. Toggle off the "Marker Enabled" option in the marker configuration section
@@ -41,12 +43,14 @@ Set `marker_enabled = 0` for the garage in the `zerio_garage_configs` table.
 You can use whitelist or blacklist filtering:
 
 **Whitelist** (only allow specific types):
+
 ```lua
 -- Via data.sql or admin panel
 whitelisted_types = '["Boats"]'  -- Only boats allowed
 ```
 
 **Blacklist** (allow all except specific types):
+
 ```lua
 -- Via data.sql or admin panel
 blacklisted_types = '["Boats", "Plane"]'  -- Everything except boats and planes
@@ -59,7 +63,8 @@ blacklisted_types = '["Boats", "Plane"]'  -- Everything except boats and planes
 </Callout>
 
 <Callout type="warning">
-  You cannot use both whitelist and blacklist on the same garage. Whitelist takes precedence.
+  You cannot use both whitelist and blacklist on the same garage. Whitelist
+  takes precedence.
 </Callout>
 
 ---
@@ -80,10 +85,12 @@ Nicknames are stored in your framework's vehicle table and persist across server
 ### How do vehicle favorites work?
 
 Mark vehicles as favorites to:
+
 - Pin them to the top of your vehicle list
 - Quickly identify your most-used vehicles
 
 To mark a vehicle as favorite:
+
 1. Open any garage menu
 2. Select your vehicle
 3. Click the star/favorite icon
@@ -104,6 +111,7 @@ Yes! The vehicle transfer system allows you to move vehicles between any accessi
 6. Wait for the transfer to complete (configurable delay)
 
 **Configuration**:
+
 ```lua
 -- In configs/features.lua
 Config.VehicleTransfer = {
@@ -116,7 +124,8 @@ Config.VehicleTransfer = {
 ```
 
 <Callout type="info">
-  When transferring from impound, you must pay both the transfer cost AND the impound fee.
+  When transferring from impound, you must pay both the transfer cost AND the
+  impound fee.
 </Callout>
 
 ---
@@ -150,6 +159,7 @@ The vehicle sale system provides a secure way to sell vehicles:
 7. If accepted, ownership transfers and you receive payment
 
 **Configuration**:
+
 ```lua
 -- In configs/features.lua
 Config.VehicleSales = {
@@ -178,6 +188,7 @@ The preset system allows players to save and quickly apply vehicle configuration
 **Grade Restrictions**: Admins can set minimum grades for specific presets via the admin panel.
 
 **Configuration**:
+
 ```lua
 -- In configs/features.lua
 Config.JobVehicles = {
@@ -195,12 +206,14 @@ Config.JobVehicles = {
 ### What's the difference between static vehicles and zerio-bossmenu integration?
 
 **Static Vehicles** (default):
+
 - Vehicles are defined in the database (`zerio_garage_vehicles` table)
 - Fixed list of vehicles per garage
 - Managed via admin panel or SQL
 - Best for most servers
 
 **Zerio Bossmenu Integration**:
+
 - Vehicles are managed dynamically through the bossmenu
 - Job bosses can add/remove vehicles without admin access
 - Vehicles are tied to the business/job's inventory
@@ -234,17 +247,20 @@ Players must have one of the specified grades to see and take out the vehicle.
 Yes! Enable the "Shared Across Locations" option:
 
 **Via Admin Panel**:
+
 1. Edit the job garage
 2. Enable "Shared Across Locations"
 
 **Via Database**:
+
 ```sql
-UPDATE zerio_garage_configs 
-SET shared_across_locations = 1 
+UPDATE zerio_garage_configs
+SET shared_across_locations = 1
 WHERE name = 'Your Job Garage Name';
 ```
 
 When enabled:
+
 - Vehicles taken out from one location can be stored at another
 - The `current_garage_id` field tracks where the vehicle currently is
 - Perfect for emergency services with multiple stations
@@ -269,6 +285,7 @@ Officers with police jobs can use the `/impound` command:
 The vehicle owner will be notified (if online) and can retrieve it from the impound for the specified fee.
 
 **Configuration**:
+
 ```lua
 -- In configs/features.lua
 Config.PoliceImpound = {
@@ -303,18 +320,19 @@ Zerio-garage provides server-side exports that any housing script can use. Your 
 2. Call zerio-garage exports when players interact with house garages
 
 **Example Integration**:
+
 ```lua
 -- In your housing script (server-side)
 
 -- When player opens house garage
 RegisterNetEvent('your-housing:openGarage', function(houseId)
     local src = source
-    
+
     -- YOUR access check
     if not PlayerOwnsHouse(src, houseId) then return end
-    
+
     local house = GetHouseData(houseId)
-    
+
     -- Call zerio-garage export
     exports['zerio-garage']:OpenHousingGarage(
         src,
@@ -327,11 +345,11 @@ end)
 -- When player stores vehicle
 RegisterNetEvent('your-housing:storeVehicle', function(houseId)
     local src = source
-    
+
     if not PlayerOwnsHouse(src, houseId) then return end
-    
+
     local house = GetHouseData(houseId)
-    
+
     exports['zerio-garage']:StoreHousingVehicle(
         src,
         "house_" .. houseId,
@@ -428,12 +446,14 @@ If you need assistance, open a ticket in our [community server](https://discord.
 QB-Phone uses exports from `qb-garages` to fetch garage data for their vehicle app. To integrate zerio-garage:
 
 **Step 1**: Remove the old dependency from `qb-phone/fxmanifest.lua`:
+
 ```lua
 -- REMOVE OR COMMENT OUT:
 -- '@qb-garages/config.lua'
 ```
 
 **Step 2**: Add zerio-garage as a dependency at the bottom of `qb-phone/fxmanifest.lua`:
+
 ```lua
 dependencies {
     "zerio-garage"
@@ -441,6 +461,7 @@ dependencies {
 ```
 
 **Step 3**: In `qb-phone/server/main.lua`, add this line at the top:
+
 ```lua
 Config.Garages = exports["zerio-garage"]:getQbPhoneData()
 ```
@@ -512,6 +533,7 @@ Config.FixVehicleOnImpound = true  -- Repair when retrieving from impound
 Use the `/garageadmin` command in-game. You must have admin permissions in your framework.
 
 The admin panel allows you to:
+
 - Create, edit, and delete garages
 - Manage spawn and putback points
 - Configure job vehicles and grades
@@ -531,7 +553,7 @@ The placement editor is an in-game visual tool for positioning garages:
 4. Follow the on-screen instructions to place:
    - Garage marker position
    - Spawn points
-   - Putback points  
+   - Putback points
    - NPCs or props
 5. Confirm when done
 
@@ -548,6 +570,7 @@ Private garages are admin-controlled exclusive garages where access is granted o
 - Only authorized players can see and access the garage
 
 **Use Cases**:
+
 - VIP garages for donators
 - Special faction garages
 - Event-specific temporary garages
@@ -563,11 +586,13 @@ Use the `/changeplate` command (admin only):
 ```
 
 **Example**:
+
 ```
 /changeplate ABC123 XYZ789
 ```
 
 This updates:
+
 - The vehicle's plate in the database
 - All related tables (shares, favorites, transfers, impound logs)
 - The vehicle's stored properties
@@ -585,6 +610,7 @@ This updates:
 Edit `Config.Interaction.Type` in `configs/interactions.lua`:
 
 **Available Options**:
+
 ```lua
 -- Normal help text (press E to interact)
 Config.Interaction.Type = "normal"
@@ -610,7 +636,7 @@ If using "normal" interaction type, you can customize the help text style in `co
 ```lua
 Config.Interaction.HelpText = {
     Enabled = true,
-    Style = "Floating",  -- Options: Default, Floating, QBCore, okokTextUI, 
+    Style = "Floating",  -- Options: Default, Floating, QBCore, okokTextUI,
                          --          JGTextUI, ESXTextUI, CDDrawTextUI, OXLibTextUI
 }
 ```
@@ -626,6 +652,7 @@ Each style has specific configuration options documented in the config file.
 You can add atmosphere to garages with NPCs or props:
 
 **Via Admin Panel**:
+
 1. Edit a garage
 2. In the "NPC/Prop Configuration" section:
    - Enter an NPC model (e.g., `s_m_m_dockwork_01`) OR
@@ -634,22 +661,24 @@ You can add atmosphere to garages with NPCs or props:
 4. Save
 
 **Via Database**:
+
 ```sql
 -- Add NPC
-UPDATE zerio_garage_configs 
-SET npc_model = 's_m_m_dockwork_01', 
+UPDATE zerio_garage_configs
+SET npc_model = 's_m_m_dockwork_01',
     prop_x = -100.0, prop_y = 200.0, prop_z = 30.0, prop_heading = 90.0
 WHERE name = 'Your Garage';
 
 -- Add Prop
-UPDATE zerio_garage_configs 
-SET prop_model = 'prop_parkingpay', 
+UPDATE zerio_garage_configs
+SET prop_model = 'prop_parkingpay',
     prop_x = -100.0, prop_y = 200.0, prop_z = 30.0, prop_heading = 90.0
 WHERE name = 'Your Garage';
 ```
 
 <Callout type="warning">
-  You cannot have both an NPC and a prop at the same garage. They are mutually exclusive.
+  You cannot have both an NPC and a prop at the same garage. They are mutually
+  exclusive.
 </Callout>
 
 ---
@@ -657,11 +686,13 @@ WHERE name = 'Your Garage';
 ### How does the vehicle preview camera work?
 
 When enabled, opening a garage menu will:
+
 1. Transition the camera to the spawn area
 2. Spawn preview vehicles client-side (invisible to other players)
 3. Allow you to orbit the camera by right-clicking and dragging
 
 **Configuration**:
+
 ```lua
 -- In configs/features.lua
 Config.VehiclePreview = {
@@ -682,7 +713,7 @@ Config.Webhook = {
     username = "Garage Logs",
     communtiyName = "My Server",
     communtiyLogo = "https://your-logo-url.png",
-    
+
     toggles = {
         takevehicleoutgarage = true,   -- Log vehicle takeouts
         putvehiclebackin = true,       -- Log vehicle storage
@@ -691,7 +722,7 @@ Config.Webhook = {
         vehiclesale = true,            -- Log sales
         policeimpound = true,          -- Log police impounds
     },
-    
+
     links = {
         takevehicleoutgarage = "https://discord.com/api/webhooks/...",
         -- ... add webhook URLs for each event type
@@ -708,6 +739,7 @@ Config.Webhook = {
 This is controlled by `Config.CheckForVehicleInTheWay` in `configs/vehicle.lua`. When enabled, the system checks if a vehicle is blocking the spawn point.
 
 **Solutions**:
+
 - Clear vehicles from spawn points
 - Add more spawn points to the garage
 - Set the config to `false` (not recommended)
@@ -772,10 +804,11 @@ Config.NameFetching = "default"  -- Options: default, zerio, esx, qb, custom
 - **default**: FiveM natives
 - **zerio**: zerio-cardealers database
 - **esx**: ESX vehicle table (ESX only)
-- **qb**: QB-Core shared vehicles (QB-Core only)  
+- **qb**: QB-Core shared vehicles (QB-Core only)
 - **custom**: Your own function (define `Config.CustomNameFetch`)
 
 **Custom Example**:
+
 ```lua
 Config.NameFetching = "custom"
 Config.CustomNameFetch = function(modelName)
@@ -792,7 +825,7 @@ end
 Configure in `configs/garage.lua`:
 
 ```lua
-Config.SpawnPointStrategy = "closest_available"  
+Config.SpawnPointStrategy = "closest_available"
 -- Options: "closest_available", "first_available", "random_available"
 ```
 

@@ -8,14 +8,14 @@ Zerio Garage v3 uses a modular configuration system with multiple files organize
 
 All configuration files are located in the `configs/` folder:
 
-| File | Purpose |
-|------|---------|
-| `core.lua` | Core settings (locale, debug) |
-| `garage.lua` | Garage behavior and payment settings |
-| `vehicle.lua` | Vehicle spawning and condition management |
-| `features.lua` | Advanced features (sales, transfers, admin commands) |
-| `interactions.lua` | Interaction system configuration |
-| `logging.lua` | Webhook and nearby player detection |
+| File               | Purpose                                              |
+| ------------------ | ---------------------------------------------------- |
+| `core.lua`         | Core settings (locale, debug)                        |
+| `garage.lua`       | Garage behavior and payment settings                 |
+| `vehicle.lua`      | Vehicle spawning and condition management            |
+| `features.lua`     | Advanced features (sales, transfers, admin commands) |
+| `interactions.lua` | Interaction system configuration                     |
+| `logging.lua`      | Webhook and nearby player detection                  |
 
 ---
 
@@ -54,7 +54,8 @@ Config.DebugPolyZone = false
 - `Config.DebugPolyZone`: Enables PolyZone debug visualization (shows zone boundaries)
 
 <Callout type="warning">
-  Disable debug mode (`Config.Debug = false`) in production for better performance.
+  Disable debug mode (`Config.Debug = false`) in production for better
+  performance.
 </Callout>
 
 ---
@@ -68,6 +69,7 @@ Config.ShowVehiclesFromAllGarages = true
 ```
 
 Controls which vehicles appear in garage menus:
+
 - **`true`**: Show all your vehicles in every garage menu (regardless of storage location)
 - **`false`**: Only show vehicles stored at the specific garage you're accessing
 
@@ -82,11 +84,13 @@ Config.AllowTakeoutFromAnyGarage = false
 ```
 
 Controls whether you can retrieve vehicles from garages other than where they're stored:
+
 - **`true`**: Take out any vehicle from any garage (instant access)
 - **`false`**: Can only take out vehicles from their storage location (button disabled otherwise)
 
 <Callout type="info">
-  Even when set to `false`, players can still use the transfer system to move vehicles between garages.
+  Even when set to `false`, players can still use the transfer system to move
+  vehicles between garages.
 </Callout>
 
 ---
@@ -99,11 +103,11 @@ Config.SpawnPointStrategy = "closest_available"
 
 Controls how spawn points are selected when multiple are available:
 
-| Strategy | Behavior |
-|----------|----------|
+| Strategy              | Behavior                                          |
+| --------------------- | ------------------------------------------------- |
 | `"closest_available"` | Selects the nearest available spawn to the player |
-| `"first_available"` | Uses the first available spawn in table order |
-| `"random_available"` | Randomly selects from available spawns |
+| `"first_available"`   | Uses the first available spawn in table order     |
+| `"random_available"`  | Randomly selects from available spawns            |
 
 Applies to all garage types (personal, job, gang, impound, housing).
 
@@ -116,6 +120,7 @@ Config.PayImpoundFrom = "bank"
 ```
 
 Determines which account is charged for impound fees:
+
 - `"bank"`: Bank account
 - `"money"`: Cash
 
@@ -138,6 +143,7 @@ Config.AllowMultipleTakeOuts = false
 ```
 
 Only applies when using zerio-bossmenu integration:
+
 - **`true`**: Allow multiple copies of the same job vehicle simultaneously
 - **`false`**: Only one copy of each vehicle can be out at a time
 
@@ -177,6 +183,7 @@ Config.SaveFuelLevel = true
 ```
 
 Controls what vehicle data is saved when storing:
+
 - `SaveVehicleDamages`: Saves engine and body damage
 - `SaveFuelLevel`: Saves current fuel level
 
@@ -190,6 +197,7 @@ Config.FixVehicleOnImpound = true
 ```
 
 Auto-repair settings:
+
 - `FixVehicleOnGarage`: Repairs vehicle when storing in personal garage
 - `FixVehicleOnImpound`: Repairs vehicle when retrieving from impound
 
@@ -198,20 +206,22 @@ Auto-repair settings:
 ### Damage Multipliers
 
 ```lua
-Config.Multipliers = { 
-    Fuel = 1, 
-    Engine = 0.1, 
-    Chassi = 0.1 
+Config.Multipliers = {
+    Fuel = 1,
+    Engine = 0.1,
+    Chassi = 0.1
 }
 ```
 
 Multipliers for displaying health percentages in the UI:
+
 - `Fuel`: Fuel level multiplier (1 = 100% scale)
 - `Engine`: Engine health multiplier
 - `Chassi`: Body/chassis health multiplier
 
 <Callout type="info">
-  The engine and chassis values are typically 1000 in FiveM, so a 0.1 multiplier converts them to percentage (0-100).
+  The engine and chassis values are typically 1000 in FiveM, so a 0.1 multiplier
+  converts them to percentage (0-100).
 </Callout>
 
 ---
@@ -224,15 +234,16 @@ Config.NameFetching = "default"
 
 Controls how vehicle names are fetched:
 
-| Option | Description | Framework |
-|--------|-------------|-----------|
-| `"default"` | FiveM native functions | Both |
-| `"zerio"` | zerio-cardealers database | Both |
-| `"esx"` | ESX cardealer table | ESX only |
-| `"qb"` | QB-Core shared vehicles | QB only |
-| `"custom"` | Custom function (see below) | Both |
+| Option      | Description                 | Framework |
+| ----------- | --------------------------- | --------- |
+| `"default"` | FiveM native functions      | Both      |
+| `"zerio"`   | zerio-cardealers database   | Both      |
+| `"esx"`     | ESX cardealer table         | ESX only  |
+| `"qb"`      | QB-Core shared vehicles     | QB only   |
+| `"custom"`  | Custom function (see below) | Both      |
 
 **Custom Name Fetching**:
+
 ```lua
 Config.NameFetching = "custom"
 Config.CustomNameFetch = function(modelName)
@@ -256,7 +267,8 @@ Config.ResetVehiclesAfterRestart = false
 - **`false`**: Vehicles maintain their state (out or stored)
 
 <Callout type="info">
-  Useful if you want to prevent "ghost vehicles" after unexpected server crashes.
+  Useful if you want to prevent "ghost vehicles" after unexpected server
+  crashes.
 </Callout>
 
 ---
@@ -276,6 +288,7 @@ Config.VehicleSales = {
 ```
 
 Controls the player-to-player vehicle sale system:
+
 - `Enabled`: Enable/disable the entire sales feature
 - `MaxPrice`: Prevents unrealistic sale prices (0 = unlimited)
 - `RequestCooldown`: Prevents spam (0 = no cooldown)
@@ -297,15 +310,16 @@ Config.VehicleTransfer = {
 ```
 
 Controls vehicle transfers between garages:
+
 - `TransferCost`: Fee charged for each transfer
 - `PaymentMethod`: Which account is charged
 - `TransferTime`: How long vehicles are unavailable during transfer (creates realism)
 - `AllowImpoundTransfer`: Whether vehicles can be transferred from impound to garages
 
 <Callout type="warning">
-  Transferring **TO** impound is never allowed. `AllowImpoundTransfer` only controls transferring **FROM** impound.
-  
-  When transferring from impound, players pay: `TransferCost + ImpoundFee`
+  Transferring **TO** impound is never allowed. `AllowImpoundTransfer` only
+  controls transferring **FROM** impound. When transferring from impound,
+  players pay: `TransferCost + ImpoundFee`
 </Callout>
 
 ---
@@ -319,7 +333,7 @@ Config.JobVehicles = {
     DefaultSaveCondition = false,
     DefaultSharedLocations = false,
     DefaultAllowCustomization = false,
-    
+
     PresetSystem = {
         Enabled = true,
         MaxPersonalPresets = 0,      -- 0 = unlimited
@@ -330,12 +344,14 @@ Config.JobVehicles = {
 ```
 
 **Job Vehicle Defaults**: These apply to newly created job garages (can be overridden per garage):
+
 - `DefaultTrackOutState`: Track when vehicles are taken out and by whom
 - `DefaultSaveCondition`: Save vehicle damage and fuel when stored
 - `DefaultSharedLocations`: Allow vehicles to be accessed from any location
 - `DefaultAllowCustomization`: Enable preset system for that garage
 
 **Preset System**:
+
 - `Enabled`: Enable/disable the preset system entirely
 - `MaxPersonalPresets`: Limit presets per player (0 = unlimited)
 - `AllowPresetSharing`: Players can share presets via codes
@@ -349,18 +365,18 @@ Config.JobVehicles = {
 Config.PoliceImpound = {
     Enabled = true,
     Command = "impound",
-    
+
     AllowedJobs = { "police", "sheriff" },
-    
+
     PriceMode = "range",             -- "fixed" or "range"
     FixedPrice = 500,
     MinPrice = 100,
     MaxPrice = 5000,
-    
+
     MaxDistance = 10.0,              -- Max distance to vehicle
     OfficerSelectsImpound = false,   -- Let officer choose impound lot
     NotifyOwner = true,              -- Notify vehicle owner
-    
+
     Reasons = {
         "police_impound_reason_illegally_parked",
         "police_impound_reason_abandoned_vehicle",
@@ -371,6 +387,7 @@ Config.PoliceImpound = {
 ```
 
 **Price Modes**:
+
 - `"fixed"`: Always uses `FixedPrice`
 - `"range"`: Officer enters fee between `MinPrice` and `MaxPrice`
 
@@ -390,7 +407,8 @@ Config.AdminCarCommand = {
 Command for admins to instantly spawn vehicles.
 
 <Callout type="info">
-  Disabled by default on QB-Core since `qb-core` provides its own `/car` command.
+  Disabled by default on QB-Core since `qb-core` provides its own `/car`
+  command.
 </Callout>
 
 ---
@@ -419,6 +437,7 @@ Config.VehiclePreview = {
 ```
 
 Controls the 3D vehicle preview camera system:
+
 - When enabled, opening a garage transitions the camera to the spawn area
 - Players can preview vehicles before taking them out
 - Right-click and drag to orbit the camera around the vehicle
@@ -438,12 +457,12 @@ Config.Interaction = {
 
 Sets the main interaction system:
 
-| Type | Description | Requirements |
-|------|-------------|--------------|
-| `"normal"` | Traditional help text | None |
-| `"proximity"` | Proximity prompts | zerio-proximityprompt |
-| `"target"` | Target system | ox_target, qb-target, or qtarget |
-| `"custom"` | Custom integration | Your custom system |
+| Type          | Description           | Requirements                     |
+| ------------- | --------------------- | -------------------------------- |
+| `"normal"`    | Traditional help text | None                             |
+| `"proximity"` | Proximity prompts     | zerio-proximityprompt            |
+| `"target"`    | Target system         | ox_target, qb-target, or qtarget |
+| `"custom"`    | Custom integration    | Your custom system               |
 
 ---
 
@@ -460,18 +479,19 @@ Config.Interaction.HelpText = {
 
 **Available Styles**:
 
-| Style | Description | Dependency |
-|-------|-------------|------------|
-| `"Default"` | Traditional bottom-left help text | None |
-| `"Floating"` | 3D floating text at marker position | None |
-| `"QBCore"` | QB-Core DrawText system | qb-core |
-| `"okokTextUI"` | okokTextUI system | okokTextUI |
-| `"JGTextUI"` | jg-textui system | jg-textui |
-| `"ESXTextUI"` | esx_textui system | esx_textui |
-| `"CDDrawTextUI"` | cd_drawtextui system | cd_drawtextui |
-| `"OXLibTextUI"` | ox_lib textui system | ox_lib |
+| Style            | Description                         | Dependency    |
+| ---------------- | ----------------------------------- | ------------- |
+| `"Default"`      | Traditional bottom-left help text   | None          |
+| `"Floating"`     | 3D floating text at marker position | None          |
+| `"QBCore"`       | QB-Core DrawText system             | qb-core       |
+| `"okokTextUI"`   | okokTextUI system                   | okokTextUI    |
+| `"JGTextUI"`     | jg-textui system                    | jg-textui     |
+| `"ESXTextUI"`    | esx_textui system                   | esx_textui    |
+| `"CDDrawTextUI"` | cd_drawtextui system                | cd_drawtextui |
+| `"OXLibTextUI"`  | ox_lib textui system                | ox_lib        |
 
 **OX Lib TextUI Custom Configuration**:
+
 ```lua
 Config.Interaction.HelpText.OXLibTextUI = {
     Position = "right-center",  -- "right-center", "left-center", "top-center", "bottom-center"
@@ -487,7 +507,8 @@ Config.Interaction.HelpText.OXLibTextUI = {
 ```
 
 <Callout type="info">
-  To use OXLibTextUI, you must also uncomment `shared_script "@ox_lib/init.lua"` in `fxmanifest.lua`.
+  To use OXLibTextUI, you must also uncomment `shared_script "@ox_lib/init.lua"`
+  in `fxmanifest.lua`.
 </Callout>
 
 ---
@@ -506,19 +527,20 @@ Config.Interaction.ProximityPrompts = {
 Only used when `Config.Interaction.Type = "proximity"`.
 
 **Custom Text Overrides**:
+
 ```lua
 Config.Interaction.ProximityPrompts.CustomTexts = {
-    garage = { 
-        objecttext = "Vehicle Garage", 
-        actiontext = "Open Garage Menu" 
+    garage = {
+        objecttext = "Vehicle Garage",
+        actiontext = "Open Garage Menu"
     },
-    impound = { 
-        objecttext = "Impound Lot", 
-        actiontext = "Open Impound" 
+    impound = {
+        objecttext = "Impound Lot",
+        actiontext = "Open Impound"
     },
-    putback = { 
-        objecttext = "Parking Spot", 
-        actiontext = "Store Vehicle" 
+    putback = {
+        objecttext = "Parking Spot",
+        actiontext = "Store Vehicle"
     },
 }
 ```
@@ -553,11 +575,13 @@ Config.Interaction = {
 ```
 
 To use a custom interaction system:
+
 1. Set `Type = "custom"`
 2. Set `CustomSystem` to your system's identifier
 3. Create a handler in `client/interactions/` (see `client/interactions/example.lua`)
 
 Your custom system must implement:
+
 - `GetName()`: Return system identifier
 - `Init()`, `Cleanup()`: Lifecycle methods
 - `ShowGarageInteraction()`, `HideGarageInteraction()`
@@ -578,6 +602,7 @@ Config.NearbyPlayers = {
 ```
 
 Sets the range (in game units) for detecting nearby players:
+
 - `selling`: Buyers must be within this range
 - `sharing`: Players to share with must be within this range
 - `webhooks`: Range for fetching player names in webhook logs (-1 = all online players)
@@ -593,7 +618,7 @@ Config.Webhook = {
     communtiyLogo = "",              -- URL to logo image
     footerIcon = "",                 -- URL to footer icon
     avatar = "",                     -- URL to webhook avatar
-    
+
     colors = {
         takevehicleoutgarage = 14254773,
         takevehicleoutimpound = 14254773,
@@ -603,7 +628,7 @@ Config.Webhook = {
         vehiclesale = 14254773,
         policeimpound = 14254773
     },
-    
+
     toggles = {
         takevehicleoutgarage = false,
         takevehicleoutimpound = false,
@@ -613,7 +638,7 @@ Config.Webhook = {
         vehiclesale = false,
         policeimpound = false
     },
-    
+
     links = {
         takevehicleoutgarage = "",
         takevehicleoutimpound = "",
@@ -633,7 +658,8 @@ Config.Webhook = {
 **Links**: Discord webhook URLs for each event type
 
 <Callout type="info">
-  Each event type can have its own webhook URL, allowing you to organize logs into different Discord channels.
+  Each event type can have its own webhook URL, allowing you to organize logs
+  into different Discord channels.
 </Callout>
 
 ---
@@ -643,6 +669,7 @@ Config.Webhook = {
 ### Performance Optimization
 
 For best performance:
+
 - Disable debug mode in production
 - Use reasonable nearby player ranges (25-50 units)
 - Disable webhooks you don't need
@@ -653,6 +680,7 @@ For best performance:
 ### Realism Settings
 
 For maximum realism:
+
 - `Config.CheckIfVehicleAlreadyExists = true`
 - `Config.CheckForVehicleInTheWay = true`
 - `Config.AllowTakeoutFromAnyGarage = false`
@@ -667,6 +695,7 @@ For maximum realism:
 ### Convenience Settings
 
 For more arcade-style gameplay:
+
 - `Config.AllowTakeoutFromAnyGarage = true`
 - `Config.ShowVehiclesFromAllGarages = true`
 - `Config.FixVehicleOnGarage = true`
@@ -680,17 +709,21 @@ For more arcade-style gameplay:
 After making changes to configuration files:
 
 **Option 1**: Restart the resource
+
 ```
 restart zerio-garage
 ```
 
 **Option 2**: Use the reload command (admin only)
+
 ```
 /reloadgarages
 ```
 
 <Callout type="warning">
-  The `/reloadgarages` command only reloads database configurations (garages, spawn points, etc.), not the config files. For config file changes, you must restart the resource.
+  The `/reloadgarages` command only reloads database configurations (garages,
+  spawn points, etc.), not the config files. For config file changes, you must
+  restart the resource.
 </Callout>
 
 ---
@@ -700,6 +733,7 @@ restart zerio-garage
 ### Framework Detection
 
 Framework detection is automatic. The system checks for:
+
 - `es_extended` resource → ESX mode
 - `qb-core` resource → QB-Core mode
 
@@ -712,12 +746,14 @@ No manual configuration needed. See `framework/detect.lua` for implementation de
 Database settings are auto-detected based on framework in `framework/server.lua`:
 
 **ESX**:
+
 - Table: `owned_vehicles`
 - Owner column: `owner`
 - Vehicle data column: `vehicle`
 - Stored column: `stored`
 
 **QB-Core**:
+
 - Table: `player_vehicles`
 - Owner column: `citizenid`
 - Vehicle data column: `mods`
