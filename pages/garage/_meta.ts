@@ -1,6 +1,7 @@
 export default {
   description: "Description",
-  installationguide: "Installation guide",
-  faq: "Frequently asked questions",
-  devdocs: "Developer documentation"
+  installationguide: "Installation Guide",
+  configurationguide: "Configuration Guide",
+  faq: "Frequently Asked Questions",
+  devdocs: "Developer Documentation"
 };
