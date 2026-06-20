@@ -1,4 +1,5 @@
 import { Tabs, Callout } from "nextra/components";
+import Image from "next/image";
 
 # Frequently asked questions
 
@@ -69,7 +70,14 @@ If this is empty and you have a question, please turn to the support in our [com
 
 ## I have issues with mic clicks.
 
-If you're using pma-voice and do not get "mic clicks" when using the radio, remove [this line](https://github.com/AvarianKnight/pma-voice/blob/main/client/init/main.lua#L220) from pma-voice.
+If you're using pma-voice and do not get "mic clicks" when using the radio, remove [this line](https://github.com/AvarianKnight/pma-voice/blob/main/client/init/main.lua#L232) from pma-voice.
+
+<Callout>
+  Please note: The line number for older versions of pma-voice is 220, and newer is 232.
+  The line you should be removing is the "if check" line in the "playMicClicks" function.
+
+  <Image src="/radio_mic_clicks_img.png" alt="Image of the line to remove" width={1131} height={399} quality={100} />
+</Callout>
 
 ## Players can cancel combat rolls by talking over the radio.
 
