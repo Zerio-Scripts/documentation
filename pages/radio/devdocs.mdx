@@ -145,3 +145,172 @@ exports["zerio-radio"]:SetCallsign(identifier, callsign)
 This export sets the callsign of a specific player. You can pass either the player's server source (number) or their identifier (string). The change is persisted in the database.
 
 If the player is currently in a radio channel, other members on the same frequency will see the updated callsign in real-time.
+
+## Event list
+
+### Server
+
+zerio-radio triggers these events on the server so your own resources can react to what happens on the radio. Listen to them with `AddEventHandler`:
+
+```lua
+AddEventHandler("zerio-radio:server:panicButtonPressed", function(source, frequency, coords)
+  print(("%s pressed panic on %s at %s"):format(GetPlayerName(source), frequency, coords))
+end)
+```
+
+<Callout type="warning">
+  Don't use `RegisterNetEvent` for these events. That lets clients trigger them,
+  so a cheater could fake a panic or a channel join.
+</Callout>
+
+The player is always the first argument. Use it instead of the global `source`, which isn't set for events triggered by the server.
+
+Frequencies are numbers, such as `100` or `100.5`.
+
+#### playerJoinedChannel
+
+```lua
+AddEventHandler("zerio-radio:server:playerJoinedChannel", function(source, frequency, channelLabel) end)
+```
+
+| Argument       | Type     | Description                                                      |
+| -------------- | -------- | ---------------------------------------------------------------- |
+| `source`       | `number` | The player's server id                                           |
+| `frequency`    | `number` | The channel they joined                                          |
+| `channelLabel` | `string` | The channel's label, or the frequency as a string if it has none |
+
+Triggered when a player joins a channel, whether from the radio, through an export or when their channels are restored after a restart. Players can be on several channels at once, so you get one event per channel.
+
+Locking onto a channel with the scanner doesn't trigger it.
+
+#### playerLeftChannel
+
+```lua
+AddEventHandler("zerio-radio:server:playerLeftChannel", function(source, frequency) end)
+```
+
+| Argument    | Type     | Description            |
+| ----------- | -------- | ---------------------- |
+| `source`    | `number` | The player's server id |
+| `frequency` | `number` | The channel they left  |
+
+Triggered when a player leaves a channel. This includes leaving from the radio, turning the radio off, a dead battery, losing access to the channel and disconnecting. When a player leaves all their channels at once, you get one event per channel.
+
+#### playerStartedTransmitting
+
+```lua
+AddEventHandler("zerio-radio:server:playerStartedTransmitting", function(source, frequency) end)
+```
+
+| Argument    | Type     | Description                    |
+| ----------- | -------- | ------------------------------ |
+| `source`    | `number` | The player's server id         |
+| `frequency` | `number` | The channel they're talking on |
+
+Triggered when a player starts talking on a channel. It's only triggered once the server has accepted the transmission, so a player blocked by no-talk-over, a dead battery or missing access doesn't trigger it.
+
+#### playerStoppedTransmitting
+
+```lua
+AddEventHandler("zerio-radio:server:playerStoppedTransmitting", function(source, frequency) end)
+```
+
+| Argument    | Type     | Description                                 |
+| ----------- | -------- | ------------------------------------------- |
+| `source`    | `number` | The player's server id                      |
+| `frequency` | `number` | The channel the transmission was started on |
+
+Triggered when a player stops talking. If they leave the channel or disconnect mid-transmission, it's triggered just before `playerLeftChannel`.
+
+Each `playerStartedTransmitting` is followed by one `playerStoppedTransmitting` for the same frequency, even if the player switches channel while talking.
+
+#### panicButtonPressed
+
+```lua
+AddEventHandler("zerio-radio:server:panicButtonPressed", function(source, frequency, coords) end)
+```
+
+| Argument    | Type      | Description                                                      |
+| ----------- | --------- | ---------------------------------------------------------------- |
+| `source`    | `number`  | The player's server id                                           |
+| `frequency` | `number`  | The channel the player talks on, or `0` if they're on no channel |
+| `coords`    | `vector3` | Where the player was when they pressed it                        |
+
+Triggered when a player presses the panic button on their radio. Presses within `Config.PanicButtonCooldown` are ignored, and nothing is triggered when `Config.EnablePanicButton` is `false`.
+
+`coords` is read by the server, so the player can't fake it.
+
+#### signalLost
+
+```lua
+AddEventHandler("zerio-radio:server:signalLost", function(source, frequency) end)
+```
+
+| Argument    | Type     | Description                     |
+| ----------- | -------- | ------------------------------- |
+| `source`    | `number` | The player's server id          |
+| `frequency` | `number` | The channel they lost signal on |
+
+Triggered when a player's signal on a channel drops to zero. With no signal they can't transmit on the channel or hear it. Signal depends on towers, terrain, weather, jammers, repeaters, signal zones and battery, so this event never triggers when all of those features are turned off.
+
+Triggered once per drop, and again only after the signal has come back.
+
+<Callout type="info">
+  Signal is worked out by each player's own game, so a modified client could
+  report it wrongly. Don't use this event for anything a cheater would gain
+  from.
+</Callout>
+
+#### signalRestored
+
+```lua
+AddEventHandler("zerio-radio:server:signalRestored", function(source, frequency) end)
+```
+
+| Argument    | Type     | Description                           |
+| ----------- | -------- | ------------------------------------- |
+| `source`    | `number` | The player's server id                |
+| `frequency` | `number` | The channel their signal came back on |
+
+Triggered when signal comes back on a channel after `signalLost`. If the player leaves the channel before it comes back, you get `playerLeftChannel` instead.
+
+#### jammerPlaced
+
+```lua
+AddEventHandler("zerio-radio:server:jammerPlaced", function(source, position, jammer) end)
+```
+
+| Argument   | Type             | Description                                                                                      |
+| ---------- | ---------------- | ------------------------------------------------------------------------------------------------ |
+| `source`   | `number`         | The player who placed it, or `0` when it was placed from the console or the `PlaceJammer` export |
+| `position` | `vector3` or nil | Where a ground jammer was placed. `nil` for a personal jammer, which follows the player          |
+| `jammer`   | `table`          | The jammer, see below                                                                            |
+
+Triggered when a jammer is placed or a personal jammer is turned on, by a player, an admin or the `PlaceJammer` export. Only triggered when `Config.Jammers.enabled` is `true`.
+
+The `jammer` table contains:
+
+| Field          | Type               | Description                                                    |
+| -------------- | ------------------ | -------------------------------------------------------------- |
+| `id`           | `string`           | Unique id such as `"jammer_3"`, also passed to `jammerRemoved` |
+| `type`         | `string`           | `"ground"` or `"personal"`                                     |
+| `jammerTypeId` | `string`           | The jammer type from `Config.Jammers`                          |
+| `position`     | `vector3`          | Ground jammers only                                            |
+| `serverId`     | `number`           | Personal jammers only, the player carrying it                  |
+| `radius`       | `number`           | How far it reaches                                             |
+| `power`        | `number`           | `0.0` to `1.0`, how much signal it takes away at its centre    |
+| `frequencies`  | `"all"` or `table` | The frequencies it jams                                        |
+| `placedBy`     | `number`           | Same as `source`                                               |
+| `health`       | `number` or nil    | Current health, for ground jammers that can be destroyed       |
+
+#### jammerRemoved
+
+```lua
+AddEventHandler("zerio-radio:server:jammerRemoved", function(id) end)
+```
+
+| Argument | Type     | Description                                    |
+| -------- | -------- | ---------------------------------------------- |
+| `id`     | `string` | The jammer's id, the same as in `jammerPlaced` |
+
+Triggered when a jammer is removed, whether it was picked up, destroyed, turned off, removed by an admin or the `RemoveJammer` export, or its owner disconnected.
