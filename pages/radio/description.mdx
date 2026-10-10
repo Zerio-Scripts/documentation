@@ -3,7 +3,7 @@ import { VideoIcon } from "@radix-ui/react-icons";
 
 # Description
 
-This is one of our most wellknown resources, for good reasons. Our Radio is really guaranteed to bring your server to the next level.
+Zerio Radio v3 is a radio system for FiveM roleplay servers. Players join frequencies, talk with push-to-talk, and deal with signal coverage, jammers, batteries and other radio realism. Radio audio runs on Zerio's hosted voice server (zerio-voice), not through pma-voice or Mumble, so it works next to whatever proximity voice your server already uses.
 
 <br />
 
@@ -14,8 +14,90 @@ This is one of our most wellknown resources, for good reasons. Our Radio is real
   arrow
 />
 
+## Key Features
+
+### Radio
+
+- **Frequencies**: Join any frequency, or only the ones you have access to. Listen to several channels at once and pick which one you transmit on.
+- **Push-to-talk**: Its own keybind (Left Alt by default), with transmit and receive sounds that you can change per channel.
+- **No-talk-over channels**: Only one person can transmit at a time on channels where you turn this on.
+- **Member list**: See who is on the channel and who is talking, with callsigns and an optional anonymous mode.
+- **Favorites and recents**: Save frequencies and jump back to recently used ones.
+- **Private channels**: Players can create temporary, password-protected channels.
+- **Messages and contacts**: Send text messages to other players from the radio.
+- **Panic button**: Sends an alert with a sound, screen effect and notification, and passes it on to dispatch.
+- **Radio scanner**: Scan for nearby active channels and lock on to listen in.
+- **Player settings**: Themes, light and dark mode, three radio skins, and movable, resizable overlays.
+
+### Signal and Realism
+
+- **Radio towers**: Coverage comes from towers you place. Towers can be shot down and repaired in-game.
+- **Repeaters**: Players place repeaters to extend tower coverage.
+- **Jammers**: Ground jammers and personal (backpack) jammers that kill signal in an area.
+- **Signal zones**: Draw zones in the admin menu that force a signal level, from none (tunnels, bunkers) to full.
+- **Underground and weather**: Signal drops underground and in bad weather.
+- **Audio degradation**: Weak signal sounds worse and breaks up, both for the listener and the transmitter.
+- **Battery**: Optional battery drain, battery swaps and charging stations.
+- **Ambient capture**: Nearby gunshots and aircraft can be heard in transmissions.
+- **Audio leak**: Players standing next to you hear your radio unless you wear an earpiece.
+
+### Coordination
+
+- **Man-down alerts**: Warns, then alerts the channel when a player stays down. Turned on per channel.
+- **Unit GPS**: Live map blips for players on the same channel. Turned on per channel.
+- **Channel patches**: Link channels so they hear each other.
+- **Speakers**: PA speakers placed in the world.
+- **Signal 100**: Dispatch can reserve a channel for emergency traffic, so only dispatch can talk on it.
+- **Dispatch integrations**: Panic and man-down alerts go to the dispatch console and to zerio-dispatch, ps-dispatch or lb-tablet. Other scripts can hook in through [exports and events](/radio/devdocs).
+
+### Items and Access
+
+- **Radio as an item**: Players need the item to use the radio. Dropping or losing it disconnects them.
+- **Codeplug radios**: Items like a police radio that only work on a fixed set of channels, and are the only way onto those channels.
+- **Access rules**: Restrict channels by job, gang (QBCore, rcore_gangs, op-crime), ace permission, identifier or Discord role.
+
+### Administration
+
+- **In-game admin menu** (`/radioadmin`): Manage channels, players, towers, repeaters, jammers, signal zones, speakers and patches, and view a signal map.
+- **Customer portal**: Set up and manage your voice server at [portal.radio.zerio-scripts.com](https://portal.radio.zerio-scripts.com). The portal also has a web dispatch panel.
+
 ## Requirements
 
-- Voice script: pma-voice, mumble-voip, tokovoip-fivem, saltychat-fivem
-- SQL resource: oxmysql, ghmattimysql, mysql-async
-- Framework: None **required**, but QBCore & ESX supported
+### Essential
+
+- **Database**: oxmysql. Other SQL resources (mysql-async, ghmattimysql) are not supported.
+- **ox_lib**: Used for keybinds, notifications, interaction prompts and callbacks.
+- **zerio-radio-prop**: Streams the radio, repeater and vehicle radio props. It is included in the download and runs as its own resource.
+- **OneSync**: Must be enabled.
+- **Zerio voice server**: Hosted by Zerio. You set it up from the link in your purchase email.
+- **Framework**: QBCore, Qbox, ESX, or none (standalone).
+
+### Optional Dependencies
+
+- **ox_target or qb-target**: Only if you switch jammer, repeater, tower repair or charging station interactions to `"target"`.
+- **zdiscord or Badger_Discord_API**: For channels restricted by Discord role.
+- **rcore_gangs or op-crime**: For channels restricted to those gang systems.
+- **zerio-dispatch, ps-dispatch or lb-tablet**: Panic and man-down alerts can also be sent to one of these.
+
+## Compatibility
+
+### Frameworks
+
+- **QBCore** and **Qbox**: Detected automatically. Qbox runs through its QBCore compatibility layer.
+- **ESX**: Detected automatically.
+- **Standalone**: Used when no framework is found. There are no items; players open the radio with a command or keybind, and admin features use ace permissions.
+
+### Inventories
+
+- **ox_inventory**: Version 2.47.0 or newer.
+- **qb-inventory**: Through QBCore's item functions.
+- **ESX inventory**: ESX's built-in inventory.
+
+### Voice
+
+- zerio-radio does not replace your proximity voice. pma-voice, or any other proximity voice resource, keeps handling normal voice chat.
+- zerio-radio turns off pma-voice's own radio, radio UI and radio animation on start, so they don't overlap.
+
+### Hardened Servers
+
+zerio-radio works with every setting of `sv_entityLockdown`, `sv_filterRequestControl` and `sv_stateBagStrictMode true`.

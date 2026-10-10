@@ -1,7 +1,536 @@
+import { Callout, Steps, Tabs } from "nextra/components";
+
 # Installation Guide
 
-Assuming you have all dependencies noted, there should be no specific installation steps required. You would simply add the script to your server and start it.
+This guide walks you through installing zerio-radio v3 on your FiveM server. If you are coming from v2, read [Upgrading from v2](#upgrading-from-v2) first.
 
-## Configure the resource
+## Prerequisites
 
-We do **highly** recommend to familiarize yourself with, or atleast look through, the configuration files. These files are in the `shared` folder of Zerio Radio.
+Before installing, make sure you have:
+
+- OneSync enabled
+- [oxmysql](https://github.com/overextended/oxmysql) and [ox_lib](https://github.com/overextended/ox_lib) installed and started
+- QBCore, Qbox or ESX, or no framework (standalone)
+- If you use ox_inventory: version 2.47.0 or newer
+- The setup link from your purchase email (you need it to set up the voice server)
+
+<Callout type="warning">
+  Stop any other radio resource (for example qb-radio, or an old copy of
+  zerio-radio) before you install. Both would react to the same `radio` item.
+</Callout>
+
+## Installation Steps
+
+<Steps>
+
+### Download and Extract
+
+Download zerio-radio and extract it. The download contains two resources: `zerio-radio` and `zerio-radio-prop`. `zerio-radio-prop` comes inside the `zerio-radio` folder. Move it out so both sit next to each other in your resources folder:
+
+```
+resources/
+  └── [zerio]/
+      ├── zerio-radio/
+      └── zerio-radio-prop/
+```
+
+<Callout type="warning">
+  `zerio-radio-prop` must be its own resource. FiveM does not load a resource
+  that is nested inside another resource's folder, and zerio-radio will not
+  start without it.
+</Callout>
+
+### Set Up the Voice Server
+
+All radio audio goes through Zerio's hosted voice server. You set it up once in the customer portal:
+
+1. Open the setup link from your purchase email.
+2. Pick the region closest to where your FiveM server is hosted (EU or NA).
+3. Enter a Server ID, for example `my-rp-server` (letters, numbers, hyphens and underscores).
+4. Optionally set a portal email. You need it to sign in to the portal later.
+5. Copy the values the wizard shows you. **The admin token is only shown once**, so save it somewhere safe.
+
+Open `configs/voice.lua` and fill in `Domain` and `ServerId` from the wizard, and set `PortalUrl` to the hosted portal:
+
+```lua
+Config.VoiceServer = {
+    Enabled = true,
+    Domain = "eu.radio.zerio-scripts.com", -- or "na.radio.zerio-scripts.com"
+    ServerId = "my-rp-server",
+    PortalUrl = "https://portal.radio.zerio-scripts.com",
+}
+```
+
+Then add the admin token to your `server.cfg`:
+
+```cfg
+set zerio_voice_admin_token "your-token-from-the-setup-wizard"
+```
+
+<Callout type="error">
+  Use `set`, never `setr`. `setr` sends the value to every player's game, and
+  the token gives full control over your voice server.
+</Callout>
+
+To manage your server later, sign in at [portal.radio.zerio-scripts.com](https://portal.radio.zerio-scripts.com) with your Server ID and portal email. If you switch region there, update `Domain` in `configs/voice.lua` to match.
+
+### Add the Items
+
+By default players open the radio by using a `radio` item. Add the items to your inventory. If you run standalone with no inventory, skip to the Standalone tab.
+
+Item images are in the `_ITEM IMAGES` folder of the download: `radio`, `radio_battery`, `radio_scanner`, `radio_jammer`, `mobile_radio_jammer` and `radio_repeater`. There is no image for `radio_repair_kit`, so add your own if you want one. Copy the images to your inventory's image folder (`ox_inventory/web/images/` or `qb-inventory/html/images/`).
+
+<Tabs items={['ox_inventory', 'QBCore', 'ESX', 'Standalone']}>
+  <Tabs.Tab>
+    Use this tab for ox_inventory on any framework, including Qbox. Add the entries to `ox_inventory/data/items.lua`:
+
+    ```lua
+    return {
+        -- your existing items ...
+
+        ['radio'] = {
+            label = 'Radio',
+            weight = 1000,
+            stack = false,
+            allowArmed = true,
+            consume = 0,
+            client = {
+                export = 'zerio-radio.Open',
+            }
+        },
+
+        ['radio_scanner'] = {
+            label = 'Radio Scanner',
+            weight = 1000,
+            stack = false,
+            close = true,
+        },
+
+        ['radio_jammer'] = {
+            label = 'Radio Jammer',
+            weight = 1000,
+            stack = false,
+            close = true,
+        },
+
+        ['mobile_radio_jammer'] = {
+            label = 'Mobile Radio Jammer',
+            weight = 1000,
+            stack = false,
+            close = true,
+        },
+
+        ['radio_repeater'] = {
+            label = 'Radio Repeater',
+            weight = 1000,
+            stack = false,
+            close = true,
+        },
+
+        ['radio_repair_kit'] = {
+            label = 'Radio Repair Kit',
+            weight = 500,
+            stack = true,
+            close = true,
+        },
+    }
+    ```
+
+    The radio must have `stack = false`. Each radio keeps its own connected channels and battery charge on the item.
+
+    Every codeplug radio you add in `configs/opentype.lua` (for example `police_radio`) needs an entry like `radio`, with the same `client.export = 'zerio-radio.Open'`.
+
+    If you turn on the [battery system](/radio/configurationguide#battery-configsfeaturesbatterylua), also add the battery item:
+
+    ```lua
+    return {
+        ['radio_battery'] = {
+            label = 'Radio Battery',
+            weight = 100,
+            stack = false,
+            close = true,
+            consume = 0,
+            server = {
+                export = 'zerio-radio.UseBatteryItem',
+            }
+        },
+    }
+    ```
+
+    The jammer and repeater items are registered as usable items through your framework, which ox_inventory passes on. On a standalone server without a framework, use the commands instead (see the Standalone tab).
+
+    <Callout type="info">
+      You do not need a `client.remove` callback on the radio. zerio-radio
+      notices when a radio is dropped, given away, stored or removed, and
+      disconnects that radio's channels.
+    </Callout>
+
+  </Tabs.Tab>
+
+  <Tabs.Tab>
+    Add the entries to `qb-core/shared/items.lua`:
+
+    ```lua
+    QBShared.Items = {
+        -- your existing items ...
+
+        radio = {
+            name = 'radio',
+            label = 'Radio',
+            weight = 1000,
+            type = 'item',
+            image = 'radio.png',
+            unique = true,
+            useable = true,
+            shouldClose = false,
+            description = 'A portable radio.'
+        },
+
+        radio_battery = {
+            name = 'radio_battery',
+            label = 'Radio Battery',
+            weight = 100,
+            type = 'item',
+            image = 'radio_battery.png',
+            unique = true,
+            useable = true,
+            shouldClose = true,
+            description = 'Replacement battery for the radio.'
+        },
+
+        radio_scanner = {
+            name = 'radio_scanner',
+            label = 'Radio Scanner',
+            weight = 1000,
+            type = 'item',
+            image = 'radio_scanner.png',
+            unique = false,
+            useable = true,
+            shouldClose = true,
+            description = 'Picks up nearby radio transmissions.'
+        },
+
+        radio_jammer = {
+            name = 'radio_jammer',
+            label = 'Radio Jammer',
+            weight = 1000,
+            type = 'item',
+            image = 'radio_jammer.png',
+            unique = false,
+            useable = true,
+            shouldClose = true,
+            description = 'Disrupts radio signals in the area.'
+        },
+
+        mobile_radio_jammer = {
+            name = 'mobile_radio_jammer',
+            label = 'Mobile Radio Jammer',
+            weight = 1000,
+            type = 'item',
+            image = 'mobile_radio_jammer.png',
+            unique = false,
+            useable = true,
+            shouldClose = true,
+            description = 'Portable radio jammer.'
+        },
+
+        radio_repeater = {
+            name = 'radio_repeater',
+            label = 'Radio Repeater',
+            weight = 1000,
+            type = 'item',
+            image = 'radio_repeater.png',
+            unique = false,
+            useable = true,
+            shouldClose = true,
+            description = 'Boosts radio signal coverage in an area.'
+        },
+
+        radio_repair_kit = {
+            name = 'radio_repair_kit',
+            label = 'Radio Repair Kit',
+            weight = 500,
+            type = 'item',
+            image = 'radio_repair_kit.png',
+            unique = false,
+            useable = false,
+            shouldClose = true,
+            description = 'Tools and parts to repair a radio tower.'
+        },
+    }
+    ```
+
+    `unique = true` is needed on the radio and the battery so each one keeps its own battery charge. The scanner item only opens the scanner if you set `Config.Scanner.OpenType = "item"`. Codeplug radios (for example `police_radio`) need an entry like `radio`.
+
+    Qbox servers use ox_inventory, so use the ox_inventory tab instead.
+
+  </Tabs.Tab>
+
+  <Tabs.Tab>
+    For ESX's built-in inventory, add the items to the `items` table:
+
+    ```sql
+    INSERT INTO `items` (`name`, `label`, `weight`, `rare`, `can_remove`) VALUES
+    ('radio',               'Radio',               1000, 0, 1),
+    ('radio_battery',       'Radio Battery',        100, 0, 1),
+    ('radio_scanner',       'Radio Scanner',       1000, 0, 1),
+    ('radio_jammer',        'Radio Jammer',        1000, 0, 1),
+    ('mobile_radio_jammer', 'Mobile Radio Jammer', 1000, 0, 1),
+    ('radio_repeater',      'Radio Repeater',      1000, 0, 1),
+    ('radio_repair_kit',    'Radio Repair Kit',     500, 0, 1);
+    ```
+
+    ESX's built-in items can't store data per item, so battery charge is kept in server memory for the session and is not shown on the item. If you use ox_inventory with ESX, use the ox_inventory tab instead.
+
+  </Tabs.Tab>
+
+  <Tabs.Tab>
+    Standalone servers have no items. Open `configs/opentype.lua` and change how players open the radio, because the default (`"item"`) needs an inventory:
+
+    ```lua
+    Config.OpenType.Value = { "command", "keybind" }
+    ```
+
+    Players then use `/radio` or press F5. Jammers and repeaters are placed with commands that need an ace permission. Admin menu access also uses an ace. Add the ones you need to `server.cfg`:
+
+    ```cfg
+    add_ace group.admin zerio.admin allow
+    add_ace group.admin zerio.jammer allow
+    add_ace group.admin zerio.repeater allow
+    ```
+
+  </Tabs.Tab>
+</Tabs>
+
+### Add to server.cfg
+
+Start zerio-radio after its dependencies. The order is: oxmysql, ox_lib, your framework, your inventory, optional resources (target, Discord, dispatch), `zerio-radio-prop`, then `zerio-radio`.
+
+```cfg
+# Voice server token (set, not setr)
+set zerio_voice_admin_token "your-token-from-the-setup-wizard"
+
+# Dependencies
+ensure oxmysql
+ensure ox_lib
+
+# Framework and inventory
+ensure qb-core
+ensure ox_inventory
+
+# Optional
+ensure ox_target
+
+# Zerio Radio
+ensure zerio-radio-prop
+ensure zerio-radio
+```
+
+### Start Your Server
+
+Start or restart your server. zerio-radio creates its database tables on the first start, so you don't need to run any SQL by hand.
+
+When the voice server is set up correctly, the console shows a line like this and no red warning box:
+
+```
+[zerio-radio:voice] loaded — voice server at https://eu.radio.zerio-scripts.com/s/my-rp-server
+```
+
+If you see a red box instead, check [Troubleshooting](#troubleshooting).
+
+### Create Channels and Towers
+
+Channels and towers live in the database. Join the server and open the admin menu with `/radioadmin` to create them. See [Who can open /radioadmin?](/radio/faq#who-can-open-radioadmin) if you get no access.
+
+If you want a starting point, run `sql/!data.sql` once on your database. It adds four channels (911 Police Radio, 912 EMS Radio, 913 Fire Radio and 100 Dispatch) and nine towers around the map. Running it a second time fails, because those frequencies and tower IDs already exist.
+
+<Callout type="warning">
+  When towers are enabled (`enabled` in `configs/features/towers.lua`), players
+  only have signal near a tower. With towers enabled and no towers in the
+  database, nobody has signal and push-to-talk is blocked with "No signal". Add
+  towers in `/radioadmin` (or run `sql/!data.sql`), turn towers off, or raise
+  `defaultSignal`. See [Radio
+  Towers](/radio/configurationguide#radio-towers-configsfeaturestowerslua).
+</Callout>
+
+### Test the Installation
+
+1. Give yourself a `radio` item and use it (or use `/radio` or F5 if you changed the open type).
+2. Join a channel, for example 911.
+3. Have a second player join the same channel.
+4. Hold Left Alt and talk. The other player should hear you.
+
+</Steps>
+
+## Commands and Keybinds
+
+### Commands
+
+| Command                    | Who                                                                 | Description                                                                                                                             |
+| -------------------------- | ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `/radio`                   | Everyone                                                            | Opens the radio. Only exists when `Config.OpenType.Value` contains `"command"`.                                                         |
+| `/radioscanner`            | Everyone                                                            | Opens the radio scanner. Only exists when `Config.Scanner.OpenType` is `"command"` (the default).                                       |
+| `/changeradio <frequency>` | Everyone                                                            | Joins a frequency without opening the radio, or leaves the radio with `0`. In item mode the player must carry a radio and have used it. |
+| `/callsign <text>`         | Everyone                                                            | Sets your callsign. Run it with no text to clear it.                                                                                    |
+| `/radioadmin`              | Admins                                                              | Opens the admin menu.                                                                                                                   |
+| `/placejammer [type]`      | Ace `zerio.jammer`                                                  | Starts placing a ground jammer.                                                                                                         |
+| `/personaljammer [type]`   | Ace `zerio.jammer`                                                  | Turns your personal jammer on or off.                                                                                                   |
+| `/removejammer <id>`       | Ace `zerio.jammer`                                                  | Removes a jammer.                                                                                                                       |
+| `/listjammers`             | Ace `zerio.jammer`                                                  | Prints active jammers and their IDs to the server console.                                                                              |
+| `/placerepeater [type]`    | Ace `zerio.repeater`                                                | Starts placing a repeater.                                                                                                              |
+| `/removerepeater <id>`     | Ace `zerio.repeater`                                                | Removes a repeater.                                                                                                                     |
+| `/listrepeaters`           | Ace `zerio.repeater`                                                | Prints active repeaters and their IDs to the server console.                                                                            |
+| `/listtowers`              | Admins                                                              | Prints every tower and its health to the server console.                                                                                |
+| `zerio:testdispatch`       | Server console, or admins with the ace `command.zerio:testdispatch` | Sends a test alert to the dispatch panel. Optional priority: `low`, `medium`, `high` or `critical`.                                     |
+
+The command names for `/radio`, `/radioscanner`, `/changeradio`, `/callsign` and `/radioadmin` can be changed in the config. The jammer and repeater commands work on every framework, not only standalone.
+
+### Keybinds
+
+Keybinds are registered through ox_lib. Players can change them in **Settings → Key Bindings → FiveM**.
+
+| Keybind                                 | Default key | Notes                                                       |
+| --------------------------------------- | ----------- | ----------------------------------------------------------- |
+| Talk over Radio                         | Left Alt    | Push-to-talk on your active channel.                        |
+| Open Radio                              | F5          | Only when `Config.OpenType.Value` contains `"keybind"`.     |
+| Open Radio Scanner                      | F6          | Only when `Config.Scanner.OpenType` is `"keybind"`.         |
+| Toggle Radio Deafen                     | Not bound   | Mutes all incoming radio audio without leaving any channel. |
+| Cancel Man-Down Alert                   | Backspace   | Cancels a man-down countdown that started by mistake.       |
+| Confirm Speaker Placement (Zerio Radio) | Enter       | Used by admins when placing a speaker.                      |
+| Cancel Speaker Placement (Zerio Radio)  | Backspace   | Used by admins when placing a speaker.                      |
+
+## Upgrading from v2
+
+v3 is a new install, not an update you copy over v2. The configuration moved from `shared/*.lua` (`Shared.*`) to the `configs/` folder (`Config.*`), and many options changed.
+
+### Upgrade Steps
+
+1. Back up your database and your v2 config files.
+2. Delete the old `zerio-radio` folder and install v3 by following the steps above. Don't copy v2 files into v3.
+3. Before you start v3 for the first time, rename the two v2 tables that changed. v3 does not convert them:
+
+   ```sql
+   RENAME TABLE zerio_radio_settings TO zerio_radio_settings_v2;
+   RENAME TABLE zerio_radio_messages TO zerio_radio_messages_v2;
+   ```
+
+   v3 then creates new tables. Players' v2 radio settings (position, size, callsign and so on) and message history are not carried over. Contacts, favorites and recent channels keep working.
+
+4. Re-create your channels in `/radioadmin`. `Shared.Channels` is gone; channels are stored in the database.
+5. Undo the v2 inventory edits. v3 detects removed radios by itself:
+   - ox_inventory: remove the `client.remove` callback from the `radio` item.
+   - ESX: remove the `zerio-radio:client:removedradio` snippet from `removeInventoryItem` in `es_extended/server/classes/player.lua`.
+   - QBCore: remove the `zerio-radio:client:removedradio` snippet from `RemoveItem` in `qb-inventory/server/functions.lua`.
+6. The scanner item is now called `radio_scanner` (it was `radioscanner`). Rename the item in your inventory, or set `Config.Scanner.Item = "radioscanner"`.
+7. You no longer need `setr voice_enableRadioAnim 0` in `server.cfg` or the pma-voice mic click edit. zerio-radio turns pma-voice's radio off by itself and plays its own push-to-talk sounds.
+
+### Where v2 Options Went
+
+| v2 option                                                                                                                                                                  | v3                                                                                                                             |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `Shared.Locale`, `ShowPlayerList`, `DisableAnonymous`, `ChangeRadioChannelCommand`, `MessageLimit`, `RecentLimit`, `AllowCallSigns`, `CallsignCommand`, `DisplayRadioName` | Same names under `Config.` in `configs/main.lua`                                                                               |
+| `Shared.RemoveWeaponOnOpenRadio`, `Shared.RemoveWeaponOnTalkingOnRadio`                                                                                                    | One option: `Config.RemoveWeaponOnRadio` in `configs/main.lua`                                                                 |
+| `Shared.DisconnectOnDeath`, `DisconnectInWater`, `MinimumWaterDepth`, `RemoveOnOffDuty`, `DisableShootingWhileTalkingOnRadio`                                              | Same names under `Config.` in `configs/gameplay.lua`                                                                           |
+| `Shared.EnablePanicButton`, `PanicButtonCooldown`                                                                                                                          | `configs/features/panic.lua`                                                                                                   |
+| `Shared.PanicButtonSound`                                                                                                                                                  | Removed. The radio plays `html/sounds/panic_alert.ogg`; no sound resource needed.                                              |
+| `Shared.RadioFilter`                                                                                                                                                       | Removed. Radio audio filtering is set in `configs/audio/submix.lua`.                                                           |
+| `Shared.RadioKey`                                                                                                                                                          | Removed. Push-to-talk is an ox_lib keybind players can rebind.                                                                 |
+| `Shared.NavigateWithArrowKeys`                                                                                                                                             | Removed.                                                                                                                       |
+| `Shared.OpenType.*`                                                                                                                                                        | `Config.OpenType.*` in `configs/opentype.lua`. `Item` became the `Items` table. The `"control"` type and `Button` are removed. |
+| `Shared.Scanner.*`                                                                                                                                                         | `Config.Scanner.*` in `configs/features/scanner.lua`. The `"control"` type and `Button` are removed.                           |
+| `Shared.Animation`                                                                                                                                                         | `Config.Animation` in `configs/features/animation.lua`                                                                         |
+| `Shared.Channels`                                                                                                                                                          | Channels in the database, managed in `/radioadmin`                                                                             |
+| `locales/*.lua`                                                                                                                                                            | `locales/*.json`                                                                                                               |
+
+### Changed Defaults
+
+| Option                          | v2            | v3          |
+| ------------------------------- | ------------- | ----------- |
+| `OpenType.Value`                | `"keybind"`   | `"item"`    |
+| Scanner `OpenType`              | `"item"`      | `"command"` |
+| Scanner `Distance`              | `100`         | `500`       |
+| `PanicButtonCooldown`           | `300` seconds | `5` seconds |
+| `DisconnectOnDeath`             | `true`        | `false`     |
+| `DisconnectInWater`             | `true`        | `false`     |
+| Weapon removal on open and talk | `false`       | `true`      |
+
+## Troubleshooting
+
+### Red "admin token missing" box in the console
+
+**Cause**: The `zerio_voice_admin_token` convar is not set, is empty, or is still `CHANGE_ME`.
+
+**Solution**:
+
+- Add `set zerio_voice_admin_token "<token>"` to `server.cfg`, above `ensure zerio-radio`.
+- Restart the server. Radio voice and dispatch stay off until the token is set.
+- If you lost the token, sign in at [portal.radio.zerio-scripts.com](https://portal.radio.zerio-scripts.com) with your Server ID and portal email, and use **Reset admin token** in the account settings. Then put the new token in `server.cfg`.
+
+### Red "admin token REJECTED" box in the console
+
+**Cause**: The voice server does not accept the token.
+
+**Solution**:
+
+- Check that you copied the whole token, inside the quotes.
+- Check that you used `set`, not `setr`.
+- Check that `Domain` and `ServerId` in `configs/voice.lua` belong to the same server the token was made for.
+- Restart zerio-radio after changing `server.cfg`.
+
+### Red "voice admin API unreachable" box in the console
+
+**Cause**: zerio-radio can't reach the voice server at the address built from `configs/voice.lua`.
+
+**Solution**:
+
+- Check `Domain`: only the host, like `eu.radio.zerio-scripts.com`, with no `https://` and no trailing slash.
+- Check `ServerId`: it must match the Server ID you entered in the setup wizard.
+- Check that your host's firewall allows outgoing HTTPS connections.
+
+### "Could not find dependency zerio-radio-prop"
+
+**Cause**: `zerio-radio-prop` is missing, still inside the `zerio-radio` folder, or not started.
+
+**Solution**:
+
+- Move `zerio-radio-prop` out so it sits next to `zerio-radio`.
+- Add `ensure zerio-radio-prop` above `ensure zerio-radio`.
+
+### "No signal — cannot transmit"
+
+**Cause**: The player's signal on the active channel is zero. Most often towers are enabled but there are no towers in the database. A jammer, a 0% signal zone or a dead battery also cause it.
+
+**Solution**: See [Why do players have no signal?](/radio/faq#why-do-players-have-no-signal)
+
+### Using the radio item does nothing
+
+**Cause**: The open type or the item definition doesn't match your setup.
+
+**Solution**:
+
+- Check that `Config.OpenType.Value` in `configs/opentype.lua` is `{ "item" }`.
+- ox_inventory: check that the item has `client = { export = 'zerio-radio.Open' }`.
+- QBCore: check that the item has `useable = true`.
+- Check that the item name is a key in `Config.OpenType.Items`.
+
+### Players can't hear each other
+
+**Cause**: Voice is not connected, or the player's microphone is not the one the radio uses.
+
+**Solution**: See [Players can't hear each other on the radio](/radio/faq#players-cant-hear-each-other-on-the-radio).
+
+### "ox_inventory ... has no post-hook events" warning
+
+**Cause**: Your ox_inventory is older than 2.47.0.
+
+**Solution**: Update ox_inventory. On older versions every copy of a radio item acts as one radio, and drops and gives are noticed late.
+
+### Database errors after upgrading from v2
+
+**Cause**: The v2 `zerio_radio_settings` or `zerio_radio_messages` table is still in the database. You see errors like "Unknown column" or "Field 'timestamp' doesn't have a default value".
+
+**Solution**: Rename the old tables as shown in [Upgrade Steps](#upgrade-steps), then restart the server.
+
+## Need Help?
+
+If you're still having issues, join our [community server](https://discord.zerio-scripts.com) and create a support ticket.
