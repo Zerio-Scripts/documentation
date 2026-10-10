@@ -1,0 +1,921 @@
+import { Callout } from "nextra/components";
+
+# Configuration Guide
+
+All of zerio-radio's settings are Lua files in the `configs/` folder. This guide explains every option and its default. Restart zerio-radio after you change a config file.
+
+Channels, towers, signal zones, speakers and patches are not in the config files. They are stored in the database and managed in the in-game admin menu (`/radioadmin`).
+
+## Configuration Files Overview
+
+| File                               | Purpose                                                  |
+| ---------------------------------- | -------------------------------------------------------- |
+| `configs/main.lua`                 | Language, general radio behaviour, commands, callsigns   |
+| `configs/voice.lua`                | Connection to the hosted voice server                    |
+| `configs/themes.lua`               | UI color themes players can choose from                  |
+| `configs/gameplay.lua`             | Channel limit, disconnect rules, shooting restriction    |
+| `configs/framework.lua`            | Framework detection (don't edit)                         |
+| `configs/admin.lua`                | Admin menu command and standalone ace                    |
+| `configs/opentype.lua`             | How players open the radio, radio items, codeplug radios |
+| `configs/audio/ambient.lua`        | Gunshots and aircraft in transmissions                   |
+| `configs/audio/micclicks.lua`      | Push-to-talk sounds                                      |
+| `configs/audio/submix.lua`         | How audio quality drops with weak signal                 |
+| `configs/features/towers.lua`      | Tower coverage, destructible towers, tower repair        |
+| `configs/features/panic.lua`       | Panic button                                             |
+| `configs/features/dispatch.lua`    | Panic and man-down alerts for dispatch scripts           |
+| `configs/features/scanner.lua`     | Radio scanner                                            |
+| `configs/features/animation.lua`   | Radio props and animations                               |
+| `configs/features/audio-leak.lua`  | Nearby players hearing your radio, earpieces             |
+| `configs/features/jammers.lua`     | Ground and personal jammers                              |
+| `configs/features/repeaters.lua`   | Repeaters                                                |
+| `configs/features/cutoffzones.lua` | Signal zones                                             |
+| `configs/features/occlusion.lua`   | Signal loss underground                                  |
+| `configs/features/weather.lua`     | Signal loss in bad weather                               |
+| `configs/features/battery.lua`     | Battery drain, swaps and charging stations               |
+| `configs/features/patches.lua`     | Channel patches                                          |
+| `configs/features/mandown.lua`     | Man-down alerts                                          |
+| `configs/features/gps.lua`         | Unit GPS blips                                           |
+| `configs/features/speakers.lua`    | PA speakers                                              |
+
+---
+
+## Main Settings (`configs/main.lua`)
+
+### Language
+
+```lua
+Config.Locale = "en"
+```
+
+The language for notifications and command help. It must match a file in `locales/`. zerio-radio ships with `en` (English) and `sv` (Swedish). See [Translations](#translations-locales).
+
+### Radio Behaviour
+
+| Option                       | Default | Description                                                                                                                                                                 |
+| ---------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Config.RemoveWeaponOnRadio` | `true`  | Holsters the player's weapon when they open the radio and while they hold push-to-talk, and gives it back afterwards. With ox_inventory, ox_inventory's own disarm is used. |
+| `Config.DisableAnonymous`    | `false` | When `true`, players can't hide their name on the radio.                                                                                                                    |
+| `Config.ShowPlayerList`      | `true`  | Shows the member list overlay while the player is in a channel.                                                                                                             |
+| `Config.DisplayRadioName`    | `false` | Shows the channel name instead of "Radio members" above the member list.                                                                                                    |
+| `Config.MessageLimit`        | `50`    | How many messages to load when a player opens a conversation. `-1` loads all.                                                                                               |
+| `Config.RecentLimit`         | `10`    | How many recently used channels to keep per player.                                                                                                                         |
+
+### Commands
+
+```lua
+Config.ChangeRadioChannelCommand = "changeradio"
+```
+
+The command that joins a frequency without opening the radio, for example `/changeradio 911`. Set it to `nil` or remove the line to remove the command.
+
+### Callsigns
+
+```lua
+Config.AllowCallSigns = true
+Config.CallsignCommand = "callsign"
+```
+
+- `AllowCallSigns`: Lets players set a callsign that shows next to their name.
+- `CallsignCommand`: The command to set a callsign, for example `/callsign 1-ADAM-12`. Set it to `nil` to remove the command. Players can still set a callsign in the radio.
+
+### Defaults for New Players
+
+```lua
+Config.DefaultTheme = "orange"
+Config.DefaultSkin = "default"
+```
+
+- `DefaultTheme`: The theme new players start with. Must match an `id` in `configs/themes.lua`. If you remove it, the first theme in the list is used.
+- `DefaultSkin`: The radio skin new players start with: `"default"`, `"sharp"` or `"rounded"`.
+
+Players can change both in the radio's settings.
+
+---
+
+## Voice Server (`configs/voice.lua`)
+
+```lua
+Config.VoiceServer = {
+    Enabled = true,
+    Domain = "eu.radio.zerio-scripts.com",
+    ServerId = "my-rp-server",
+    PortalUrl = "https://portal.radio.zerio-scripts.com",
+}
+```
+
+| Option      | Description                                                                                                                                                                  |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Enabled`   | Turns the voice connection on. When `false`, there is no radio audio and no dispatch panel connection.                                                                       |
+| `Domain`    | The voice region host from the setup wizard: `eu.radio.zerio-scripts.com` or `na.radio.zerio-scripts.com`. Only the host, with no `https://` and no trailing slash.          |
+| `ServerId`  | The Server ID you entered in the setup wizard.                                                                                                                               |
+| `PortalUrl` | The customer portal. zerio-radio uses it to sync patches made in the web dispatch panel. Set it to `"https://portal.radio.zerio-scripts.com"`, or `""` to turn the sync off. |
+
+<Callout type="warning">
+  The file ships with local development values (`Domain = "localhost:30130"`,
+  `ServerId = ""`, `PortalUrl = "http://localhost:3000"`). Replace all three
+  with your own values, or the radio can't connect.
+</Callout>
+
+The admin token is not in this file. It goes in `server.cfg`, with `set` and never `setr`:
+
+```cfg
+set zerio_voice_admin_token "your-token-from-the-setup-wizard"
+```
+
+See [Set Up the Voice Server](/radio/installationguide#set-up-the-voice-server) for where to get these values.
+
+---
+
+## Themes (`configs/themes.lua`)
+
+`Config.Themes` is the list of color themes players can pick in the radio's settings. zerio-radio ships with eight: `orange`, `midnight`, `emerald`, `slate`, `mono`, `gold`, `rose` and `teal`. Remove the ones you don't want, or add your own.
+
+Colors are HSL values without the `hsl()` wrapper, for example `"271 81% 56%"`. Only `id`, `label` and `primary` are required. Anything you leave out uses the built-in default. Here is a list with one custom theme; to keep the shipped themes, add your entry to the existing list instead:
+
+```lua
+Config.Themes = {
+    {
+        id = "purple",
+        label = "Purple",
+        primary = "271 81% 56%",
+        primaryDark = "271 85% 64%",
+        backgroundDark = "271 20% 7%",
+        cardDark = "271 16% 11%",
+    },
+}
+```
+
+| Field                           | Description                                                 |
+| ------------------------------- | ----------------------------------------------------------- |
+| `id`                            | Unique ID. `Config.DefaultTheme` refers to this.            |
+| `label`                         | Name shown to players.                                      |
+| `primary` / `primaryDark`       | Accent color in light mode / dark mode.                     |
+| `primaryFg`                     | Text color on accent-colored buttons. Default `"0 0% 98%"`. |
+| `background` / `backgroundDark` | Page background in light / dark mode.                       |
+| `card` / `cardDark`             | Card and panel background.                                  |
+| `border` / `borderDark`         | Border color.                                               |
+| `muted` / `mutedDark`           | Secondary surfaces such as badges and inputs.               |
+| `mutedFg` / `mutedFgDark`       | Dimmed text.                                                |
+| `input` / `inputDark`           | Input field background.                                     |
+| `foreground` / `foregroundDark` | Main text color.                                            |
+
+---
+
+## Gameplay (`configs/gameplay.lua`)
+
+| Option                                      | Default | Description                                                                                                                                                       |
+| ------------------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Config.MaxChannels`                        | `3`     | How many channels a player can be on at once, counting the active channel and listen-only channels. `-1` removes the limit.                                       |
+| `Config.DisconnectOnDeath`                  | `false` | When `true`, players leave all channels when they die. Dead players can never transmit, but by default they stay on their channels so man-down alerts still work. |
+| `Config.DisconnectInWater`                  | `false` | When `true`, players leave all channels and can't open the radio while in water.                                                                                  |
+| `Config.MinimumWaterDepth`                  | `-1`    | Used with `DisconnectInWater`. `-1` means any water counts.                                                                                                       |
+| `Config.RemoveOnOffDuty`                    | `true`  | QBCore and Qbox only. Removes players from channels when they go off duty.                                                                                        |
+| `Config.DisableShootingWhileTalkingOnRadio` | `false` | Blocks shooting while the player holds push-to-talk.                                                                                                              |
+
+<Callout type="info">
+  `RemoveOnOffDuty` removes the player from every channel created in
+  `/radioadmin` when they go off duty, not only from job-restricted channels.
+</Callout>
+
+---
+
+## Framework (`configs/framework.lua`)
+
+This file detects your framework when the resource starts. You don't need to edit it.
+
+- `qb-core` or `qbx_core` running: QBCore mode (Qbox runs through its QBCore compatibility).
+- `es_extended` running: ESX mode.
+- Neither: standalone mode.
+
+---
+
+## Admin Menu (`configs/admin.lua`)
+
+```lua
+Config.Admin = {
+    command = "radioadmin",
+    acePermission = "zerio.admin",
+}
+```
+
+- `command`: The command that opens the admin menu.
+- `acePermission`: The ace that gives admin access on standalone servers.
+
+Who counts as an admin depends on the framework:
+
+| Framework       | Who has access                                                                          |
+| --------------- | --------------------------------------------------------------------------------------- |
+| QBCore and Qbox | Players with the `admin` permission (`QBCore.Functions.HasPermission(source, "admin")`) |
+| ESX             | Players in the `admin` or `god` group                                                   |
+| Standalone      | Players with the ace in `acePermission`                                                 |
+
+For standalone, add the ace in `server.cfg`:
+
+```cfg
+add_ace group.admin zerio.admin allow
+```
+
+Players who are not admins but have patch access (see [Channel Patches](#channel-patches-configsfeaturespatcheslua)) can also open the admin menu. They only see the Patches page.
+
+---
+
+## Opening the Radio (`configs/opentype.lua`)
+
+### Open Types
+
+```lua
+Config.OpenType.Value = { "item" }
+Config.OpenType.Keybind = "f5"
+Config.OpenType.Command = "radio"
+```
+
+`Config.OpenType.Value` is a list of ways players can open the radio:
+
+| Value       | How the radio opens                                                                                                                                 |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `"item"`    | By using a radio item from `Config.OpenType.Items`. The player must carry and use the item.                                                         |
+| `"command"` | With the command in `Config.OpenType.Command` (`/radio`).                                                                                           |
+| `"keybind"` | With a keybind. The default key is `Config.OpenType.Keybind` (F5); players can rebind it.                                                           |
+| `"custom"`  | Only from your own scripts, through the `zerio-radio:client:open` client event or the `Open` export. See [Developer Documentation](/radio/devdocs). |
+
+`"command"`, `"keybind"` and `"custom"` can be combined, for example `{ "command", "keybind" }`. `"item"` can't be combined with anything: if you list `"item"` with other types, the others are ignored and a warning is printed. That keeps players from getting around the item requirement.
+
+<Callout type="warning">
+  Standalone servers have no inventory. Change `Config.OpenType.Value` to
+  `"command"` and/or `"keybind"`, or nobody can open the radio.
+</Callout>
+
+### Radio Items and Codeplug Radios
+
+`Config.OpenType.Items` lists every item that works as a radio. It is only used in item mode.
+
+```lua
+Config.OpenType.Items = {
+    ["radio"] = {},
+
+    ["police_radio"] = {
+        label = "Police Radio",
+        codeplug = {
+            allowOtherChannels = false,
+            channels = {
+                { frequency = 911, label = "Police - Main" },
+                { frequency = 921, label = "Police - Tactical" },
+            },
+        },
+    },
+}
+```
+
+Each key is an item name. Each item is its own radio: carrying an item does nothing until the player uses it. A player can have several radios open at once and hears all of them. Dropping one radio only disconnects the channels that radio joined.
+
+A **codeplug** turns an item into a locked radio, like a department radio:
+
+- A player using that item can only join the channels in its `channels` list.
+- Those channels can only be joined by players using that item. The channel's normal access rules (jobs and so on) are ignored for them.
+- A plain `radio` can't tune to those channels.
+- Anyone who uses the item gets access, whatever their job. Only using the item counts, not carrying it.
+
+| Field                         | Default | Description                                                                                                                                                |
+| ----------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `label`                       | none    | Name shown in the radio for codeplug radios.                                                                                                               |
+| `codeplug.channels`           | none    | List of `{ frequency, label }`. The channels don't have to exist in `/radioadmin`. If they do, their settings (label, no-talk-over and so on) still apply. |
+| `codeplug.allowOtherChannels` | `false` | When `true`, the radio can also join any other channel the player has normal access to. The codeplug channels stay locked to the item.                     |
+
+Every item here must also exist in your inventory. See [Add the Items](/radio/installationguide#add-the-items).
+
+<Callout type="warning">
+  The commented-out examples in `configs/opentype.lua` use frequencies 911 to
+  917. If you uncomment them, those frequencies become codeplug-only. For
+  example, `sql/!data.sql` uses 912 for EMS and 913 for Fire, and the example
+  police radio claims 912 and 913. Pick frequencies that no other group uses.
+</Callout>
+
+---
+
+## Ambient Sound Capture (`configs/audio/ambient.lua`)
+
+Nearby gunshots and aircraft are mixed into a player's transmission while they talk.
+
+| Option             | Default | Description                                                                                             |
+| ------------------ | ------- | ------------------------------------------------------------------------------------------------------- |
+| `Enabled`          | `true`  | Turns ambient capture on or off.                                                                        |
+| `Volume`           | `35`    | Volume of the captured sounds, from 0 to 100.                                                           |
+| `LowPass`          | `2000`  | Low-pass filter in Hz.                                                                                  |
+| `HighPass`         | `120`   | High-pass filter in Hz.                                                                                 |
+| `ShotRadius`       | `60.0`  | How far away (meters) a gunshot can be and still be picked up.                                          |
+| `AircraftRadius`   | `100.0` | How far away (meters) aircraft are picked up.                                                           |
+| `ShotCooldown`     | `80`    | Minimum time (ms) between picked-up shots from the same shooter.                                        |
+| `WeaponCategories` | table   | Which gunshot sound (`pistol`, `rifle`, `shotgun`, `sniper`) each weapon uses. Add custom weapons here. |
+
+All options are in `Config.AmbientCapture`.
+
+---
+
+## Push-to-Talk Sounds (`configs/audio/micclicks.lua`)
+
+`Config.PTTAudioCues` controls the clicks and squelch sounds around a transmission.
+
+| Option            | Default           | Description                                                                                                |
+| ----------------- | ----------------- | ---------------------------------------------------------------------------------------------------------- |
+| `enabled`         | `true`            | Master switch for the transmit sounds.                                                                     |
+| `localKeying`     | `true`            | Plays a sound when you start and stop transmitting. Players can still turn this off in their own settings. |
+| `natoBeep`        | `false`           | Plays a short "over" beep when you release push-to-talk.                                                   |
+| `natoBeepSound`   | `"ptt_nato_beep"` | The sound used for the beep.                                                                               |
+| `defaultSoundSet` | `"default"`       | The sound set used on channels that don't have their own. Must match an `id` in `soundSets`.               |
+| `soundSets`       | two sets          | The sound sets you can choose from. zerio-radio ships with `default` and `subtle`.                         |
+
+You can pick a different sound set per channel in `/radioadmin` (channel editor, "Mic Click Sound").
+
+### Custom Sound Sets
+
+Each sound set names four sounds. A sound name is a file in `html/sounds/` without `.ogg`.
+
+```lua
+{
+    id = "radio2",
+    label = "Radio 2",
+    txStart = "radio2_tx_start", -- you start transmitting
+    txEnd = "radio2_tx_end",     -- you stop transmitting
+    rxOpen = "radio2_rx_open",   -- someone else starts talking
+    rxClose = nil,               -- someone else stops talking (nil = no sound)
+}
+```
+
+To add one:
+
+1. Put your `.ogg` files in `html/sounds/`, for example `html/sounds/radio2_tx_start.ogg`. The `fxmanifest.lua` already includes every `.ogg` in that folder.
+2. Add the set to `soundSets`.
+3. Restart zerio-radio and pick the set as `defaultSoundSet` or per channel.
+
+---
+
+## Signal Quality (`configs/audio/submix.lua`)
+
+These settings decide how a weak signal sounds. The signal itself comes from towers, jammers and the other features below.
+
+### General
+
+| Option                       | Default | Description                                      |
+| ---------------------------- | ------- | ------------------------------------------------ |
+| `Config.SubmixCheckInterval` | `2000`  | How often (ms) the signal bars in the UI update. |
+
+### Signal Degradation
+
+`Config.SignalDegradation`:
+
+| Option                      | Default         | Description                                                                                                                                                      |
+| --------------------------- | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `enabled`                   | `true`          | When `false`, audio quality doesn't change with signal and the signal bars always show full.                                                                     |
+| `curve`                     | `"exponential"` | How quality falls as signal drops. `"linear"`: in proportion. `"exponential"`: slowly at first, then fast near zero. `"stepped"`: jumps between the tiers below. |
+| `exponent`                  | `1.5`           | Strength of the `"exponential"` curve.                                                                                                                           |
+| `transmitterSide`           | `true`          | Listeners hear the worse of their own signal and the talker's signal. When `false`, only the listener's signal counts.                                           |
+| `transmitterUpdateInterval` | `2500`          | How often (ms) a talker's signal is sent to listeners.                                                                                                           |
+
+`breakingUp` makes audio drop out in short bursts when signal is very low:
+
+| Option                        | Default        | Description                                                     |
+| ----------------------------- | -------------- | --------------------------------------------------------------- |
+| `enabled`                     | `true`         | Turns breaking up on or off.                                    |
+| `threshold`                   | `0.30`         | Signal level (0.0 to 1.0) below which audio starts breaking up. |
+| `minGap` / `maxGap`           | `400` / `1800` | Time (ms) between dropouts.                                     |
+| `minDuration` / `maxDuration` | `60` / `220`   | Length (ms) of each dropout.                                    |
+
+`staticBurst` plays a sound when a talker's signal drops to zero (`sound`, default `"static_burst"`) and when it comes back (`reconnectSound`, default `"reconnect_click"`). Set `enabled = false` to turn it off.
+
+### Quality Tiers
+
+`Config.SubmixTiers` defines how the audio sounds at each signal level. This is advanced tuning; most servers leave it alone.
+
+| Field          | Description                                                         |
+| -------------- | ------------------------------------------------------------------- |
+| `name`         | Tier name, for your reference.                                      |
+| `minSignal`    | The listener needs at least this signal (0.0 to 1.0) for this tier. |
+| `freq_low`     | Low-cut frequency in Hz. Higher removes more bass.                  |
+| `freq_hi`      | High-cut frequency in Hz. Lower makes speech less clear.            |
+| `rm_mix`       | Distortion amount, from 0.0 (clean) to 1.0.                         |
+| `rm_mod_freq`  | Distortion frequency in Hz. `0` turns it off.                       |
+| `volume`       | Fraction of the player's radio volume (1.0 = full).                 |
+| `static_level` | Amount of background static.                                        |
+
+The default tiers are Excellent (0.80 and up), Good (0.60), Fair (0.40), Poor (0.20) and Dead (0.00).
+
+---
+
+## Radio Towers (`configs/features/towers.lua`)
+
+Towers give radio coverage. Each tower has a position, a range, a power and the frequencies it serves. You create towers in `/radioadmin` (Towers page), and `sql/!data.sql` adds nine examples. Channels with no tower nearby get `defaultSignal`.
+
+### Coverage
+
+| Option               | Default   | Description                                                                                                                                                  |
+| -------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `enabled`            | see below | Turns tower coverage on. When `false`, everyone has full signal (other features like jammers and signal zones still apply).                                  |
+| `defaultSignal`      | `0.0`     | Signal (0.0 to 1.0) where no tower covers the player. `0.0` means no signal; `1.0` means full signal everywhere.                                             |
+| `checkInterval`      | `2000`    | How often (ms) each player's signal is recalculated.                                                                                                         |
+| `coreRadiusFraction` | `0.5`     | The inner part of a tower's range that gets full signal. `0.5` means the inner half; signal falls off linearly beyond that. `0.0` falls off from the center. |
+
+<Callout type="warning">
+  Check `enabled` in your copy of the file. With towers enabled, `defaultSignal
+  = 0.0` and no towers in the database, nobody has signal and push-to-talk is
+  blocked with "No signal". Add towers in `/radioadmin` or with `sql/!data.sql`,
+  set `enabled = false`, or raise `defaultSignal`.
+</Callout>
+
+### Destructible Towers
+
+`health` lets players shoot or blow up tower masts. A damaged tower gives weaker signal, and a destroyed one gives none until it is repaired.
+
+This only applies to towers that have their own `prop` and don't use a world prop (the "world prop" option in the tower editor points at a mast that is already part of the map). Towers using a world prop can't be destroyed.
+
+| Option     | Default  | Description                                                                                                                   |
+| ---------- | -------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `enabled`  | `true`   | When `false`, every tower is indestructible.                                                                                  |
+| `max`      | `250`    | Starting health.                                                                                                              |
+| `smokeAt`  | `150`    | Health at which the mast starts smoking.                                                                                      |
+| `fireAt`   | `60`     | Health at which the smoke thickens and sparks appear.                                                                         |
+| `damage`   | table    | Damage per hit: `bullet = 8`, `melee = 0`, `explosive = 250`.                                                                 |
+| `downtime` | `600000` | How long (ms) a destroyed tower stays down before it repairs itself (10 minutes). `0` keeps it down until someone repairs it. |
+
+### In-Game Repair
+
+`health.repair` lets a player walk up to a destroyed mast and repair it.
+
+| Option                     | Default              | Description                                                                                                   |
+| -------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `enabled`                  | `true`               | When `false`, towers only come back after `downtime` or through the `RepairTower` export.                     |
+| `interaction.type`         | `"proximity"`        | `"proximity"` shows a prompt and uses a key. `"target"` adds an option to your target script.                 |
+| `interaction.targetScript` | `"ox_target"`        | `"ox_target"` or `"qb-target"`. Only used with `"target"`.                                                    |
+| `interaction.distance`     | `2.5`                | How close (meters) the player must be.                                                                        |
+| `interaction.key`          | `38`                 | Key for proximity mode. `38` is E.                                                                            |
+| `item`                     | `"radio_repair_kit"` | Item needed to repair. Set to `nil` or `false` to let anyone repair without an item. Not used in standalone.  |
+| `consumeItem`              | `true`               | Removes the item after a successful repair.                                                                   |
+| `duration`                 | `8000`               | How long (ms) the repair takes. Moving away, dying or getting in a vehicle cancels it. `0` repairs instantly. |
+| `requiredAce`              | `nil`                | An ace the player needs to repair. `nil` lets anyone with the item repair.                                    |
+
+---
+
+## Panic Button (`configs/features/panic.lua`)
+
+```lua
+Config.EnablePanicButton = true
+Config.PanicButtonCooldown = 5
+
+Config.PanicAlertReceive = {
+    Notify = true,
+}
+```
+
+| Option                       | Default | Description                                                                                       |
+| ---------------------------- | ------- | ------------------------------------------------------------------------------------------------- |
+| `Config.EnablePanicButton`   | `true`  | Shows the panic button on the radio.                                                              |
+| `Config.PanicButtonCooldown` | `5`     | Seconds a player must wait between panic presses.                                                 |
+| `PanicAlertReceive.Notify`   | `true`  | Also shows a notification to players who receive the alert, so they see it with the radio closed. |
+
+Players who receive a panic alert hear `html/sounds/panic_alert.ogg` and see a screen effect. Players can turn the screen effect off with the "Emergency Alerts" setting in the radio. To use your own sound, replace that file with your own `.ogg` file of the same name.
+
+When unit GPS is on for the channel, the player's blip also flashes (see `FlashOnPanic` in [Unit GPS](#unit-gps-configsfeaturesgpslua)).
+
+Every panic alert also shows up in the dispatch console. To send it to zerio-dispatch, ps-dispatch or lb-tablet as well, see [Dispatch Scripts](#dispatch-scripts-configsfeaturesdispatchlua).
+
+---
+
+## Dispatch Scripts (`configs/features/dispatch.lua`)
+
+Panic and man-down alerts always reach the dispatch console. These settings also send them to a third-party dispatch script.
+
+```lua
+Config.DispatchAlerts = {
+    Script = "auto",
+    Jobs = { "police" },
+    Alerts = {
+        panic   = { Enabled = true, Code = "10-33" },
+        mandown = { Enabled = false, Code = "10-99" },
+    },
+}
+```
+
+| Option           | Default        | Description                                                                                                                                             |
+| ---------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Script`         | `"auto"`       | `"auto"` uses the first one running of `zerio-dispatch`, `lb-tablet` and `ps-dispatch`. Set one of those names to pick it, or `"none"` to send nothing. |
+| `Jobs`           | `{ "police" }` | Jobs that receive the alerts in ps-dispatch and lb-tablet. ps-dispatch also accepts its job types, such as `"leo"`.                                     |
+| `Alerts.panic`   | on, `"10-33"`  | Sends panic button presses, with the code the alert shows.                                                                                              |
+| `Alerts.mandown` | off, `"10-99"` | Sends man-down alerts once the countdown runs out, on channels with man-down turned on.                                                                 |
+
+The alert is only sent once the server has accepted it, so the panic cooldown also applies to the dispatch script.
+
+To support another dispatch script, edit `Functions.SendDispatchAlert` in `server/functions.lua` (for scripts that take alerts on the server) and `client/functions.lua` (for scripts that take alerts from the player's client). Or listen to the [`dispatchAlert`](/radio/devdocs#dispatchalert) event from your own resource.
+
+---
+
+## Radio Scanner (`configs/features/scanner.lua`)
+
+The scanner lists active channels near the player and lets them lock on to listen.
+
+```lua
+Config.Scanner = {
+    OpenType = "command",
+    Item = "radio_scanner",
+    Keybind = "f6",
+    Command = "radioscanner",
+    -- ...
+}
+```
+
+| Option                   | Default                | Description                                                                                                                                                                     |
+| ------------------------ | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `OpenType`               | `"command"`            | How players open the scanner: `"item"`, `"command"`, `"keybind"` or `"custom"` (the `OpenScanner` export or the `zerio-radio:client:openscanner` event). One value, not a list. |
+| `Item`                   | `"radio_scanner"`      | The scanner item, for `"item"`.                                                                                                                                                 |
+| `Keybind`                | `"f6"`                 | The default key, for `"keybind"`.                                                                                                                                               |
+| `Command`                | `"radioscanner"`       | The command, for `"command"`.                                                                                                                                                   |
+| `Distance`               | `500`                  | How far away (meters) a transmitting player can be and still show up.                                                                                                           |
+| `Time`                   | `{ min = 5, max = 5 }` | How long a scan takes, in seconds. A random time between `min` and `max` is used.                                                                                               |
+| `HiddenChannels`         | `{ 911 }`              | Frequencies that never show up in scans.                                                                                                                                        |
+| `FrequencyRange`         | `nil`                  | Limit scans to a range, for example `{ min = 100, max = 500 }`. `nil` scans all frequencies.                                                                                    |
+| `BackgroundScan`         | `true`                 | While the player is on a channel, checks for nearby active transmissions in the background and shows a notification.                                                            |
+| `BackgroundScanInterval` | `30`                   | Seconds between background scans.                                                                                                                                               |
+| `LockOn`                 | `true`                 | Lets players lock on to a scanned channel and hear it.                                                                                                                          |
+| `LockOnSilenceSeconds`   | `3`                    | The lock-on ends after this many seconds without anyone talking.                                                                                                                |
+
+---
+
+## Animations and Props (`configs/features/animation.lua`)
+
+`Config.Animation` sets the radio prop in the player's hand and the animations for opening the radio and talking.
+
+```lua
+Config.Animation = {
+    OpenProp = {
+        Model = GetHashKey("zerio_radio"),
+        Bone = 28422,
+        Offset = vector3(0.0, 0.0, 0.0),
+        Rotation = vector3(90.0, 90.0, 0.0),
+    },
+
+    TalkProp = {
+        Model = GetHashKey("zerio_radio"),
+        Bone = 60309,
+        Offset = vector3(0.05, 0.0, 0.015),
+        Rotation = vector3(0.0, 90.0, -45.0),
+    },
+
+    OpenAnimation = {
+        Normal = { Dictionary = "cellphone@", Name = "cellphone_text_in" },
+        InCar = { Dictionary = "cellphone@in_car@ds", Name = "cellphone_text_in" },
+    },
+
+    TalkAnimation = {
+        Name = "generic_radio_chatter",
+        Dictionary = "random@arrests",
+        StopSpeed = 1.0,
+    },
+
+    ClothingAnimations = {},
+}
+```
+
+| Block                | Description                                                                                                                           |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `OpenProp`           | The prop held while the radio is open. `Model` is the prop, `Bone` the ped bone ID, `Offset` and `Rotation` its position on the bone. |
+| `TalkProp`           | The prop held while talking.                                                                                                          |
+| `OpenAnimation`      | The animation while the radio is open: `Normal` on foot, `InCar` in a vehicle.                                                        |
+| `TalkAnimation`      | The animation while holding push-to-talk. `StopSpeed` (1.0 to 8.0, keep the `.0`) sets how fast it stops; 8.0 is instant.             |
+| `ClothingAnimations` | Talk animations used instead of `TalkAnimation` when the player wears certain clothing.                                               |
+
+Remove a block (or set it to `nil`) to turn it off. The `zerio_radio` model comes from the `zerio-radio-prop` resource. Bone IDs are listed on the [RAGE:MP wiki](https://wiki.rage.mp/index.php?title=Bones).
+
+See [Animations & Props](/radio/faq#animations--props) in the FAQ for examples, including clothing-based animations.
+
+---
+
+## Audio Leak (`configs/features/audio-leak.lua`)
+
+Players standing near someone on the radio hear that radio's audio from the world, unless the radio user wears an earpiece. All options are in `Config.RadioLeak`.
+
+| Option                              | Default | Description                                                                    |
+| ----------------------------------- | ------- | ------------------------------------------------------------------------------ |
+| `enabled`                           | `true`  | Turns audio leak on or off.                                                    |
+| `range`                             | `5.0`   | How far away (meters) nearby players hear the radio.                           |
+| `maxVolume`                         | `0.8`   | Volume up close.                                                               |
+| `fadeStart`                         | `1.5`   | Distance (meters) where the volume starts to fade. It reaches zero at `range`. |
+| `vehicleRadioUser.enabled`          | `true`  | Makes the leak quieter when the radio user is in a vehicle.                    |
+| `vehicleRadioUser.volumeMultiplier` | `0.35`  | Volume multiplier in a vehicle.                                                |
+| `maxChannelsPerPlayer`              | `8`     | Maximum channels per player that can leak. A safety cap.                       |
+| `checkInterval`                     | `1500`  | How often (ms) nearby players are checked.                                     |
+| `volumeInterval`                    | `500`   | How often (ms) leak volume is updated.                                         |
+
+### Earpieces
+
+`earpiece` turns the leak off for players wearing an earpiece. Set `earpiece.enabled = false` to ignore earpieces.
+
+- `props`: Earpiece props, as `{ component = 2, index = 2 }`. `component` is the prop slot and `index` the prop drawable.
+- `drawables`: Earpiece clothing, as `{ component = 8, drawable = 15 }`.
+
+Both accept an optional `texture` to match only one texture. Add the IDs of the earpieces on your server's clothing packs.
+
+### Proximity Pickup
+
+`proximityPickup` mixes the voices of nearby players into your transmission while you talk, so people around you can be heard on the radio.
+
+| Option          | Default | Description                                               |
+| --------------- | ------- | --------------------------------------------------------- |
+| `enabled`       | `true`  | Turns proximity pickup on or off.                         |
+| `range`         | `2.5`   | How close (meters) a player must be to be picked up.      |
+| `checkInterval` | `1000`  | How often (ms) nearby players are checked while you talk. |
+| `maxBystanders` | `3`     | Maximum number of nearby players picked up at once.       |
+
+---
+
+## Jammers (`configs/features/jammers.lua`)
+
+Jammers lower or remove signal in an area. Ground jammers are placed in the world. Personal jammers are worn on the player's back and move with them.
+
+| Option          | Default          | Description                                                                                 |
+| --------------- | ---------------- | ------------------------------------------------------------------------------------------- |
+| `enabled`       | `true`           | Turns jammers on or off.                                                                    |
+| `maxActive`     | `5`              | Maximum active jammers (ground and personal together) on the server. `0` removes the limit. |
+| `standaloneAce` | `"zerio.jammer"` | The ace needed for the jammer commands (`/placejammer` and so on) on every framework.       |
+
+### Ground Jammers
+
+`groundTypes` is a list of ground jammer types. Using the item starts placement mode: a preview follows your crosshair and you confirm the spot. Add more entries for more tiers; each `id` must be unique.
+
+| Field              | Default                     | Description                                                                                                                         |
+| ------------------ | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `id`               | `"standard"`                | Unique ID. Also used by `/placejammer [type]`.                                                                                      |
+| `label`            | `"Radio Jammer"`            | Name shown in lists.                                                                                                                |
+| `enabled`          | `true`                      | Turns this type on or off.                                                                                                          |
+| `item`             | `"radio_jammer"`            | Item that places this jammer. Not used in standalone.                                                                               |
+| `radius`           | `150.0`                     | Jamming radius in meters.                                                                                                           |
+| `power`            | `1.0`                       | How much signal it removes, from 0.0 (none) to 1.0 (all).                                                                           |
+| `prop`             | `"reh_prop_reh_jammer_01a"` | The jammer prop.                                                                                                                    |
+| `frequencies`      | `"all"`                     | `"all"`, or a list of frequencies like `{ 911, 420 }`.                                                                              |
+| `consumeOnPlace`   | `true`                      | Removes the item when the jammer is placed.                                                                                         |
+| `health`           | table                       | Same as tower health: `enabled`, `max = 100`, `smokeAt = 60`, `fireAt = 25`, `damage = { bullet = 15, melee = 8, explosive = 80 }`. |
+| `pickupMinHealth`  | `80`                        | Minimum health (percent) for the owner to pick the jammer back up.                                                                  |
+| `interaction`      | table                       | How the owner picks it up: `type` (`"proximity"` or `"target"`), `targetScript`, `distance = 2.0`, `pickupKey = 38` (E).            |
+| `placeRaycastDist` | `20.0`                      | How far (meters) the placement preview can reach.                                                                                   |
+| `despawnOnLogout`  | `true`                      | Removes the jammer when the player who placed it disconnects.                                                                       |
+
+### Personal Jammers
+
+`personalTypes` is a list of personal jammer types. Using the item turns it on or off.
+
+| Field         | Default                          | Description                                       |
+| ------------- | -------------------------------- | ------------------------------------------------- |
+| `id`          | `"standard"`                     | Unique ID. Also used by `/personaljammer [type]`. |
+| `label`       | `"Mobile Radio Jammer"`          | Name shown in lists.                              |
+| `enabled`     | `true`                           | Turns this type on or off.                        |
+| `item`        | `"mobile_radio_jammer"`          | Item that turns this jammer on and off.           |
+| `radius`      | `50.0`                           | Jamming radius around the carrier, in meters.     |
+| `power`       | `0.85`                           | How much signal it removes, from 0.0 to 1.0.      |
+| `prop`        | `"ch_prop_ch_mobile_jammer_01x"` | The prop on the player's back.                    |
+| `bone`        | `24816`                          | The bone the prop is attached to (mid-back).      |
+| `offset`      | `vec3(-0.15, -0.125, 0.0)`       | Position of the prop on the bone.                 |
+| `rotation`    | `vec3(90.0, 90.0, 0.0)`          | Rotation of the prop on the bone.                 |
+| `frequencies` | `"all"`                          | `"all"`, or a list of frequencies.                |
+
+A player can't place a jammer while they have a repeater placed or are placing one, and the other way around.
+
+---
+
+## Repeaters (`configs/features/repeaters.lua`)
+
+Repeaters extend tower coverage. A repeater only works if it is placed somewhere that already has tower signal. Once active, it gives full signal at its position, fading out to its range. Players get whichever is stronger: the repeater or their own tower signal. Underground signal loss does not apply to repeater signal.
+
+| Option          | Default            | Description                                                                                        |
+| --------------- | ------------------ | -------------------------------------------------------------------------------------------------- |
+| `enabled`       | `true`             | Turns repeaters on or off.                                                                         |
+| `maxActive`     | `10`               | Maximum player-placed repeaters on the server. `0` removes the limit. `/placerepeater` ignores it. |
+| `standaloneAce` | `"zerio.repeater"` | The ace needed for the repeater commands on every framework.                                       |
+
+`types` is a list of repeater types:
+
+| Field              | Default                  | Description                                                                                  |
+| ------------------ | ------------------------ | -------------------------------------------------------------------------------------------- |
+| `id`               | `"standard"`             | Unique ID. Also used by `/placerepeater [type]`.                                             |
+| `label`            | `"Radio Repeater"`       | Name shown in lists and the admin menu.                                                      |
+| `enabled`          | `true`                   | Turns this type on or off.                                                                   |
+| `item`             | `"radio_repeater"`       | Item that places this repeater. Not used in standalone.                                      |
+| `prop`             | `"zerio_radio_repeater"` | The repeater prop (from `zerio-radio-prop`).                                                 |
+| `range`            | `300.0`                  | Coverage radius in meters.                                                                   |
+| `falloff`          | `1.0`                    | How fast signal fades toward the edge. `1.0` is even; `2.0` drops off sharply near the edge. |
+| `frequencies`      | `"all"`                  | `"all"`, or a list of frequencies.                                                           |
+| `consumeOnPlace`   | `true`                   | Removes the item when the repeater is placed.                                                |
+| `despawnOnLogout`  | `true`                   | Removes the repeater when the player who placed it disconnects.                              |
+| `placeRaycastDist` | `20.0`                   | How far (meters) the placement preview can reach.                                            |
+| `interaction`      | table                    | How the owner picks it up: `type`, `targetScript`, `distance = 2.0`, `pickupKey = 38` (E).   |
+
+---
+
+## Signal Zones (`configs/features/cutoffzones.lua`)
+
+```lua
+Config.CutoffZones = {
+    enabled = true,
+}
+```
+
+Signal zones are 3D areas that force the signal inside them to a set level, from 0% (tunnels, bunkers) to 100% (for example a building with its own coverage). The zone's level replaces tower coverage, underground loss, repeaters and weather. Jammers and low battery still apply. When zones overlap, the smallest one wins.
+
+You draw zones in `/radioadmin` on the Signal Zones page. They are saved in the database. `enabled = false` turns the feature off.
+
+---
+
+## Underground Signal Loss (`configs/features/occlusion.lua`)
+
+Lowers signal when the player is underground, for example in sewers, mines and tunnels. Ground-level interiors like police stations are not affected. All options are in `Config.TerrainOcclusion`.
+
+| Option                 | Default | Description                                                                                                                                                   |
+| ---------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `enabled`              | `true`  | Turns underground signal loss on or off.                                                                                                                      |
+| `undergroundPenalty`   | `0.2`   | Signal multiplier underground. `0.2` leaves 20% of the signal; `0.0` removes it.                                                                              |
+| `undergroundThreshold` | `2.0`   | How many meters below the surrounding ground the player must be to count as underground. Raise it if basements trigger it; lower it if shallow tunnels don't. |
+| `checkInterval`        | `2000`  | How often (ms) it is checked.                                                                                                                                 |
+| `moveThreshold`        | `20.0`  | Checks again right away if the player moves more than this many meters.                                                                                       |
+
+---
+
+## Weather (`configs/features/weather.lua`)
+
+Lowers signal in bad weather. All options are in `Config.WeatherEffects`.
+
+| Option          | Default | Description                                                                                 |
+| --------------- | ------- | ------------------------------------------------------------------------------------------- |
+| `enabled`       | `true`  | Turns weather effects on or off.                                                            |
+| `checkInterval` | `10000` | How often (ms) the weather is checked.                                                      |
+| `penalties`     | table   | Signal penalty per weather type, from 0.0 (no effect) to 1.0 (no signal).                   |
+| `thunderJitter` | `0.10`  | During thunder, the penalty randomly moves up and down by this much. `0.0` keeps it steady. |
+
+Default penalties: `RAIN` 0.08, `THUNDER` 0.28, `BLIZZARD` 0.18, `SNOW` 0.05, `XMAS` 0.05, `SNOWLIGHT` 0.03, `SMOG` 0.02, `FOGGY` 0.02, `OVERCAST` 0.01, and 0.0 for clear weather and `HALLOWEEN`.
+
+---
+
+## Battery (`configs/features/battery.lua`)
+
+The battery system is off by default. When on, radios drain while in use, and players swap batteries or charge at charging stations. A dead battery can't open the radio, join channels or transmit.
+
+Where the charge is stored:
+
+- **ox_inventory or QBCore**, with the radio as an item: on the radio item. The charge stays with the item and shows on ox_inventory's tooltip.
+- **ESX's built-in inventory**: in server memory for the session. Not shown on the item.
+- **Command, keybind or custom open type**: one battery per player, in server memory.
+
+If you use ox_inventory, add the `radio_battery` item with its `server.export` when you turn this on (see [Add the Items](/radio/installationguide#add-the-items)).
+
+### Drain
+
+| Option                   | Default           | Description                                                                       |
+| ------------------------ | ----------------- | --------------------------------------------------------------------------------- |
+| `Enabled`                | `false`           | Turns the battery system on.                                                      |
+| `DrainRateMultiplier`    | `1.0`             | Multiplies all drain rates.                                                       |
+| `DrainPerSecondIdle`     | `0.010`           | Percent per second while the radio is on with no channel.                         |
+| `DrainPerSecondListen`   | `0.020`           | Percent per second while on at least one channel.                                 |
+| `DrainPerSecondTransmit` | `0.080`           | Percent per second while transmitting.                                            |
+| `SaveIntervalMs`         | `60000`           | How often (ms) the charge is saved to the item.                                   |
+| `BatteryItemName`        | `"radio_battery"` | The battery item. Using it lets the player pick a radio to swap the battery into. |
+| `StartingCharge`         | `100`             | Charge of a radio that has never had a battery level.                             |
+
+### Low Battery Signal Penalty
+
+`SignalPenalty` weakens the signal as the battery runs low.
+
+| Option                     | Default | Description                                               |
+| -------------------------- | ------- | --------------------------------------------------------- |
+| `Enabled`                  | `false` | Turns the penalty on.                                     |
+| `LowBatteryThreshold`      | `20`    | Battery percent where the signal starts to drop.          |
+| `CriticalBatteryThreshold` | `5`     | Battery percent where the penalty is at its worst.        |
+| `LowMultiplier`            | `0.5`   | Signal multiplier at `LowBatteryThreshold`.               |
+| `CriticalMultiplier`       | `0.1`   | Signal multiplier at or below `CriticalBatteryThreshold`. |
+
+Between the two thresholds the multiplier goes linearly from `LowMultiplier` to `CriticalMultiplier`.
+
+### Charging Stations
+
+`Stations` are places where players charge their radio. Players press E (or use the target option) to start charging, stay within the radius, and press E again or walk away to stop.
+
+| Option                     | Default       | Description                                                                   |
+| -------------------------- | ------------- | ----------------------------------------------------------------------------- |
+| `Enabled`                  | `true`        | Turns charging stations on or off.                                            |
+| `ChargePerSecond`          | `2.0`         | Percent charged per second. A station can override it with `chargePerSecond`. |
+| `Interaction.type`         | `"proximity"` | `"proximity"` (prompt and key) or `"target"`.                                 |
+| `Interaction.targetScript` | `"ox_target"` | `"ox_target"` or `"qb-target"`.                                               |
+| `Interaction.useKey`       | `38`          | Key for proximity mode. `38` is E.                                            |
+| `ShowMarker`               | `true`        | Draws a marker at each station.                                               |
+| `ShowBlip`                 | `true`        | Adds a map blip for each station.                                             |
+| `Marker`                   | table         | Marker `type`, `size` and `color`.                                            |
+| `Blip`                     | table         | Blip `sprite = 354`, `color = 2`, `scale = 0.7`, `label = "Radio Charger"`.   |
+| `Locations`                | one example   | The stations. Replace the example with your own.                              |
+
+```lua
+Locations = {
+    { coords = vector3(441.5, -982.0, 30.7), radius = 2.0 },
+    { coords = vector3(831.4, -1289.7, 27.9), radius = 3.0, chargePerSecond = 5.0 },
+},
+```
+
+---
+
+## Channel Patches (`configs/features/patches.lua`)
+
+A patch links two or more channels so players on one channel hear the others. Admins manage patches in `/radioadmin` on the Patches page. Patches made in the web dispatch panel are synced to the game when `PortalUrl` is set in `configs/voice.lua`.
+
+| Option             | Default | Description                                                                                              |
+| ------------------ | ------- | -------------------------------------------------------------------------------------------------------- |
+| `Enabled`          | `true`  | Turns patches on or off.                                                                                 |
+| `DispatchJobs`     | `{}`    | Jobs that can manage patches without being admins, for example `{ "dispatcher" }`. QBCore, Qbox and ESX. |
+| `AcePermissions`   | `{}`    | Aces that can manage patches, for example `{ "zerio.radio.dispatch" }`.                                  |
+| `MaxPatchSize`     | `6`     | Maximum channels in one patch.                                                                           |
+| `MaxActivePatches` | `20`    | Maximum patches on the server at once.                                                                   |
+
+Players allowed by `DispatchJobs` or `AcePermissions` open `/radioadmin` and only see the Patches page.
+
+---
+
+## Man-Down (`configs/features/mandown.lua`)
+
+When a player stays down while on a channel, the radio counts down on their screen and then sends an emergency alert to their channels. Other players see a banner and a flashing area on the map until the player recovers, leaves, or someone clears the alert.
+
+<Callout type="warning">
+  Man-down is also turned on per channel. In `/radioadmin`, edit the channel and
+  turn on "Man-Down". It is off for every channel by default, so nothing happens
+  until you turn it on.
+</Callout>
+
+| Option              | Default    | Description                                                                                                          |
+| ------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------- |
+| `Enabled`           | `true`     | Master switch.                                                                                                       |
+| `Trigger`           | `"either"` | What starts the countdown (see below).                                                                               |
+| `WarningSeconds`    | `10`       | Seconds from the trigger to the alert. The player can cancel during this time.                                       |
+| `CheckIntervalMs`   | `1000`     | How often (ms) the player's state is checked.                                                                        |
+| `MovementThreshold` | `0.5`      | For `"stationary"`: how far the player must move to count as moving.                                                 |
+| `CancelKeybind`     | `"BACK"`   | Default key (Backspace) to cancel a false alarm. Players can rebind it. Doesn't cancel if the player is really down. |
+
+`Trigger` values:
+
+- `"ragdoll"`: The player is ragdolled. Death systems that keep the player in a "downed" animation (like qb-ambulancejob or esx_ambulancejob) don't count.
+- `"dead"`: The player is dead or in last stand according to the framework (QBCore last stand or dead, ESX dead), or dead by game natives on standalone.
+- `"either"`: Ragdolled or dead. The default.
+- `"stationary"`: The player hasn't moved for the whole countdown.
+
+`Blip` is the map marker other players see:
+
+| Option          | Default | Description                   |
+| --------------- | ------- | ----------------------------- |
+| `Enabled`       | `true`  | Shows the blip.               |
+| `Radius`        | `30.0`  | Radius of the area in meters. |
+| `Color`         | `1`     | Blip color (1 is red).        |
+| `Alpha`         | `130`   | Opacity, from 0 to 255.       |
+| `Flash`         | `true`  | Makes the blip flash.         |
+| `FlashInterval` | `500`   | Flash speed in ms.            |
+
+---
+
+## Unit GPS (`configs/features/gps.lua`)
+
+Shows live map blips for the other players on your channels. Blips change shape by vehicle type and can flash on sirens and panic.
+
+<Callout type="warning">
+  Unit GPS is also turned on per channel. In `/radioadmin`, edit the channel and
+  turn on "Unit GPS". It is off for every channel by default.
+</Callout>
+
+| Option              | Default         | Description                                                                                                |
+| ------------------- | --------------- | ---------------------------------------------------------------------------------------------------------- |
+| `Enabled`           | `true`          | Master switch.                                                                                             |
+| `UpdateInterval`    | `2000`          | How often (ms) each player's position is sent. Lower is smoother but uses more network traffic.            |
+| `BlipColor`         | `2`             | Blip color. See the [FiveM blip colors](https://docs.fivem.net/docs/game-references/blips/#blip-colors).   |
+| `BlipScale`         | `0.8`           | Blip size.                                                                                                 |
+| `RotateBlips`       | `true`          | Turns the blip to face the unit's heading.                                                                 |
+| `BlipCategory`      | `21`            | Groups all radio blips into one line in the pause map legend. `nil` or `false` lists each blip separately. |
+| `BlipCategoryLabel` | `"Radio Units"` | Legend name for the category.                                                                              |
+| `AllChannels`       | `true`          | Shows units from every channel you listen to. When `false`, only your active channel.                      |
+| `ShowLabel`         | `true`          | Shows the unit's callsign (or name) on the blip.                                                           |
+| `FlashOnPanic`      | `true`          | Flashes the blip when that unit presses the panic button.                                                  |
+| `FlashOnSiren`      | `true`          | Flashes the blip when that unit's siren is on.                                                             |
+| `Sprites`           | table           | Blip sprite per movement type: `foot = 1`, `car = 225`, `bike = 226`, `air = 422`, `boat = 427`.           |
+
+---
+
+## Speakers (`configs/features/speakers.lua`)
+
+Speakers are PA speakers placed in the world. Admins place them in `/radioadmin` on the Speakers page and group them into stations. Speakers need OneSync.
+
+| Option             | Default             | Description                                                                    |
+| ------------------ | ------------------- | ------------------------------------------------------------------------------ |
+| `enabled`          | `true`              | Turns speakers on or off.                                                      |
+| `defaultProp`      | `"prop_speaker_01"` | Prop for new speakers.                                                         |
+| `defaultRadius`    | `30.0`              | How far (meters) a new speaker can be heard. Each speaker can override it.     |
+| `propDrawDistance` | `80.0`              | Distance (meters) at which speaker props are hidden. Keep it above the radius. |
+| `placementProp`    | `"prop_speaker_01"` | Preview prop shown while placing.                                              |
+| `placeRaycastDist` | `30.0`              | How far (meters) the placement preview can reach.                              |
+
+---
+
+## Translations (`locales/`)
+
+Texts are in `locales/en.json` and `locales/sv.json`. `Config.Locale` in `configs/main.lua` picks the file.
+
+- The top-level keys in the JSON file are the in-game notifications and command help. You can edit them, and they change after a restart.
+- The `ui` section is the text inside the radio itself. That text is built into the radio's interface, so editing it in the JSON file changes nothing.
+
+To add a language, copy `en.json` to a new file such as `de.json`, translate it and set `Config.Locale = "de"`. Notifications and command help then use your file. The radio's interface only has English and Swedish built in and shows English for other languages. Contact support if you want your translation added to the radio's interface.

@@ -2,58 +2,92 @@ import { Callout } from "nextra/components";
 
 # Developer Documentation
 
-Information you as a developer, wanting to extend the resource might want to know will be listed here.
+Everything other resources can use from zerio-radio: exports, the server events it triggers, and the commands it registers.
 
-Such as notable exports, or such.
+<Callout type="info">
+  Exports of a feature that's turned off in the config still exist. They do
+  nothing and return `false`, `nil` or an empty table, so you don't have to
+  check the config before calling them.
+</Callout>
 
-If empty, then nothing notable exists at the moment.
+Frequencies are numbers, such as `100` or `100.5`. Exports that take a frequency also accept it as a string.
 
-## Export list
+## Server-Side Exports
 
-### Client
+### Players and Channels
+
+#### GetPlayerChannels
+
+```lua
+local channels = exports["zerio-radio"]:GetPlayerChannels(source)
+-- { active = 911, listening = { 100, 911 } }
+```
+
+Returns the channels a player is on. `active` is the channel they talk on, or `0` when they're on none. `listening` lists every channel they're on, including the active one.
+
+#### GetChannelMembers
+
+```lua
+local members = exports["zerio-radio"]:GetChannelMembers(frequency)
+```
+
+Returns the server ids of everyone on a channel. Players who only listen in through a scanner lock-on aren't members, so they're left out.
+
+#### IsPlayerTransmitting
+
+```lua
+local talking = exports["zerio-radio"]:IsPlayerTransmitting(source)
+```
+
+Returns `true` while the player is talking on their radio. To react the moment it changes, listen to [`playerStartedTransmitting`](#playerstartedtransmitting) and [`playerStoppedTransmitting`](#playerstoppedtransmitting) instead.
+
+#### GetPlayerSignalStrength
+
+```lua
+local signal = exports["zerio-radio"]:GetPlayerSignalStrength(source)
+local signal = exports["zerio-radio"]:GetPlayerSignalStrength(source, frequency)
+```
+
+Returns the player's signal on a channel, from `0.0` (no signal) to `1.0` (full signal), in steps of `0.05`. Without a frequency it uses the channel they talk on. Returns `nil` when they aren't on that channel.
+
+Signal depends on towers, terrain, weather, jammers, repeaters, signal zones and battery. With all of those turned off, it's always `1.0`.
+
+<Callout type="info">
+  Signal is worked out by each player's own game and reported to the server when
+  it changes, so a modified client could report it wrongly. Don't use it for
+  anything a cheater would gain from.
+</Callout>
+
+#### ForceJoinChannel
+
+```lua
+local joined = exports["zerio-radio"]:ForceJoinChannel(source, frequency, setActive)
+```
+
+Adds a player to a channel without checking their access (jobs, codeplug radios and so on), like the admin menu's force join. Returns whether they were added.
+
+It still won't add a player to a channel an admin has locked, when their battery is dead or when they're already on `Config.MaxChannels` channels. The channel becomes the one they talk on when `setActive` is `true`, or when they weren't talking on any channel.
+
+#### ForceLeaveChannel
+
+```lua
+local left = exports["zerio-radio"]:ForceLeaveChannel(source, frequency)
+local left = exports["zerio-radio"]:ForceLeaveChannel(source)
+```
+
+Removes a player from a channel, or from every channel when you leave out the frequency. Returns `false` when they weren't on it.
 
 #### HasAccess
 
 ```lua
-local access = exports["zerio-radio"]:HasAccess(frequency)
+local access = exports["zerio-radio"]:HasAccess(frequency, source)
 ```
 
-This export can be used to check whether the local player has access to a specific channel. The only parameter it takes is the frequency number.
+Returns whether a player may join a channel, going by the channel's access rules and admin lock. Note that the frequency comes first. A frequency without a channel set up is open to everyone, so it returns `true`.
 
-It returns a boolean (true/false) to show whether the player had access or not.
+### Channel Management
 
-#### ChangeChannel
-
-```lua
-local changed = exports["zerio-radio"]:ChangeChannel(frequency)
-```
-
-This export can be used to change the frequency of the local player. It takes in the frequency number as a parameter.
-
-It returns whether the player could connect, or not. If false is returned, then the player most likely doesnt have access to the channel.
-
-<Callout type="info">
-  Disconnecting a player from the radio would be done by setting their radio
-  frequency to 0.
-</Callout>
-
-#### GetCallsign
-
-```lua
-local callsign = exports["zerio-radio"]:GetCallsign()
-```
-
-This export returns the local player's current callsign as a string. If the player has no callsign set, an empty string is returned.
-
-#### SetCallsign
-
-```lua
-exports["zerio-radio"]:SetCallsign(callsign)
-```
-
-This export sets the local player's callsign. The change is replicated to the server and persisted in the database. If the player is currently in a radio channel, other members on the same frequency will see the updated callsign in real-time.
-
-### Server
+Channels are created and edited in the admin menu (`/radioadmin`) and stored in the database. The exports below only change the running server: the change is gone after a restart, and players already on a channel aren't checked again.
 
 #### DoesChannelExist
 
@@ -61,22 +95,34 @@ This export sets the local player's callsign. The change is replicated to the se
 local exists = exports["zerio-radio"]:DoesChannelExist(frequency)
 ```
 
-This export returns whether a channel exists or not in zerio-radio. It not existing, would more specifically entail that there is no restrictions on it / that it hasnt been registered via the `CreateChannel` export or `zerio-radio/shared/channels.lua` file.
+Returns whether a channel is set up on that frequency.
 
 <Callout>
-  A channel not existing does **not** mean that players cant connect to it.
-  Generally voice scripts allow the player to connect to any valid number.
+  A frequency without a channel isn't blocked: anyone can join it. A channel
+  only restricts who can join.
 </Callout>
 
 #### CreateChannel
 
 ```lua
-local created = exports["zerio-radio"]:CreateChannel(frequency, data)
+local created = exports["zerio-radio"]:CreateChannel(frequency, {
+  label = "SWAT",
+  jobs = { "police" },
+  noTalkOver = true,
+})
 ```
 
-This export can be used to programatically create channels in zerio-radio, just like you would in the `zerio-radio/shared/channels.lua` file.
+Sets up a channel until the next restart. Returns `false` when the frequency already has a channel or `label` is missing.
 
-The `data` parameter would resemble the structure of a channel, explained better in `zerio-radio/shared/channels.lua`
+| Field            | Type      | Description                                        |
+| ---------------- | --------- | -------------------------------------------------- |
+| `label`          | `string`  | Required. The name players see                     |
+| `jobs`           | `table`   | Job names that may join                            |
+| `gangs`          | `table`   | Gang names that may join                           |
+| `discordRoles`   | `table`   | Discord role ids that may join                     |
+| `acePermissions` | `table`   | Ace permissions that may join                      |
+| `whitelisted`    | `table`   | Player identifiers that may join                   |
+| `noTalkOver`     | `boolean` | Only one player can talk at a time on this channel |
 
 #### RemoveChannel
 
@@ -84,27 +130,15 @@ The `data` parameter would resemble the structure of a channel, explained better
 local removed = exports["zerio-radio"]:RemoveChannel(frequency)
 ```
 
-This export would remove a channel from zerio-radio. Or, in other words, make it fully "unlocked" meaning anyone can join it.
-
-#### UpdateSetting
-
-```lua
-exports["zerio-radio"]:UpdateSetting(identifier, key, value)
-exports["zerio-radio"]:UpdateSetting(source, key, value)
-```
-
-This export updates the value of a setting for a specific player. You can either use the players identifier, or their source.
-The value keys/settings are: size, volume, callsign, theme, useMouse, anonymous, allowDrag, memberList, positionX, positionY, position2X, position2Y.
-
-You can have a look at the database table `zerio_radio_settings` for further information about the valid/possible values, or open a ticket in our community server.
+Removes a channel until the next restart, which leaves the frequency open to everyone.
 
 #### UpdateChannelLabel
 
 ```lua
-local success = exports["zerio-radio"]:UpdateChannelLabel(frequency, label)
+local updated = exports["zerio-radio"]:UpdateChannelLabel(frequency, label)
 ```
 
-This export would update the label of a radio channel.
+Renames a channel until the next restart. Players on it see the new name straight away.
 
 #### GiveAccessToChannel
 
@@ -112,17 +146,19 @@ This export would update the label of a radio channel.
 local success = exports["zerio-radio"]:GiveAccessToChannel(frequency, accessType, value)
 ```
 
-This export would grant a new value access to a specific channel.
-The `accessType` would be the kind of access you wish to add, forexample `"jobs"`, `"discordRoles"` or so on.
+Adds a value to one of a channel's access rules, for example `GiveAccessToChannel(911, "jobs", "sheriff")`.
+
+The access types are `jobs`, `gangs`, `rcoreGangs`, `opCrimeGangs`, `discordRoles`, `acePermissions` and `whitelisted`.
 
 #### RemoveAccessFromChannel
 
 ```lua
-local removed = exports["zerio-radio"]:RemoveAccessFromChannel(frequency, accessType, value)
+local success = exports["zerio-radio"]:RemoveAccessFromChannel(frequency, accessType, value)
 ```
 
-This export would remove access to a specific value from the channel. Or in other words, forexample removing a specific job's, identifier's or such's access.
-The `accessType` would be the kind of access you wish to add, forexample `"jobs"`, `"discordRoles"` or so on.
+Removes a value from one of a channel's access rules. Returns `false` only when the channel doesn't exist.
+
+### Callsigns and Settings
 
 #### GetCallsign
 
@@ -131,9 +167,7 @@ local callsign = exports["zerio-radio"]:GetCallsign(source)
 local callsign = exports["zerio-radio"]:GetCallsign(identifier)
 ```
 
-This export returns the callsign of a specific player. You can pass either the player's server source (number) or their identifier (string).
-
-If the player has no callsign set, an empty string is returned.
+Returns a player's callsign, from their server id or their identifier. Returns an empty string when they have none.
 
 #### SetCallsign
 
@@ -142,11 +176,405 @@ exports["zerio-radio"]:SetCallsign(source, callsign)
 exports["zerio-radio"]:SetCallsign(identifier, callsign)
 ```
 
-This export sets the callsign of a specific player. You can pass either the player's server source (number) or their identifier (string). The change is persisted in the database.
+Sets a player's callsign and saves it. Players on the same channels see the new callsign straight away.
 
-If the player is currently in a radio channel, other members on the same frequency will see the updated callsign in real-time.
+#### UpdateSetting
 
-## Event list
+```lua
+exports["zerio-radio"]:UpdateSetting(source, key, value)
+exports["zerio-radio"]:UpdateSetting(identifier, key, value)
+```
+
+Changes one of a player's radio settings and saves it. The keys are:
+
+- **General:** `volume`, `callsign`, `theme`, `colorTheme`, `radioSkin`, `streamerMode`, `anonymous`, `pttEnabled`, `debugMode`
+- **Layout:** `radioPositionX`, `radioPositionY`, `radioScale`, `memberList`, `memberListShowAll`, `memberListPositionX`, `memberListPositionY`, `memberListScale`, `channelHudPositionX`, `channelHudPositionY`, `channelHudScale`
+- **Notifications:** `messageNotifications`, `notificationSound`, `emergencyAlerts`, `joinLeaveAlerts`
+- **Audio:** `clickVolume`, `staticNoise`, `memberJoinSound`, `memberLeaveSound`
+
+The `zerio_radio_settings` table shows the possible values.
+
+### Codeplug Radios
+
+Codeplug radios are radio items locked to preset channels, set up in `Config.OpenType.Items` (`configs/opentype.lua`).
+
+#### GetPlayerCodeplug
+
+```lua
+local codeplug = exports["zerio-radio"]:GetPlayerCodeplug(source)
+```
+
+Returns the codeplug radio the player is using, or `nil` when the radio they're using isn't one. The table has `itemName`, `label`, `channels` (the preset channels) and `allowOtherChannels`.
+
+#### PlayerCodeplugCoversFrequency
+
+```lua
+local covered = exports["zerio-radio"]:PlayerCodeplugCoversFrequency(source, frequency)
+```
+
+Returns whether any codeplug radio the player has open has that frequency as a preset.
+
+#### CheckAccessOnInventoryChange
+
+```lua
+exports["zerio-radio"]:CheckAccessOnInventoryChange(source)
+```
+
+Checks the player's access to every channel they're on again, and removes them from the ones they've lost access to. zerio-radio already does this for job changes and radio items, so you only need it when your own script changes what a player can access.
+
+### Towers
+
+These exports only change the running server. Use the admin menu for permanent changes.
+
+#### AddTower
+
+```lua
+local id = exports["zerio-radio"]:AddTower({
+  id = "event_relay",
+  label = "Event relay truck",
+  position = vector3(215.0, -810.0, 30.7),
+  range = 800.0,
+  power = 1.0,
+})
+```
+
+Adds a tower until the next restart, for example a relay truck during an event. Returns its id, or `nil` when `id` or `position` is missing or the id is taken.
+
+| Field         | Type               | Description                                                                |
+| ------------- | ------------------ | -------------------------------------------------------------------------- |
+| `id`          | `string`           | Required. Unique id                                                        |
+| `position`    | `vector3`          | Required                                                                   |
+| `label`       | `string`           | Shown in the admin menu. Defaults to the id                                |
+| `range`       | `number`           | Coverage radius. Defaults to `1000.0`                                      |
+| `power`       | `number`           | Signal at the tower, `0.0` to `1.0`. Defaults to `1.0`                     |
+| `frequencies` | `"all"` or `table` | The frequencies it covers. Defaults to `"all"`                             |
+| `prop`        | `string`           | Model to spawn. With tower health on, a tower with a prop can be destroyed |
+| `worldProp`   | `boolean`          | `true` when the model is already part of the map                           |
+| `enabled`     | `boolean`          | Defaults to `true`                                                         |
+
+#### RemoveTower
+
+```lua
+local removed = exports["zerio-radio"]:RemoveTower(towerId)
+```
+
+Removes a tower until the next restart. It stays in the database.
+
+#### SetTowerEnabled
+
+```lua
+local changed = exports["zerio-radio"]:SetTowerEnabled(towerId, enabled)
+```
+
+Turns a tower on or off until the next restart. A destroyed tower stays off until it's repaired.
+
+#### RepairTower
+
+```lua
+local repaired = exports["zerio-radio"]:RepairTower(towerId)
+```
+
+Restores a damaged or destroyed tower to full health.
+
+#### GetTowers
+
+```lua
+local towers = exports["zerio-radio"]:GetTowers()
+```
+
+Returns every tower with `id`, `label`, `position`, `range`, `power`, `frequencies`, `enabled`, `destructible`, `health`, `maxHealth` and `destroyed`.
+
+### Jammers
+
+#### PlaceJammer
+
+```lua
+-- A ground jammer
+local id = exports["zerio-radio"]:PlaceJammer({
+  position = vector3(215.0, -810.0, 30.7),
+  jammerTypeId = "standard",
+})
+
+-- A personal jammer, which follows the player
+local id = exports["zerio-radio"]:PlaceJammer({
+  type = "personal",
+  serverId = source,
+})
+```
+
+Places a jammer and returns its id, or `nil` when it couldn't, for example because `Config.Jammers.maxActive` jammers are already placed.
+
+| Field          | Type               | Description                                                             |
+| -------------- | ------------------ | ----------------------------------------------------------------------- |
+| `type`         | `string`           | `"ground"` (default) or `"personal"`                                    |
+| `position`     | `vector3`          | Required for a ground jammer                                            |
+| `serverId`     | `number`           | Required for a personal jammer: the player carrying it                  |
+| `jammerTypeId` | `string`           | A type from `Config.Jammers`. Defaults to the first enabled one         |
+| `radius`       | `number`           | Overrides the type's radius                                             |
+| `power`        | `number`           | Overrides the type's power, `0.0` to `1.0`                              |
+| `frequencies`  | `"all"` or `table` | Overrides the frequencies it jams                                       |
+| `placedBy`     | `number`           | For a ground jammer, the player it counts as placed by. Defaults to `0` |
+
+A player can carry one personal jammer at a time.
+
+#### RemoveJammer
+
+```lua
+local removed = exports["zerio-radio"]:RemoveJammer(jammerId)
+```
+
+#### GetJammers
+
+```lua
+local jammers = exports["zerio-radio"]:GetJammers()
+```
+
+Returns every jammer with `id`, `type`, `jammerTypeId`, `radius`, `power`, `frequencies` and `placedBy`, plus `position` for ground jammers and `serverId` for personal ones.
+
+#### PlayerHasActiveJammer
+
+```lua
+local hasJammer = exports["zerio-radio"]:PlayerHasActiveJammer(source)
+```
+
+Returns whether the player has placed a ground jammer or is carrying a personal one.
+
+### Repeaters
+
+#### PlaceRepeater
+
+```lua
+local id = exports["zerio-radio"]:PlaceRepeater({
+  position = vector3(215.0, -810.0, 30.7),
+  typeId = "standard",
+  range = 300.0,
+})
+```
+
+Places a repeater and returns its id, or `nil` when it couldn't. A repeater only works within the coverage of a tower.
+
+| Field         | Type               | Description                                                                                 |
+| ------------- | ------------------ | ------------------------------------------------------------------------------------------- |
+| `position`    | `vector3`          | Required                                                                                    |
+| `typeId`      | `string`           | A type from `Config.Repeaters`. Defaults to the first enabled one                           |
+| `range`       | `number`           | Overrides the type's coverage radius                                                        |
+| `falloff`     | `number`           | Overrides how fast signal drops towards the edge, `0.1` to `10.0`                           |
+| `frequencies` | `"all"` or `table` | Overrides the frequencies it relays                                                         |
+| `placedBy`    | `number`           | The player it counts as placed by. Defaults to `0`, which doesn't count towards `maxActive` |
+
+#### RemoveRepeater
+
+```lua
+local removed = exports["zerio-radio"]:RemoveRepeater(repeaterId)
+```
+
+#### GetRepeaters
+
+```lua
+local repeaters = exports["zerio-radio"]:GetRepeaters()
+```
+
+Returns every repeater with `id`, `repeaterTypeId`, `label`, `position`, `range`, `falloff`, `frequencies` and `placedBy`.
+
+#### PlayerHasActiveRepeater
+
+```lua
+local hasRepeater = exports["zerio-radio"]:PlayerHasActiveRepeater(source)
+```
+
+### Battery
+
+Battery exports need `Config.Battery.Enabled`, which is off by default.
+
+#### GetPlayerBattery
+
+```lua
+local battery = exports["zerio-radio"]:GetPlayerBattery(source)
+```
+
+Returns the battery level of the player's radio as a whole percentage from `0` to `100`, or `nil` for a player who isn't online. `GetBattery(source)` returns the same without rounding.
+
+#### SetBattery
+
+```lua
+exports["zerio-radio"]:SetBattery(source, level)
+```
+
+Sets the battery level of the player's radio, from `0` to `100`. At `0` the player is removed from every channel, like with a dead battery.
+
+### Unit GPS
+
+GPS only covers channels that have GPS turned on in the admin menu.
+
+#### GetUnitPositions
+
+```lua
+local units = exports["zerio-radio"]:GetUnitPositions(frequency)
+```
+
+Returns the position of every member of a channel, for a map in an MDT or CAD. Each entry has:
+
+| Field         | Type            | Description                                      |
+| ------------- | --------------- | ------------------------------------------------ |
+| `source`      | `number`        | The player's server id                           |
+| `x`, `y`, `z` | `number`        | Position                                         |
+| `heading`     | `number`        |                                                  |
+| `vehicleType` | `string`        | `"foot"`, `"car"`, `"bike"`, `"air"` or `"boat"` |
+| `sirenOn`     | `boolean`       |                                                  |
+| `callsign`    | `string` or nil |                                                  |
+| `name`        | `string` or nil | `nil` when the player is anonymous               |
+
+Passengers aren't listed separately: the driver's position stands in for everyone in the vehicle.
+
+#### GetUnitPosition
+
+```lua
+local unit = exports["zerio-radio"]:GetUnitPosition(source)
+```
+
+Returns the same entry for one player, or `nil` when they're on no channel with GPS or haven't reported a position yet.
+
+### Dispatch Console
+
+These send to the hosted dispatch console. They need the voice server set up in `configs/voice.lua` and `zerio_voice_admin_token` set in your `server.cfg`.
+
+#### DispatchNotify
+
+```lua
+exports["zerio-radio"]:DispatchNotify({
+  title = "911 Call",
+  body = "Shots fired at Grove Street",
+  priority = "high",
+  unit = "1-ADAM-12",
+  channel = "911",
+})
+```
+
+Shows a notification to every dispatcher. `priority` is `"low"`, `"medium"` (default), `"high"` or `"critical"`. `"high"` and `"critical"` play a sound. `unit` and `channel` are optional.
+
+#### DispatchManDownStart
+
+```lua
+exports["zerio-radio"]:DispatchManDownStart({
+  playerId = source,
+  name = "John Doe",
+  channel = "911",
+  channelLabel = "Police",
+  x = 215.0, y = -810.0, z = 30.7,
+})
+```
+
+Shows a man-down alert to the dispatchers monitoring the channel, with a marker on their map. It stays until `DispatchManDownClear` clears it. zerio-radio's own man-down feature already calls these.
+
+#### DispatchManDownClear
+
+```lua
+exports["zerio-radio"]:DispatchManDownClear({ playerId = source })
+```
+
+### Signal 100
+
+While Signal 100 is active on a channel, players can't talk on it and only dispatchers can. Players who press push-to-talk hear the busy tone, and anyone talking when it starts is cut off. Dispatchers start it from the dispatch console; these exports start it from your own scripts. The channel needs Signal 100 turned on in the admin menu.
+
+#### StartSignal100
+
+```lua
+local started, reason = exports["zerio-radio"]:StartSignal100(frequency, activatedBy)
+```
+
+Starts Signal 100 on a channel. `activatedBy` is the name players and dispatchers see, and defaults to `"Dispatch"`.
+
+Returns `true`, or `false` and a reason: `"not_enabled"` when the channel doesn't allow Signal 100, or `"active_by_dispatch"` when a dispatcher already started it. It waits for the voice server, so call it from a thread or an event handler.
+
+While a script holds Signal 100, every dispatcher monitoring the channel can talk on it and end it.
+
+#### EndSignal100
+
+```lua
+local ended = exports["zerio-radio"]:EndSignal100(frequency)
+```
+
+Ends Signal 100 on a channel, whoever started it. Returns `true` when it was active.
+
+#### IsSignal100Active
+
+```lua
+local active = exports["zerio-radio"]:IsSignal100Active(frequency)
+```
+
+Returns whether Signal 100 is active on a channel. When a dispatcher starts or ends it, this can take up to 5 seconds to catch up.
+
+## Client-Side Exports
+
+#### Open
+
+```lua
+exports["zerio-radio"]:Open()
+```
+
+Opens the radio. ox_inventory calls it as `zerio-radio.Open` when a radio item is used, passing the slot and the item so zerio-radio knows which radio was used.
+
+#### OpenScanner
+
+```lua
+exports["zerio-radio"]:OpenScanner()
+```
+
+Opens the radio scanner.
+
+#### HasAccess
+
+```lua
+local access = exports["zerio-radio"]:HasAccess(frequency)
+```
+
+Returns whether the local player may join a channel. It asks the server, so call it from a thread.
+
+#### ChangeChannel
+
+```lua
+local changed = exports["zerio-radio"]:ChangeChannel(frequency)
+```
+
+Joins a channel and makes it the one the player talks on. Returns `false` for an invalid frequency or a dead player. The server still checks access, and shows the player an error when they don't have it.
+
+<Callout type="info">
+  To take the player off the radio, set their frequency to `0`.
+</Callout>
+
+#### GetCallsign
+
+```lua
+local callsign = exports["zerio-radio"]:GetCallsign()
+```
+
+Returns the local player's callsign, or an empty string when they have none.
+
+#### SetCallsign
+
+```lua
+exports["zerio-radio"]:SetCallsign(callsign)
+```
+
+Sets the local player's callsign and saves it. Players on the same channels see the new callsign straight away.
+
+#### GetSignalStrength
+
+```lua
+local signal = exports["zerio-radio"]:GetSignalStrength()
+```
+
+Returns the local player's best signal across the channels they're on, from `0.0` to `1.0`.
+
+#### GetUnitBlips
+
+```lua
+local blips = exports["zerio-radio"]:GetUnitBlips()
+```
+
+Returns the GPS blips zerio-radio shows the local player, as `{ [serverId] = blip }`.
+
+## Event List
 
 ### Server
 
@@ -163,9 +591,7 @@ end)
   so a cheater could fake a panic or a channel join.
 </Callout>
 
-The player is always the first argument. Use it instead of the global `source`, which isn't set for events triggered by the server.
-
-Frequencies are numbers, such as `100` or `100.5`.
+When an event is about a player, they're the first argument. Use it instead of the global `source`, which isn't set for events triggered by the server.
 
 #### playerJoinedChannel
 
@@ -207,7 +633,7 @@ AddEventHandler("zerio-radio:server:playerStartedTransmitting", function(source,
 | `source`    | `number` | The player's server id         |
 | `frequency` | `number` | The channel they're talking on |
 
-Triggered when a player starts talking on a channel. It's only triggered once the server has accepted the transmission, so a player blocked by no-talk-over, a dead battery or missing access doesn't trigger it.
+Triggered when a player starts talking on a channel. It's only triggered once the server has accepted the transmission, so a player blocked by no-talk-over, Signal 100, a dead battery or missing access doesn't trigger it.
 
 #### playerStoppedTransmitting
 
@@ -236,9 +662,32 @@ AddEventHandler("zerio-radio:server:panicButtonPressed", function(source, freque
 | `frequency` | `number`  | The channel the player talks on, or `0` if they're on no channel |
 | `coords`    | `vector3` | Where the player was when they pressed it                        |
 
-Triggered when a player presses the panic button on their radio. Presses within `Config.PanicButtonCooldown` are ignored, and nothing is triggered when `Config.EnablePanicButton` is `false`.
+Triggered when a player presses the panic button on their radio. Presses within `Config.PanicButtonCooldown` are ignored, and nothing is triggered when `Config.EnablePanicButton` is `false`. When players open the radio with an item, they need a radio open to press it.
 
 `coords` is read by the server, so the player can't fake it.
+
+#### dispatchAlert
+
+```lua
+AddEventHandler("zerio-radio:server:dispatchAlert", function(alert)
+  print(alert.type, alert.source, alert.coords)
+end)
+```
+
+One event for every alert a dispatch script should know about: a panic button press, or a man-down alert once the countdown runs out. Use it to connect a dispatch script zerio-radio doesn't support out of the box.
+
+| Field          | Type            | Description                                                                  |
+| -------------- | --------------- | ---------------------------------------------------------------------------- |
+| `type`         | `string`        | `"panic"` or `"mandown"`                                                     |
+| `source`       | `number`        | The player's server id                                                       |
+| `frequency`    | `number`        | The channel the alert is for, or `0` for a panic from a player on no channel |
+| `channelLabel` | `string` or nil | The channel's label                                                          |
+| `coords`       | `vector3`       | Where the player was, read by the server                                     |
+| `street`       | `string` or nil | The street name, for panic alerts                                            |
+| `name`         | `string` or nil | The player's name, `nil` when they're anonymous                              |
+| `callsign`     | `string` or nil | The player's callsign                                                        |
+
+The settings in `configs/features/dispatch.lua` decide which alerts also go to zerio-dispatch, ps-dispatch or lb-tablet. To send them to another script, edit `Functions.SendDispatchAlert` in `server/functions.lua` and `client/functions.lua`.
 
 #### signalLost
 
@@ -274,19 +723,40 @@ AddEventHandler("zerio-radio:server:signalRestored", function(source, frequency)
 
 Triggered when signal comes back on a channel after `signalLost`. If the player leaves the channel before it comes back, you get `playerLeftChannel` instead.
 
+#### signal100Started
+
+```lua
+AddEventHandler("zerio-radio:server:signal100Started", function(frequency, activatedBy) end)
+```
+
+| Argument      | Type     | Description                                           |
+| ------------- | -------- | ----------------------------------------------------- |
+| `frequency`   | `number` | The channel                                           |
+| `activatedBy` | `string` | The dispatcher, or the name given to `StartSignal100` |
+
+Triggered when Signal 100 starts on a channel, from the dispatch console or `StartSignal100`. When a dispatcher starts it, the event can arrive up to 5 seconds later.
+
+#### signal100Ended
+
+```lua
+AddEventHandler("zerio-radio:server:signal100Ended", function(frequency) end)
+```
+
+Triggered when Signal 100 ends on a channel.
+
 #### jammerPlaced
 
 ```lua
 AddEventHandler("zerio-radio:server:jammerPlaced", function(source, position, jammer) end)
 ```
 
-| Argument   | Type             | Description                                                                                      |
-| ---------- | ---------------- | ------------------------------------------------------------------------------------------------ |
-| `source`   | `number`         | The player who placed it, or `0` when it was placed from the console or the `PlaceJammer` export |
-| `position` | `vector3` or nil | Where a ground jammer was placed. `nil` for a personal jammer, which follows the player          |
-| `jammer`   | `table`          | The jammer, see below                                                                            |
+| Argument   | Type             | Description                                                                                          |
+| ---------- | ---------------- | ---------------------------------------------------------------------------------------------------- |
+| `source`   | `number`         | The player who placed or carries it, or `0` for a ground jammer placed from the console or an export |
+| `position` | `vector3` or nil | Where a ground jammer was placed. `nil` for a personal jammer, which follows the player              |
+| `jammer`   | `table`          | The jammer, see below                                                                                |
 
-Triggered when a jammer is placed or a personal jammer is turned on, by a player, an admin or the `PlaceJammer` export. Only triggered when `Config.Jammers.enabled` is `true`.
+Triggered when a jammer is placed or a personal jammer is turned on, by a player, an admin or the `PlaceJammer` export.
 
 The `jammer` table contains:
 
@@ -314,3 +784,44 @@ AddEventHandler("zerio-radio:server:jammerRemoved", function(id) end)
 | `id`     | `string` | The jammer's id, the same as in `jammerPlaced` |
 
 Triggered when a jammer is removed, whether it was picked up, destroyed, turned off, removed by an admin or the `RemoveJammer` export, or its owner disconnected.
+
+#### repeaterPlaced
+
+```lua
+AddEventHandler("zerio-radio:server:repeaterPlaced", function(source, position, repeater) end)
+```
+
+| Argument   | Type      | Description                                                                                           |
+| ---------- | --------- | ----------------------------------------------------------------------------------------------------- |
+| `source`   | `number`  | The player who placed it, or `0` when it was placed from the console or the `PlaceRepeater` export    |
+| `position` | `vector3` | Where it was placed                                                                                   |
+| `repeater` | `table`   | `id`, `repeaterTypeId`, `label`, `position`, `range`, `falloff`, `frequencies`, `prop` and `placedBy` |
+
+#### repeaterRemoved
+
+```lua
+AddEventHandler("zerio-radio:server:repeaterRemoved", function(id) end)
+```
+
+Triggered when a repeater is removed, whether it was picked up, removed by an admin or the `RemoveRepeater` export, or its owner disconnected. `id` matches the one in `repeaterPlaced`.
+
+## Commands
+
+| Command                         | Who can use it                                               | What it does                                        |
+| ------------------------------- | ------------------------------------------------------------ | --------------------------------------------------- |
+| `/radio`                        | Everyone, when the radio opens by command                    | Opens the radio                                     |
+| `/radioscanner`                 | Everyone, when the scanner opens by command                  | Opens the scanner                                   |
+| `/changeradio <frequency>`      | Everyone                                                     | Joins a channel. `0` leaves the radio               |
+| `/callsign <callsign>`          | Everyone                                                     | Sets your callsign                                  |
+| `/radioadmin`                   | Admins                                                       | Opens the admin menu                                |
+| `/placejammer [type]`           | Ace `zerio.jammer`                                           | Places a ground jammer                              |
+| `/personaljammer [type]`        | Ace `zerio.jammer`                                           | Turns a personal jammer on or off                   |
+| `/removejammer <id>`            | Ace `zerio.jammer`, console                                  | Removes a jammer                                    |
+| `/listjammers`                  | Ace `zerio.jammer`, console                                  | Lists jammers in the server console                 |
+| `/placerepeater [type]`         | Ace `zerio.repeater`                                         | Places a repeater                                   |
+| `/removerepeater <id>`          | Ace `zerio.repeater`, console                                | Removes a repeater                                  |
+| `/listrepeaters`                | Ace `zerio.repeater`, console                                | Lists repeaters in the server console               |
+| `/listtowers`                   | Admins, console                                              | Lists towers and their health in the server console |
+| `zerio:testdispatch [priority]` | Console, or admins with the ace `command.zerio:testdispatch` | Sends a test notification to the dispatch console   |
+
+The command names for opening the radio, the scanner, changing channel, callsigns and the admin menu can be changed in the config. See the [Configuration Guide](/radio/configurationguide).
