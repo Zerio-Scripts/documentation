@@ -36,6 +36,8 @@ Channels, towers, signal zones, speakers and patches are not in the config files
 | `configs/features/mandown.lua`     | Man-down alerts                                          |
 | `configs/features/gps.lua`         | Unit GPS blips                                           |
 | `configs/features/speakers.lua`    | PA speakers                                              |
+| `configs/features/groups.lua`      | Per-channel member groups                                |
+| `configs/channels.lua`             | Channels imported on the first start (v2 migration)      |
 
 ---
 
@@ -90,6 +92,19 @@ Config.DefaultSkin = "default"
 
 Players can change both in the radio's settings.
 
+### Debug
+
+```lua
+Config.Debug = false
+Config.DebugClient = false
+```
+
+- `Debug`: Prints server-side debug output to the server console.
+- `DebugClient`: Always prints client-side debug output in every player's F8 console. When `false`, a player can still turn it on for themselves in the radio's settings.
+- `DebugMute`: A list of debug areas to keep quiet while debug is on, for example `"Signal"` or `"Weather"`.
+
+Leave both `false` on a live server.
+
 ---
 
 ## Voice Server (`configs/voice.lua`)
@@ -123,6 +138,28 @@ set zerio_voice_admin_token "your-token-from-the-setup-wizard"
 ```
 
 See [Set Up the Voice Server](/radio/installationguide#set-up-the-voice-server) for where to get these values.
+
+### Per-Environment Voice Server
+
+If you run several environments (for example local, test and live) from the same files, set the voice server in each environment's `server.cfg` instead of editing `configs/voice.lua`. The convars win over the config:
+
+```cfg
+# Overrides Domain. Use setr: players' games need it to connect.
+setr zerio_voice_domain "radio.example.com"
+
+# Optional, server only. Sends zerio-radio's admin calls straight to the voice
+# server instead of through Domain, for example when a reverse proxy only
+# exposes the voice connection.
+set zerio_voice_admin_url "http://127.0.0.1:30130"
+```
+
+`ServerId` still comes from `configs/voice.lua` and is added to both addresses.
+
+### Voice Server Version
+
+zerio-radio checks the voice server's version, and whether the voice server still supports your version of zerio-radio, on start and every few seconds after that. When either is too old, radio voice turns off and the console shows a red box until it is fixed. Admins also get a notice in game. When your version is being phased out, you get a yellow warning with the date it stops working. See [Troubleshooting](/radio/installationguide#troubleshooting).
+
+Radio audio uses the Opus codec with zerio-voice 1.1.0 or newer. With an older voice server, zerio-radio falls back to the older Codec2 audio by itself.
 
 ---
 
@@ -163,19 +200,24 @@ Config.Themes = {
 
 ## Gameplay (`configs/gameplay.lua`)
 
-| Option                                      | Default | Description                                                                                                                                                       |
-| ------------------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Config.MaxChannels`                        | `3`     | How many channels a player can be on at once, counting the active channel and listen-only channels. `-1` removes the limit.                                       |
-| `Config.DisconnectOnDeath`                  | `false` | When `true`, players leave all channels when they die. Dead players can never transmit, but by default they stay on their channels so man-down alerts still work. |
-| `Config.DisconnectInWater`                  | `false` | When `true`, players leave all channels and can't open the radio while in water.                                                                                  |
-| `Config.MinimumWaterDepth`                  | `-1`    | Used with `DisconnectInWater`. `-1` means any water counts.                                                                                                       |
-| `Config.RemoveOnOffDuty`                    | `true`  | QBCore and Qbox only. Removes players from channels when they go off duty.                                                                                        |
-| `Config.DisableShootingWhileTalkingOnRadio` | `false` | Blocks shooting while the player holds push-to-talk.                                                                                                              |
+| Option                                      | Default   | Description                                                                                                                                                                                          |
+| ------------------------------------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Config.MaxChannels`                        | `3`       | How many channels a player can be on at once, counting the active channel and listen-only channels. `-1` removes the limit.                                                                          |
+| `Config.DisconnectOnDeath`                  | `false`   | When `true`, players leave all channels when they die. Dead players can never transmit, but by default they stay on their channels so man-down alerts still work.                                    |
+| `Config.DisconnectInWater`                  | `false`   | When `true`, players leave all channels and can't open the radio while in water.                                                                                                                     |
+| `Config.MinimumWaterDepth`                  | `-1`      | Used with `DisconnectInWater`. `-1` means any water counts.                                                                                                                                          |
+| `Config.RemoveOnOffDuty`                    | `true`    | QBCore and Qbox only. Removes players from channels when they go off duty.                                                                                                                           |
+| `Config.JobChannelsRequireDuty`             | `false`   | QBCore and Qbox only. A channel's job rule only lets on-duty players in, so off-duty players can't join their job's channels at all. Going off duty takes them off, whatever `RemoveOnOffDuty` says. |
+| `Config.DisableShootingWhileTalkingOnRadio` | `false`   | Blocks shooting while the player holds push-to-talk.                                                                                                                                                 |
+| `Config.PTTKeybind`                         | `"LMENU"` | The default push-to-talk key, as a FiveM key name, for example `"LMENU"` (Left Alt) or `"CAPITAL"` (Caps Lock).                                                                                      |
+| `Config.CycleTalkChannelKeybind`            | `""`      | The default key for switching the active channel to the next channel the player is on, in frequency order. `""` leaves it unbound. Does nothing while the player is talking.                         |
 
 <Callout type="info">
   `RemoveOnOffDuty` removes the player from every channel created in
   `/radioadmin` when they go off duty, not only from job-restricted channels.
 </Callout>
+
+The two keybind options only set the default key for players who haven't bound the keybind yet. Players change their keys in **Settings → Key Bindings → FiveM**.
 
 ---
 
@@ -195,25 +237,43 @@ This file detects your framework when the resource starts. You don't need to edi
 Config.Admin = {
     command = "radioadmin",
     acePermission = "zerio.admin",
+    qbcoreGroup = "admin",
+    esxGroup = "admin",
+    additionalCheck = nil,
 }
 ```
 
-- `command`: The command that opens the admin menu.
-- `acePermission`: The ace that gives admin access on standalone servers.
+| Option            | Default         | Description                                                                                                 |
+| ----------------- | --------------- | ----------------------------------------------------------------------------------------------------------- |
+| `command`         | `"radioadmin"`  | The command that opens the admin menu.                                                                      |
+| `acePermission`   | `"zerio.admin"` | An ace that gives admin access, on every framework.                                                         |
+| `qbcoreGroup`     | `"admin"`       | QBCore and Qbox: the permission that gives admin access.                                                    |
+| `esxGroup`        | `"admin"`       | ESX: the group that gives admin access. The `god` group always has access too.                              |
+| `additionalCheck` | `nil`           | An optional function that runs after the permission check. Return `true` to allow, anything else to refuse. |
 
-Who counts as an admin depends on the framework:
+A player is an admin when they have the ace in `acePermission`, the `command` ace (server owners usually have it), or the framework permission:
 
-| Framework       | Who has access                                                                          |
-| --------------- | --------------------------------------------------------------------------------------- |
-| QBCore and Qbox | Players with the `admin` permission (`QBCore.Functions.HasPermission(source, "admin")`) |
-| ESX             | Players in the `admin` or `god` group                                                   |
-| Standalone      | Players with the ace in `acePermission`                                                 |
+| Framework       | Framework permission                                  |
+| --------------- | ----------------------------------------------------- |
+| QBCore and Qbox | `QBCore.Functions.HasPermission(source, qbcoreGroup)` |
+| ESX             | The player's group is `esxGroup` or `god`             |
+| Standalone      | None, only the aces                                   |
 
-For standalone, add the ace in `server.cfg`:
+To give the ace, add it in `server.cfg`:
 
 ```cfg
 add_ace group.admin zerio.admin allow
 ```
+
+Use `additionalCheck` to add your own condition on top, for example a staff duty or opt-in system:
+
+```lua
+additionalCheck = function(source)
+    return exports.qbx_core:IsOptin(source)
+end,
+```
+
+It applies to everyone who passes the permission check, including players with the ace.
 
 Players who are not admins but have patch access (see [Channel Patches](#channel-patches-configsfeaturespatcheslua)) can also open the admin menu. They only see the Patches page.
 
@@ -535,6 +595,7 @@ Config.Scanner = {
 | `BackgroundScanInterval` | `30`                   | Seconds between background scans.                                                                                                                                               |
 | `LockOn`                 | `true`                 | Lets players lock on to a scanned channel and hear it.                                                                                                                          |
 | `LockOnSilenceSeconds`   | `3`                    | The lock-on ends after this many seconds without anyone talking.                                                                                                                |
+| `ScanSpeed`              | `1.0`                  | Speed of the scanning animation. `2.0` is twice as fast, `0.5` half as fast.                                                                                                    |
 
 ---
 
@@ -730,8 +791,8 @@ Lowers signal when the player is underground, for example in sewers, mines and t
 | `enabled`              | `true`  | Turns underground signal loss on or off.                                                                                                                      |
 | `undergroundPenalty`   | `0.2`   | Signal multiplier underground. `0.2` leaves 20% of the signal; `0.0` removes it.                                                                              |
 | `undergroundThreshold` | `2.0`   | How many meters below the surrounding ground the player must be to count as underground. Raise it if basements trigger it; lower it if shallow tunnels don't. |
-| `checkInterval`        | `2000`  | How often (ms) it is checked.                                                                                                                                 |
-| `moveThreshold`        | `20.0`  | Checks again right away if the player moves more than this many meters.                                                                                       |
+
+It is checked again with every signal update (`checkInterval` in `configs/features/towers.lua`).
 
 ---
 
@@ -908,6 +969,40 @@ Speakers are PA speakers placed in the world. Admins place them in `/radioadmin`
 | `propDrawDistance` | `80.0`              | Distance (meters) at which speaker props are hidden. Keep it above the radius. |
 | `placementProp`    | `"prop_speaker_01"` | Preview prop shown while placing.                                              |
 | `placeRaycastDist` | `30.0`              | How far (meters) the placement preview can reach.                              |
+
+---
+
+## Groups (`configs/features/groups.lua`)
+
+Groups split the people on a channel into named groups, for example "SWAT", "Traffic" or "Unit 4". They are only for organising: the member list overlay shows them as headers (or as badges when it only shows who is talking), and the radio's members page has a group picker. Groups never change who hears whom.
+
+- A group belongs to one channel, and a player is in at most one group per channel.
+- Groups last for the server session and are removed once their last member is gone.
+- A group a player picked themselves is dropped when they leave the channel. A group a script assigned with [`SetPlayerGroup`](/radio/devdocs#setplayergroup) stays for the session, so the player is back in it when they rejoin.
+- Scripts can lock a player in a group, so they can't change it themselves, and give a group a colour with [`SetGroupColor`](/radio/devdocs#setgroupcolor), for example to use groups as statuses.
+- Players can hide groups with the "Show Groups" setting in the radio.
+
+| Option              | Default | Description                                                                                                             |
+| ------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `Enabled`           | `true`  | Master switch. When `false`, groups are off everywhere, exports included.                                               |
+| `AllowPlayerCreate` | `true`  | When `false`, players can never create groups, only join existing ones. Channels set to "Allowed" act like "Join only". |
+| `MinNameLength`     | `2`     | Shortest group name.                                                                                                    |
+| `MaxNameLength`     | `24`    | Longest group name.                                                                                                     |
+| `BlockedNames`      | `{}`    | Words players can't use anywhere in a group name, ignoring case. Names set by scripts aren't checked.                   |
+
+Each channel also has a **Player Groups** setting in `/radioadmin` (channel editor):
+
+| Setting                 | What players can do                                                                |
+| ----------------------- | ---------------------------------------------------------------------------------- |
+| Allowed (create + join) | Create new groups and join existing ones. The default.                             |
+| Join only               | Only join groups that already exist, for example ones a dispatch script created.   |
+| Off                     | Nothing. Groups assigned by scripts still show; groups players picked are removed. |
+
+<Callout type="info">
+  Groups are not the same as **Presets**. A preset is a player's own saved set
+  of channels to join in one tap. Presets were called "Radio Groups" in earlier
+  v3 versions.
+</Callout>
 
 ---
 

@@ -194,6 +194,7 @@ In the channel editor you can also set:
 - **Signal 100**: Lets a dispatcher in the web dispatch panel take over the channel. While it is active, players can't transmit. Scripts can start it too, with [`StartSignal100`](/radio/devdocs#startsignal100).
 - **Man-Down** and **Unit GPS**: See [below](#why-dont-man-down-alerts-or-unit-gps-work).
 - **Mic Click Sound**: The push-to-talk sound set for the channel.
+- **Player Groups**: Whether players can create and join groups on the channel. See [How do groups work?](#how-do-groups-work)
 
 Locking a channel in the admin menu stops everyone from joining it.
 
@@ -222,21 +223,46 @@ Pick an access type for the channel in `/radioadmin` and add the allowed values.
 
 ### Who can open /radioadmin?
 
-| Framework       | Who has access                             |
+On every framework, players with the `zerio.admin` ace can open it. On top of that:
+
+| Framework       | Who else has access                        |
 | --------------- | ------------------------------------------ |
 | QBCore and Qbox | Players with the QBCore `admin` permission |
 | ESX             | Players in the `admin` or `god` group      |
-| Standalone      | Players with the `zerio.admin` ace         |
 
-On standalone, add the ace in `server.cfg`:
+To give the ace, add it in `server.cfg`:
 
 ```cfg
 add_ace group.admin zerio.admin allow
 ```
 
-The ace name is `Config.Admin.acePermission` in `configs/admin.lua`.
+The ace, the QBCore permission and the ESX group are set in `configs/admin.lua`. You can also add your own condition there with `additionalCheck`, for example to only let staff who are on duty in. See [Admin Menu](/radio/configurationguide#admin-menu-configsadminlua).
 
 Players listed in `DispatchJobs` or `AcePermissions` in `configs/features/patches.lua` can also open `/radioadmin`, but they only see the Patches page.
+
+### How do I keep off-duty players out of job channels?
+
+On QBCore and Qbox, set this in `configs/gameplay.lua`:
+
+```lua
+Config.JobChannelsRequireDuty = true
+```
+
+A channel's job rule then only lets on-duty players in, and going off duty takes them off the channel. With it `false` (the default), `Config.RemoveOnOffDuty` only takes players off when they go off duty, and they can join again while off duty.
+
+### How do groups work?
+
+Groups split the people on a channel into named groups, like "SWAT" or "Traffic". They only organise the member list: the overlay shows each group as a header, and the members page has a **Group** row where players pick, create or leave a group. Everyone on the channel still hears everyone.
+
+- Turn groups off for a channel, or only let players join existing groups, with **Player Groups** in the channel editor in `/radioadmin`.
+- Turn them off everywhere with `Config.Groups.Enabled = false` in `configs/features/groups.lua`.
+- Scripts, for example a dispatch or MDT script, can put players in groups and lock them there with [`SetPlayerGroup`](/radio/devdocs#setplayergroup), and colour groups with [`SetGroupColor`](/radio/devdocs#setgroupcolor).
+
+Groups last until the server restarts. See [Groups](/radio/configurationguide#groups-configsfeaturesgroupslua).
+
+### What happened to Radio Groups?
+
+They are now called **Presets**. A preset is a player's own saved set of channels they can join in one tap. Groups are the new per-channel feature above.
 
 ### Why don't man-down alerts or unit GPS work?
 
@@ -276,11 +302,23 @@ Go through these in order:
 1. **Check the server console** for a red box from `[zerio-radio:voice]`. It means the token is missing or wrong, or `Domain`/`ServerId` is wrong. See [Troubleshooting](/radio/installationguide#troubleshooting).
 2. **Check the region.** `Domain` in `configs/voice.lua` must be the region your server was set up in. If you switched region in the portal, update `Domain`.
 3. **Check the channel.** Both players must be on the same frequency, and the talker must transmit on their active channel.
-4. **Check the microphone.** The radio records from the microphone Windows uses as the default recording device, which can be a different one from the device in FiveM's voice chat settings. Set the right microphone as the default in Windows sound settings, and make sure Windows allows desktop apps to use the microphone.
+4. **Check the microphone.** The radio doesn't use the device in FiveM's voice chat settings. Pick the microphone in the radio's own settings under **Microphone** (Audio). "System default" uses the microphone Windows uses as the default recording device. The choice is saved on the player's computer. If the chosen microphone is unplugged, the radio uses the default until it's plugged in again. Also make sure Windows allows desktop apps to use the microphone.
 5. **Check signal.** With no signal, push-to-talk is blocked with "No signal". See [Why do players have no signal?](#why-do-players-have-no-signal)
 6. **Check deafen.** The "Toggle Radio Deafen" keybind mutes all incoming radio audio until pressed again.
 
 Dead players can't transmit. They keep hearing the radio unless `Config.DisconnectOnDeath` is `true`.
+
+### How do I change the push-to-talk key?
+
+Set the default key in `configs/gameplay.lua`, as a FiveM key name:
+
+```lua
+Config.PTTKeybind = "CAPITAL" -- Caps Lock
+```
+
+This only changes the key for players who haven't bound "Talk over Radio" themselves. Players change their own key in **Settings → Key Bindings → FiveM**.
+
+To switch which channel they talk on without opening the radio, players can bind "Switch Radio Talk Channel". It's unbound by default; set a default key with `Config.CycleTalkChannelKeybind`.
 
 ### Do I still need to edit pma-voice for mic clicks?
 

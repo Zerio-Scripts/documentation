@@ -188,7 +188,7 @@ exports["zerio-radio"]:UpdateSetting(identifier, key, value)
 Changes one of a player's radio settings and saves it. The keys are:
 
 - **General:** `volume`, `callsign`, `theme`, `colorTheme`, `radioSkin`, `streamerMode`, `anonymous`, `pttEnabled`, `debugMode`
-- **Layout:** `radioPositionX`, `radioPositionY`, `radioScale`, `memberList`, `memberListShowAll`, `memberListPositionX`, `memberListPositionY`, `memberListScale`, `channelHudPositionX`, `channelHudPositionY`, `channelHudScale`
+- **Layout:** `radioPositionX`, `radioPositionY`, `radioScale`, `memberList`, `memberListShowAll`, `memberListShowGroups`, `memberListPositionX`, `memberListPositionY`, `memberListScale`, `channelHudPositionX`, `channelHudPositionY`, `channelHudScale`
 - **Notifications:** `messageNotifications`, `notificationSound`, `emergencyAlerts`, `joinLeaveAlerts`
 - **Audio:** `clickVolume`, `staticNoise`, `memberJoinSound`, `memberLeaveSound`
 
@@ -220,7 +220,72 @@ Returns whether any codeplug radio the player has open has that frequency as a p
 exports["zerio-radio"]:CheckAccessOnInventoryChange(source)
 ```
 
-Checks the player's access to every channel they're on again, and removes them from the ones they've lost access to. zerio-radio already does this for job changes and radio items, so you only need it when your own script changes what a player can access.
+Checks the player's access to every channel they're on again, and removes them from the ones they've lost access to. zerio-radio already does this for job changes, duty changes and radio items, so you only need it when your own script changes what a player can access.
+
+### Groups
+
+Groups organise the members of a channel, for example "SWAT" or "Traffic". They only change how the member list looks, never who hears whom. See [Groups](/radio/configurationguide#groups-configsfeaturesgroupslua) for how players use them.
+
+Groups are kept in memory for the server session. The exports below take the player as a server id or a character identifier (QBCore citizen ID, ESX identifier), so you can also assign players who are offline. Group names are unique per channel, ignoring case.
+
+#### SetPlayerGroup
+
+```lua
+local success = exports["zerio-radio"]:SetPlayerGroup(source, frequency, "SWAT")
+local success = exports["zerio-radio"]:SetPlayerGroup(source, frequency, "SWAT", true) -- locked
+local success = exports["zerio-radio"]:SetPlayerGroup(source, frequency, nil) -- no group
+```
+
+Puts a player in a group on a channel, and creates the group if it doesn't exist. With `nil` as the name, it takes them out of their group. Returns `false` when groups are turned off or the name is shorter than `Config.Groups.MinNameLength` or longer than `MaxNameLength`. `BlockedNames` isn't checked.
+
+- The player doesn't have to be on the channel yet. The group applies once they join.
+- A group set by this export stays for the session, even when the player leaves and rejoins the channel.
+- With `locked` set to `true`, the player can't change or leave the group themselves. The radio shows "Assigned by dispatch".
+- It works whatever the channel's **Player Groups** setting is, including "Off".
+
+#### GetPlayerGroup
+
+```lua
+local group, locked = exports["zerio-radio"]:GetPlayerGroup(source, frequency)
+```
+
+Returns the name of the player's group on a channel and whether they're locked in it, or `nil` when they're in no group there.
+
+#### SetPlayerGroupLocked
+
+```lua
+local success = exports["zerio-radio"]:SetPlayerGroupLocked(source, frequency, locked)
+```
+
+Locks or unlocks a player in the group they're in on a channel. A locked group counts as set by a script, so it stays when they leave the channel. Returns `false` when they're in no group there.
+
+#### GetChannelGroups
+
+```lua
+local groups = exports["zerio-radio"]:GetChannelGroups(frequency)
+-- { ["SWAT"] = { members = { 12, 31 }, identifiers = { "ABC12345", "XYZ67890" } } }
+```
+
+Returns the groups on a channel, keyed by group name. `members` are the server ids of the group's members who are online. `identifiers` lists every member, including players set by a script who are offline or off the channel.
+
+#### SetGroupColor
+
+```lua
+local success = exports["zerio-radio"]:SetGroupColor(frequency, "Busy", "red")
+local success = exports["zerio-radio"]:SetGroupColor(frequency, "Busy", nil) -- default colour
+```
+
+Sets the colour of a group's tag on a channel, in the member list, the overlay and the group picker. Use it to turn groups into statuses, for example "Available" in green and "Busy" in red. The colour is `green`, `red`, `yellow`, `orange`, `blue`, `purple`, `gray`, `white` or a hex colour such as `"#ff8800"`. `nil` or `""` goes back to the default colour.
+
+The group doesn't have to exist yet. The colour applies whenever a group with that name is on the channel, until the server restarts.
+
+#### GetGroupColor
+
+```lua
+local color = exports["zerio-radio"]:GetGroupColor(frequency, "Busy")
+```
+
+Returns the colour set for a group on a channel, or `nil` when none is set.
 
 ### Towers
 
@@ -484,7 +549,7 @@ local started, reason = exports["zerio-radio"]:StartSignal100(frequency, activat
 
 Starts Signal 100 on a channel. `activatedBy` is the name players and dispatchers see, and defaults to `"Dispatch"`.
 
-Returns `true`, or `false` and a reason: `"not_enabled"` when the channel doesn't allow Signal 100, or `"active_by_dispatch"` when a dispatcher already started it. It waits for the voice server, so call it from a thread or an event handler.
+Returns `true`, or `false` and a reason: `"not_enabled"` when the channel doesn't allow Signal 100, `"active_by_dispatch"` when a dispatcher already started it, or `"not_supported"` when the voice server is too old for Signal 100. It waits for the voice server, so call it from a thread or an event handler.
 
 While a script holds Signal 100, every dispatcher monitoring the channel can talk on it and end it.
 
@@ -649,6 +714,21 @@ AddEventHandler("zerio-radio:server:playerStoppedTransmitting", function(source,
 Triggered when a player stops talking. If they leave the channel or disconnect mid-transmission, it's triggered just before `playerLeftChannel`.
 
 Each `playerStartedTransmitting` is followed by one `playerStoppedTransmitting` for the same frequency, even if the player switches channel while talking.
+
+#### groupChanged
+
+```lua
+AddEventHandler("zerio-radio:server:groupChanged", function(source, frequency, newGroup, oldGroup) end)
+```
+
+| Argument    | Type            | Description                                                              |
+| ----------- | --------------- | ------------------------------------------------------------------------ |
+| `source`    | `number` or nil | The player's server id, or `nil` when a script changed an offline player |
+| `frequency` | `number`        | The channel                                                              |
+| `newGroup`  | `string` or nil | The group they're in now, or `nil` when they left their group            |
+| `oldGroup`  | `string` or nil | The group they were in, or `nil` when they weren't in one                |
+
+Triggered when a player's group on a channel changes, whether they picked it on the radio or a script set it with [`SetPlayerGroup`](#setplayergroup). Also triggered when a group the player picked is dropped because they left the channel. Locking or unlocking a player without changing their group doesn't trigger it.
 
 #### panicButtonPressed
 

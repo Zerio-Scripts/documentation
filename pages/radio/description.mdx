@@ -19,15 +19,18 @@ Zerio Radio v3 is a radio system for FiveM roleplay servers. Players join freque
 ### Radio
 
 - **Frequencies**: Join any frequency, or only the ones you have access to. Listen to several channels at once and pick which one you transmit on.
-- **Push-to-talk**: Its own keybind (Left Alt by default), with transmit and receive sounds that you can change per channel.
+- **Push-to-talk**: Its own keybind (Left Alt by default, configurable), with transmit and receive sounds that you can change per channel. A second keybind switches which channel you talk on.
+- **Clear audio**: Radio voice uses the Opus codec, and each speaker's level is evened out so quiet microphones are heard.
 - **No-talk-over channels**: Only one person can transmit at a time on channels where you turn this on.
 - **Member list**: See who is on the channel and who is talking, with callsigns and an optional anonymous mode.
+- **Groups**: Split a channel's members into groups like "SWAT" or "Traffic", picked by players or assigned by your scripts.
+- **Presets**: Save a set of channels and join them all in one tap.
 - **Favorites and recents**: Save frequencies and jump back to recently used ones.
 - **Private channels**: Players can create temporary, password-protected channels.
 - **Messages and contacts**: Send text messages to other players from the radio.
 - **Panic button**: Sends an alert with a sound, screen effect and notification, and passes it on to dispatch.
 - **Radio scanner**: Scan for nearby active channels and lock on to listen in.
-- **Player settings**: Themes, light and dark mode, three radio skins, and movable, resizable overlays.
+- **Player settings**: Themes, light and dark mode, three radio skins, a microphone picker, and movable, resizable overlays.
 
 ### Signal and Realism
 
@@ -54,12 +57,13 @@ Zerio Radio v3 is a radio system for FiveM roleplay servers. Players join freque
 
 - **Radio as an item**: Players need the item to use the radio. Dropping or losing it disconnects them.
 - **Codeplug radios**: Items like a police radio that only work on a fixed set of channels, and are the only way onto those channels.
-- **Access rules**: Restrict channels by job, gang (QBCore, rcore_gangs, op-crime), ace permission, identifier or Discord role.
+- **Access rules**: Restrict channels by job, gang (QBCore, rcore_gangs, op-crime), ace permission, identifier or Discord role. Job channels can require players to be on duty.
 
 ### Administration
 
 - **In-game admin menu** (`/radioadmin`): Manage channels, players, towers, repeaters, jammers, signal zones, speakers and patches, and view a signal map.
 - **Customer portal**: Set up and manage your voice server at [portal.radio.zerio-scripts.com](https://portal.radio.zerio-scripts.com). The portal also has a web dispatch panel.
+- **Upgrading from v2**: Your v2 database tables and channels are upgraded on the first start. See [Migrating from v2](/radio/migrating).
 
 ## Requirements
 
