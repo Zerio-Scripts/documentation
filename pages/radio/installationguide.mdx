@@ -2,7 +2,7 @@ import { Callout, Steps, Tabs } from "nextra/components";
 
 # Installation Guide
 
-This guide walks you through installing zerio-radio v3 on your FiveM server. If you are coming from v2, read [Upgrading from v2](#upgrading-from-v2) first.
+This guide walks you through installing zerio-radio v3 on your FiveM server. If you are coming from v2, read [Migrating from v2](/radio/migrating) first.
 
 ## Prerequisites
 
@@ -73,6 +73,8 @@ set zerio_voice_admin_token "your-token-from-the-setup-wizard"
 </Callout>
 
 To manage your server later, sign in at [portal.radio.zerio-scripts.com](https://portal.radio.zerio-scripts.com) with your Server ID and portal email. If you switch region there, update `Domain` in `configs/voice.lua` to match.
+
+If you run several environments (for example a test server and a live server) from the same files, you can set the voice server per environment in `server.cfg` instead. See [Voice Server](/radio/configurationguide#voice-server-configsvoicelua).
 
 ### Add the Items
 
@@ -358,7 +360,7 @@ If you want a starting point, run `sql/!data.sql` once on your database. It adds
 1. Give yourself a `radio` item and use it (or use `/radio` or F5 if you changed the open type).
 2. Join a channel, for example 911.
 3. Have a second player join the same channel.
-4. Hold Left Alt and talk. The other player should hear you.
+4. Hold Left Alt (or the key in `Config.PTTKeybind`) and talk. The other player should hear you.
 
 </Steps>
 
@@ -387,72 +389,22 @@ The command names for `/radio`, `/radioscanner`, `/changeradio`, `/callsign` and
 
 ### Keybinds
 
-Keybinds are registered through ox_lib. Players can change them in **Settings → Key Bindings → FiveM**.
+Players can change every keybind in **Settings → Key Bindings → FiveM**. The default keys only apply to players who haven't bound the keybind yet.
 
-| Keybind                                 | Default key | Notes                                                       |
-| --------------------------------------- | ----------- | ----------------------------------------------------------- |
-| Talk over Radio                         | Left Alt    | Push-to-talk on your active channel.                        |
-| Open Radio                              | F5          | Only when `Config.OpenType.Value` contains `"keybind"`.     |
-| Open Radio Scanner                      | F6          | Only when `Config.Scanner.OpenType` is `"keybind"`.         |
-| Toggle Radio Deafen                     | Not bound   | Mutes all incoming radio audio without leaving any channel. |
-| Cancel Man-Down Alert                   | Backspace   | Cancels a man-down countdown that started by mistake.       |
-| Confirm Speaker Placement (Zerio Radio) | Enter       | Used by admins when placing a speaker.                      |
-| Cancel Speaker Placement (Zerio Radio)  | Backspace   | Used by admins when placing a speaker.                      |
+| Keybind                                 | Default key | Notes                                                                                                                                 |
+| --------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Talk over Radio                         | Left Alt    | Push-to-talk on your active channel. Set the default key with `Config.PTTKeybind` in `configs/gameplay.lua`.                          |
+| Switch Radio Talk Channel               | Not bound   | Moves your active channel to the next channel you're on, in frequency order. Set a default key with `Config.CycleTalkChannelKeybind`. |
+| Open Radio                              | F5          | Only when `Config.OpenType.Value` contains `"keybind"`.                                                                               |
+| Open Radio Scanner                      | F6          | Only when `Config.Scanner.OpenType` is `"keybind"`.                                                                                   |
+| Toggle Radio Deafen                     | Not bound   | Mutes all incoming radio audio without leaving any channel.                                                                           |
+| Cancel Man-Down Alert                   | Backspace   | Cancels a man-down countdown that started by mistake.                                                                                 |
+| Confirm Speaker Placement (Zerio Radio) | Enter       | Used by admins when placing a speaker.                                                                                                |
+| Cancel Speaker Placement (Zerio Radio)  | Backspace   | Used by admins when placing a speaker.                                                                                                |
 
 ## Upgrading from v2
 
-v3 is a new install, not an update you copy over v2. The configuration moved from `shared/*.lua` (`Shared.*`) to the `configs/` folder (`Config.*`), and many options changed.
-
-### Upgrade Steps
-
-1. Back up your database and your v2 config files.
-2. Delete the old `zerio-radio` folder and install v3 by following the steps above. Don't copy v2 files into v3.
-3. Before you start v3 for the first time, rename the two v2 tables that changed. v3 does not convert them:
-
-   ```sql
-   RENAME TABLE zerio_radio_settings TO zerio_radio_settings_v2;
-   RENAME TABLE zerio_radio_messages TO zerio_radio_messages_v2;
-   ```
-
-   v3 then creates new tables. Players' v2 radio settings (position, size, callsign and so on) and message history are not carried over. Contacts, favorites and recent channels keep working.
-
-4. Re-create your channels in `/radioadmin`. `Shared.Channels` is gone; channels are stored in the database.
-5. Undo the v2 inventory edits. v3 detects removed radios by itself:
-   - ox_inventory: remove the `client.remove` callback from the `radio` item.
-   - ESX: remove the `zerio-radio:client:removedradio` snippet from `removeInventoryItem` in `es_extended/server/classes/player.lua`.
-   - QBCore: remove the `zerio-radio:client:removedradio` snippet from `RemoveItem` in `qb-inventory/server/functions.lua`.
-6. The scanner item is now called `radio_scanner` (it was `radioscanner`). Rename the item in your inventory, or set `Config.Scanner.Item = "radioscanner"`.
-7. You no longer need `setr voice_enableRadioAnim 0` in `server.cfg` or the pma-voice mic click edit. zerio-radio turns pma-voice's radio off by itself and plays its own push-to-talk sounds.
-
-### Where v2 Options Went
-
-| v2 option                                                                                                                                                                  | v3                                                                                                                             |
-| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `Shared.Locale`, `ShowPlayerList`, `DisableAnonymous`, `ChangeRadioChannelCommand`, `MessageLimit`, `RecentLimit`, `AllowCallSigns`, `CallsignCommand`, `DisplayRadioName` | Same names under `Config.` in `configs/main.lua`                                                                               |
-| `Shared.RemoveWeaponOnOpenRadio`, `Shared.RemoveWeaponOnTalkingOnRadio`                                                                                                    | One option: `Config.RemoveWeaponOnRadio` in `configs/main.lua`                                                                 |
-| `Shared.DisconnectOnDeath`, `DisconnectInWater`, `MinimumWaterDepth`, `RemoveOnOffDuty`, `DisableShootingWhileTalkingOnRadio`                                              | Same names under `Config.` in `configs/gameplay.lua`                                                                           |
-| `Shared.EnablePanicButton`, `PanicButtonCooldown`                                                                                                                          | `configs/features/panic.lua`                                                                                                   |
-| `Shared.PanicButtonSound`                                                                                                                                                  | Removed. The radio plays `html/sounds/panic_alert.ogg`; no sound resource needed.                                              |
-| `Shared.RadioFilter`                                                                                                                                                       | Removed. Radio audio filtering is set in `configs/audio/submix.lua`.                                                           |
-| `Shared.RadioKey`                                                                                                                                                          | Removed. Push-to-talk is an ox_lib keybind players can rebind.                                                                 |
-| `Shared.NavigateWithArrowKeys`                                                                                                                                             | Removed.                                                                                                                       |
-| `Shared.OpenType.*`                                                                                                                                                        | `Config.OpenType.*` in `configs/opentype.lua`. `Item` became the `Items` table. The `"control"` type and `Button` are removed. |
-| `Shared.Scanner.*`                                                                                                                                                         | `Config.Scanner.*` in `configs/features/scanner.lua`. The `"control"` type and `Button` are removed.                           |
-| `Shared.Animation`                                                                                                                                                         | `Config.Animation` in `configs/features/animation.lua`                                                                         |
-| `Shared.Channels`                                                                                                                                                          | Channels in the database, managed in `/radioadmin`                                                                             |
-| `locales/*.lua`                                                                                                                                                            | `locales/*.json`                                                                                                               |
-
-### Changed Defaults
-
-| Option                          | v2            | v3          |
-| ------------------------------- | ------------- | ----------- |
-| `OpenType.Value`                | `"keybind"`   | `"item"`    |
-| Scanner `OpenType`              | `"item"`      | `"command"` |
-| Scanner `Distance`              | `100`         | `500`       |
-| `PanicButtonCooldown`           | `300` seconds | `5` seconds |
-| `DisconnectOnDeath`             | `true`        | `false`     |
-| `DisconnectInWater`             | `true`        | `false`     |
-| Weapon removal on open and talk | `false`       | `true`      |
+Coming from v2? Your database upgrades itself on the first start, but your config has to be copied over by hand. Follow [Migrating from v2](/radio/migrating).
 
 ## Troubleshooting
 
@@ -486,6 +438,40 @@ v3 is a new install, not an update you copy over v2. The configuration moved fro
 - Check `Domain`: only the host, like `eu.radio.zerio-scripts.com`, with no `https://` and no trailing slash.
 - Check `ServerId`: it must match the Server ID you entered in the setup wizard.
 - Check that your host's firewall allows outgoing HTTPS connections.
+
+### Red "voice server is too old" or "this zerio-radio is unsupported" box in the console
+
+**Cause**: zerio-radio checks the voice server's version on start and every few seconds after that. "Voice server is too old" means the voice server is older than zerio-voice 1.0.0. "This zerio-radio is unsupported" means the voice server no longer supports your version of zerio-radio. Radio voice is off in both cases, and admins see a notice in game.
+
+**Solution**:
+
+- "Unsupported": update zerio-radio to the version the box names, or newer.
+- "Too old": update the voice server. Hosted voice servers are kept up to date by Zerio, so contact support if you see this on a hosted region.
+- Voice comes back on by itself once the check passes. The console then prints "Voice server version check passed, voice is back on".
+
+### Yellow "stops working with the voice server on …" line in the console
+
+**Cause**: Your version of zerio-radio is being phased out. It keeps working until the date in the message. Admins also see the notice in game, when it first appears and when they open `/radioadmin`.
+
+**Solution**: Update zerio-radio to the version in the message, or newer, before that date.
+
+### Red "voice server licence not valid" box in the console
+
+**Cause**: Only for a zerio-voice server you run yourself. The voice server has no valid licence, so it refuses radio voice. Channels, dispatch and everything else keep working. The box and the in-game notice to admins give the reason, for example no licence key set, an expired or revoked licence, or the licence already in use on the maximum number of servers.
+
+**Solution**: Fix the licence key in the voice server's `config.json`. Voice comes back on by itself once the licence is valid. Hosted regions never need a licence.
+
+### "Radio not connected — reconnecting" when pressing push-to-talk
+
+**Cause**: The player's connection to the voice server dropped. Pressing push-to-talk makes the radio reconnect straight away.
+
+**Solution**: Wait a moment and try again. If it keeps happening for everyone, check the server console for one of the red boxes above.
+
+### "Radio audio isn't working" when pressing push-to-talk
+
+**Cause**: The radio's audio engine didn't start in the player's game, so they can neither talk nor hear.
+
+**Solution**: Have the player rejoin the server. If it keeps happening, contact support.
 
 ### "Could not find dependency zerio-radio-prop"
 
@@ -524,12 +510,6 @@ v3 is a new install, not an update you copy over v2. The configuration moved fro
 **Cause**: Your ox_inventory is older than 2.47.0.
 
 **Solution**: Update ox_inventory. On older versions every copy of a radio item acts as one radio, and drops and gives are noticed late.
-
-### Database errors after upgrading from v2
-
-**Cause**: The v2 `zerio_radio_settings` or `zerio_radio_messages` table is still in the database. You see errors like "Unknown column" or "Field 'timestamp' doesn't have a default value".
-
-**Solution**: Rename the old tables as shown in [Upgrade Steps](#upgrade-steps), then restart the server.
 
 ## Need Help?
 
