@@ -164,7 +164,7 @@ set zerio_voice_admin_url "http://127.0.0.1:30130"
 
 zerio-radio checks the voice server's version, and whether the voice server still supports your version of zerio-radio, on start and every few seconds after that. When either is too old, radio voice turns off and the console shows a red box until it is fixed. Admins also get a notice in game. When your version is being phased out, you get a yellow warning with the date it stops working. See [Troubleshooting](/radio/v3/installationguide#troubleshooting).
 
-Radio audio uses the Opus codec with zerio-voice 1.1.0 or newer. With an older voice server, zerio-radio falls back to the older Codec2 audio by itself.
+zerio-voice 1.1.0 or newer gives the clearest radio audio. With an older voice server, zerio-radio switches to a lower-quality audio mode by itself.
 
 ---
 
