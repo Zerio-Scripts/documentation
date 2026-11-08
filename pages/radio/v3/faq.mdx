@@ -1,0 +1,448 @@
+import { Callout, Tabs } from "nextra/components";
+
+# Frequently Asked Questions
+
+<Callout type="warning">
+  **V3 is in public beta.** These pages are for zerio-radio V3. Still on V2? See
+  the [V2 documentation](/radio/description).
+</Callout>
+
+Common questions about zerio-radio v3. If your question isn't answered here, ask in our [community server](https://discord.zerio-scripts.com).
+
+---
+
+## Items and Opening the Radio
+
+### How do I set up the radio as an item?
+
+Item mode is the default. Check that `configs/opentype.lua` has:
+
+```lua
+Config.OpenType.Value = { "item" }
+```
+
+Then add the `radio` item to your inventory. The full item lists are in [Add the Items](/radio/v3/installationguide#add-the-items).
+
+<Tabs items={['ox_inventory', 'QBCore', 'ESX']}>
+  <Tabs.Tab>
+    Add the item to `ox_inventory/data/items.lua` with a client export:
+
+    ```lua
+    return {
+        ['radio'] = {
+            label = 'Radio',
+            weight = 1000,
+            stack = false,
+            allowArmed = true,
+            consume = 0,
+            client = {
+                export = 'zerio-radio.Open',
+            }
+        },
+    }
+    ```
+
+    Keep `stack = false`, so each radio keeps its own channels and battery. You don't need a `client.remove` callback; zerio-radio notices dropped and removed radios by itself. Use ox_inventory 2.47.0 or newer.
+
+  </Tabs.Tab>
+
+  <Tabs.Tab>
+    Add the item to `qb-core/shared/items.lua` with `useable = true` and `unique = true`:
+
+    ```lua
+    QBShared.Items = {
+        radio = {
+            name = 'radio',
+            label = 'Radio',
+            weight = 1000,
+            type = 'item',
+            image = 'radio.png',
+            unique = true,
+            useable = true,
+            shouldClose = false,
+            description = 'A portable radio.'
+        },
+    }
+    ```
+
+    zerio-radio registers the item as usable by itself.
+
+  </Tabs.Tab>
+
+  <Tabs.Tab>
+    Add the item to the `items` table:
+
+    ```sql
+    INSERT INTO `items` (`name`, `label`, `weight`, `rare`, `can_remove`) VALUES
+    ('radio', 'Radio', 1000, 0, 1);
+    ```
+
+    zerio-radio registers the item as usable by itself.
+
+  </Tabs.Tab>
+</Tabs>
+
+If you don't want an item at all, use a command or keybind instead:
+
+```lua
+Config.OpenType.Value = { "command", "keybind" }
+```
+
+### How do I set up the radio scanner as an item?
+
+The scanner opens with `/radioscanner` by default. To make it an item, set the open type in `configs/features/scanner.lua` and add the `radio_scanner` item.
+
+<Tabs items={['ox_inventory', 'QBCore', 'ESX']}>
+  <Tabs.Tab>
+    Set the open type to `"custom"`, so the `/radioscanner` command goes away and only the item opens the scanner:
+
+    ```lua
+    Config.Scanner.OpenType = "custom"
+    ```
+
+    Then add the item with a client export:
+
+    ```lua
+    return {
+        ['radio_scanner'] = {
+            label = 'Radio Scanner',
+            weight = 1000,
+            stack = false,
+            close = true,
+            client = {
+                export = 'zerio-radio.OpenScanner',
+            }
+        },
+    }
+    ```
+
+  </Tabs.Tab>
+
+  <Tabs.Tab>
+    Set the open type to `"item"`:
+
+    ```lua
+    Config.Scanner.OpenType = "item"
+    ```
+
+    Then add `radio_scanner` to `qb-core/shared/items.lua` with `useable = true` (see [Add the Items](/radio/v3/installationguide#add-the-items)).
+
+  </Tabs.Tab>
+
+  <Tabs.Tab>
+    Set the open type to `"item"`:
+
+    ```lua
+    Config.Scanner.OpenType = "item"
+    ```
+
+    Then add `radio_scanner` to the `items` table (see [Add the Items](/radio/v3/installationguide#add-the-items)).
+
+  </Tabs.Tab>
+</Tabs>
+
+The item name comes from `Config.Scanner.Item` (default `"radio_scanner"`).
+
+### How do codeplug radios work?
+
+A codeplug radio is an item that only works on a fixed list of channels, and is the only way onto those channels. Use it for department radios, for example a police radio.
+
+1. Add the item to `Config.OpenType.Items` in `configs/opentype.lua`:
+
+   ```lua
+   Config.OpenType.Items = {
+       ["radio"] = {},
+
+       ["police_radio"] = {
+           label = "Police Radio",
+           codeplug = {
+               allowOtherChannels = false,
+               channels = {
+                   { frequency = 911, label = "Police - Main" },
+                   { frequency = 921, label = "Police - Tactical" },
+               },
+           },
+       },
+   }
+   ```
+
+2. Add `police_radio` to your inventory the same way as `radio`. For ox_inventory, give it `client = { export = 'zerio-radio.Open' }`.
+3. Give the item to your police players.
+
+What happens then:
+
+- A player using the police radio can only join 911 and 921, unless you set `allowOtherChannels = true`.
+- Only players using a police radio can join 911 and 921. The channels' normal access rules are ignored.
+- A plain `radio` can't tune to 911 or 921.
+- Anyone who uses a police radio gets access, whatever their job. Carrying it without using it gives nothing.
+
+You can also set a channel's access to **Codeplug Only** in `/radioadmin`. Then only codeplug radios that list that frequency can join it.
+
+<Callout type="warning">
+  Codeplug frequencies replace the access rules of those channels. Don't put a
+  frequency in a codeplug that other groups use, like EMS or Fire.
+</Callout>
+
+---
+
+## Channels and Access
+
+### How do I create channels?
+
+Open `/radioadmin` and go to the Channels page. Create a channel with a frequency, a label and an access type. Channels are saved in the database.
+
+For a quick start, run `sql/!data.sql` once. It adds 911 Police Radio, 912 EMS Radio, 913 Fire Radio and 100 Dispatch, plus nine towers.
+
+In the channel editor you can also set:
+
+- **No-talk-over**: Only one person can transmit at a time. Others get "Channel busy".
+- **Signal 100**: Lets a dispatcher in the web dispatch panel _(Coming in full release)_ take over the channel. While it is active, players can't transmit. Scripts can start it too, with [`StartSignal100`](/radio/v3/devdocs#startsignal100).
+- **Man-Down** and **Unit GPS**: See [below](#why-dont-man-down-alerts-or-unit-gps-work).
+- **Mic Click Sound**: The push-to-talk sound set for the channel.
+- **Player Groups**: Whether players can create and join groups on the channel. See [How do groups work?](#how-do-groups-work)
+
+Locking a channel in the admin menu stops everyone from joining it.
+
+Channels can also be created from other scripts with exports. See [Developer Documentation](/radio/v3/devdocs).
+
+### How do I restrict who can join a channel?
+
+Pick an access type for the channel in `/radioadmin` and add the allowed values. A player who matches any value can join.
+
+| Access type          | Values                                                                                                 | Needs                          |
+| -------------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------ |
+| Open                 | None. Everyone can join.                                                                               |                                |
+| Jobs                 | Job names, like `police`                                                                               | QBCore, Qbox or ESX            |
+| Gangs (QBCore)       | QBCore gang names                                                                                      | QBCore or Qbox                 |
+| Gangs (rcore_gangs)  | Gang name or tag                                                                                       | rcore_gangs                    |
+| Gangs (op-crime)     | Organisation label or index                                                                            | op-crime                       |
+| ACE Permissions      | Ace names, like `zerio.radio.police`                                                                   |                                |
+| Identifier Whitelist | Player identifiers like `license:...`, or the framework identifier (QBCore citizen ID, ESX identifier) |                                |
+| Discord Roles        | Discord role IDs                                                                                       | zdiscord or Badger_Discord_API |
+| Codeplug Only        | None. Only codeplug radios that list this frequency.                                                   |                                |
+
+<Callout type="info">
+  A frequency that has no channel in `/radioadmin` is open to everyone. To keep
+  a frequency private, create a channel for it.
+</Callout>
+
+### Who can open /radioadmin?
+
+On every framework, players with the `zerio.admin` ace can open it. On top of that:
+
+| Framework       | Who else has access                        |
+| --------------- | ------------------------------------------ |
+| QBCore and Qbox | Players with the QBCore `admin` permission |
+| ESX             | Players in the `admin` or `god` group      |
+
+To give the ace, add it in `server.cfg`:
+
+```cfg
+add_ace group.admin zerio.admin allow
+```
+
+The ace, the QBCore permission and the ESX group are set in `configs/admin.lua`. You can also add your own condition there with `additionalCheck`, for example to only let staff who are on duty in. See [Admin Menu](/radio/v3/configurationguide#admin-menu-configsadminlua).
+
+Players listed in `DispatchJobs` or `AcePermissions` in `configs/features/patches.lua` can also open `/radioadmin`, but they only see the Patches page.
+
+### How do I keep off-duty players out of job channels?
+
+On QBCore and Qbox, set this in `configs/gameplay.lua`:
+
+```lua
+Config.JobChannelsRequireDuty = true
+```
+
+A channel's job rule then only lets on-duty players in, and going off duty takes them off the channel. With it `false` (the default), `Config.RemoveOnOffDuty` only takes players off when they go off duty, and they can join again while off duty.
+
+### How do groups work?
+
+Groups split the people on a channel into named groups, like "SWAT" or "Traffic". They only organise the member list: the overlay shows each group as a header, and the members page has a **Group** row where players pick, create or leave a group. Everyone on the channel still hears everyone.
+
+- Turn groups off for a channel, or only let players join existing groups, with **Player Groups** in the channel editor in `/radioadmin`.
+- Turn them off everywhere with `Config.Groups.Enabled = false` in `configs/features/groups.lua`.
+- Scripts, for example a dispatch or MDT script, can put players in groups and lock them there with [`SetPlayerGroup`](/radio/v3/devdocs#setplayergroup), and colour groups with [`SetGroupColor`](/radio/v3/devdocs#setgroupcolor).
+
+Groups last until the server restarts. See [Groups](/radio/v3/configurationguide#groups-configsfeaturesgroupslua).
+
+### What happened to Radio Groups?
+
+They are now called **Presets**. A preset is a player's own saved set of channels they can join in one tap. Groups are the new per-channel feature above.
+
+### Why don't man-down alerts or unit GPS work?
+
+Both are turned on per channel, and both are off by default:
+
+1. Open `/radioadmin` and edit the channel.
+2. Turn on **Man-Down** and/or **Unit GPS**.
+3. Save.
+
+Also check that the master switch is on: `Config.ManDown.Enabled` in `configs/features/mandown.lua` and `Config.GPS.Enabled` in `configs/features/gps.lua`.
+
+For man-down, check `Config.ManDown.Trigger`. With `"ragdoll"`, death systems that keep the player in a "downed" animation (like qb-ambulancejob) don't trigger it. Use `"either"` (the default) or `"dead"`.
+
+---
+
+## Signal
+
+### Why do players have no signal?
+
+Go through these in order:
+
+1. **Towers enabled with no towers.** If `enabled` is `true` in `configs/features/towers.lua`, players only have signal near a tower. With no towers in the database and `defaultSignal = 0.0`, nobody has signal and push-to-talk shows "No signal — cannot transmit". Add towers in `/radioadmin`, run `sql/!data.sql`, set `enabled = false`, or raise `defaultSignal`.
+2. **Out of range, or the tower doesn't serve the frequency.** Each tower has a range and a list of frequencies (`all` for every frequency). Use the Signal Map in `/radioadmin` to see coverage.
+3. **Destroyed tower.** Shot-down towers give no signal until they are repaired or their `downtime` runs out. `/listtowers` prints each tower's health to the server console.
+4. **Signal zone.** A zone set to 0% in `/radioadmin` (Signal Zones) removes signal inside it.
+5. **Jammer.** A ground or personal jammer nearby. `/listjammers` prints active jammers to the server console.
+6. **Underground.** Signal drops to 20% underground by default (`undergroundPenalty` in `configs/features/occlusion.lua`).
+7. **Weather.** Thunder and blizzards lower signal (`configs/features/weather.lua`).
+8. **Battery.** A dead battery blocks the radio, and with `SignalPenalty` on, a low battery weakens signal (`configs/features/battery.lua`).
+
+---
+
+## Voice
+
+### Players can't hear each other on the radio
+
+1. **Check the server console** for a red box from `[zerio-radio:voice]`. It means the token is missing or wrong, or `Domain`/`ServerId` is wrong. See [Troubleshooting](/radio/v3/installationguide#troubleshooting).
+2. **Check the region.** `Domain` in `configs/voice.lua` must be the region your server was set up in. If you switched region in the portal, update `Domain`.
+3. **Check the channel.** Both players must be on the same frequency, and the talker must transmit on their active channel.
+4. **Check the microphone.** The radio doesn't use the device in FiveM's voice chat settings. Pick the microphone in the radio's own settings under **Microphone** (Audio). "System default" uses the microphone Windows uses as the default recording device. The choice is saved on the player's computer. If the chosen microphone is unplugged, the radio uses the default until it's plugged in again. Also make sure Windows allows desktop apps to use the microphone.
+5. **Check signal.** With no signal, push-to-talk is blocked with "No signal". See [Why do players have no signal?](#why-do-players-have-no-signal)
+6. **Check deafen.** The "Toggle Radio Deafen" keybind mutes all incoming radio audio until pressed again.
+
+Dead players can't transmit. They keep hearing the radio unless `Config.DisconnectOnDeath` is `true`.
+
+### How do I change the push-to-talk key?
+
+Set the default key in `configs/gameplay.lua`, as a FiveM key name:
+
+```lua
+Config.PTTKeybind = "CAPITAL" -- Caps Lock
+```
+
+This only changes the key for players who haven't bound "Talk over Radio" themselves. Players change their own key in **Settings → Key Bindings → FiveM**.
+
+To switch which channel they talk on without opening the radio, players can bind "Switch Radio Talk Channel". It's unbound by default; set a default key with `Config.CycleTalkChannelKeybind`.
+
+### Do I still need to edit pma-voice for mic clicks?
+
+No. v3 has its own push-to-talk sounds, set in `configs/audio/micclicks.lua`. You don't need to edit pma-voice. If you made the v2 edit, you can undo it.
+
+### Do I need to turn off pma-voice's radio?
+
+No. When zerio-radio starts, it sets `voice_enableRadios`, `voice_enableRadioUi` and `voice_enableRadioAnim` to `0`, which turns off pma-voice's radio, radio UI and radio animation. pma-voice keeps handling proximity voice. You can remove `setr voice_enableRadioAnim 0` from `server.cfg` if you added it for v2.
+
+---
+
+## Dispatch
+
+### How do I send panic alerts to my dispatch script?
+
+zerio-dispatch, ps-dispatch and lb-tablet work out of the box. With `Script = "auto"` in `configs/features/dispatch.lua`, panic alerts go to whichever of them is running. Set `Jobs` to the jobs that should get the alert. See [Dispatch Scripts](/radio/v3/configurationguide#dispatch-scripts-configsfeaturesdispatchlua).
+
+Man-down alerts can go there too: set `Alerts.mandown.Enabled = true`.
+
+For any other dispatch script, either:
+
+- Listen to the [`dispatchAlert`](/radio/v3/devdocs#dispatchalert) event from your own resource. It has the player, channel, coordinates, street, name and callsign.
+- Or edit `Functions.SendDispatchAlert` in `server/functions.lua` and `client/functions.lua`. Both files are open for editing.
+
+### Do panic alerts show up in the dispatch console?
+
+The web dispatch panel is coming in the full release; it is not part of the beta. Once it is out, every panic alert shows up there, with the player's callsign and channel. Man-down alerts show up for dispatchers monitoring the channel.
+
+---
+
+## Weapons
+
+### How do I stop the radio from holstering weapons?
+
+Set this in `configs/main.lua`:
+
+```lua
+Config.RemoveWeaponOnRadio = false
+```
+
+When `true` (the default), the weapon is put away when the radio opens and while push-to-talk is held, and given back afterwards. With ox_inventory, ox_inventory's own disarm is used.
+
+If a player is in the middle of a combat roll when they press push-to-talk, the radio waits for the roll to finish before playing the talk animation.
+
+### How do I stop players shooting while they talk?
+
+Set this in `configs/gameplay.lua`:
+
+```lua
+Config.DisableShootingWhileTalkingOnRadio = true
+```
+
+<Callout type="info">
+  Holstering on push-to-talk and `DisableShootingWhileTalkingOnRadio` only work
+  while a talk animation plays. If you remove `TalkAnimation` from
+  `configs/features/animation.lua` (and no clothing rule matches), neither
+  happens.
+</Callout>
+
+---
+
+## Animations & Props
+
+All of these are in `configs/features/animation.lua`. Bone IDs are listed on the [RAGE:MP wiki](https://wiki.rage.mp/index.php?title=Bones); use the `ID` value.
+
+### Change or disable the talking animation
+
+Change `Dictionary` and `Name` under `TalkAnimation`. `StopSpeed` (1.0 to 8.0, keep the `.0`) sets how fast the animation stops; 8.0 is instant.
+
+To disable it, remove the `TalkAnimation` block or comment it out.
+
+### Change or disable the open animation
+
+`OpenAnimation` has two animations: `Normal` (on foot) and `InCar` (in a vehicle). Change `Dictionary` and `Name` in either.
+
+To disable both, remove the `OpenAnimation` block. To disable only one, remove `Normal` or `InCar`.
+
+### Change or disable the props
+
+`OpenProp` is the prop held while the radio is open. `TalkProp` is the prop held while talking. In each:
+
+- `Model`: The prop model. The default `zerio_radio` comes from `zerio-radio-prop`.
+- `Bone`: The ped bone ID the prop is attached to.
+- `Offset` and `Rotation`: The prop's position and rotation on the bone.
+
+To disable a prop, remove its block or comment it out.
+
+### Use a different talking animation based on clothing
+
+`ClothingAnimations` is a list of rules. The first rule whose components all match is used instead of `TalkAnimation`. For example, a hand-to-ear animation for players wearing certain masks:
+
+```lua
+ClothingAnimations = {
+    {
+        Components = {
+            { id = 1, drawables = { 45, 46, 49 } },
+        },
+        Animation = {
+            Dictionary = "random@arrests@busted",
+            Name = "idle_a",
+            StopSpeed = 1.0,
+        },
+    },
+}
+```
+
+- `id`: The clothing component, for example `1` (mask), `3` (torso), `9` (body armor) or `11` (top). Props use negative IDs: `-1` hat, `-2` glasses, `-3` ear.
+- `drawables`: The drawable IDs that match, or a range like `{ min = 50, max = 60 }`. Always list drawables. Without them, the rule matches every player.
+
+---
+
+## Customization
+
+### How do I change the notifications?
+
+Notifications use ox_lib. To use another notification system, edit `Notify` in `client/functions.lua` and `Notify` in `server/functions.lua`. Both files are open for editing.
+
+### How do I translate the radio?
+
+Copy `locales/en.json` to a new file, for example `locales/de.json`, translate it, and set `Config.Locale = "de"` in `configs/main.lua`. This translates notifications and command help.
+
+The text inside the radio itself is built into the radio's interface, which has English and Swedish. For other languages it shows English. Contact support if you want your translation added to the interface. See [Translations](/radio/v3/configurationguide#translations-locales).
