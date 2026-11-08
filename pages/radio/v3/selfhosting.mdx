@@ -173,9 +173,9 @@ Start the program once. It creates `config.json` next to itself, with a random a
 When the voice server starts, it prints its address and the lines for your `server.cfg`, for example:
 
 ```text
-  Your voice server's address: my-rp-server.<zerio domain>:30130
+  Your voice server's address: my-rp-server.voice.zerio-radio.com:30130
   In your FiveM server.cfg:
-    setr zerio_voice_domain "my-rp-server.<zerio domain>:30130"
+    setr zerio_voice_domain "my-rp-server.voice.zerio-radio.com:30130"
   and, if FiveM runs on this same machine:
     set  zerio_voice_admin_url "http://127.0.0.1:30131"
 ```
@@ -195,7 +195,7 @@ Add the printed lines and the admin token to your `server.cfg`, above `ensure ze
 
 ```cfg
 set  zerio_voice_admin_token "the same admin_token as in config.json"
-setr zerio_voice_domain      "my-rp-server.<zerio domain>:30130"
+setr zerio_voice_domain      "my-rp-server.voice.zerio-radio.com:30130"
 set  zerio_voice_admin_url   "http://127.0.0.1:30131"
 ```
 
@@ -216,7 +216,7 @@ Players' games only connect to a voice server over a secure connection, with a c
 
 ### An Address From Us (Default)
 
-With `"zerio_domain": true`, the voice server gets an address like `my-rp-server.<zerio domain>` and a certificate for it from the Zerio portal. There's nothing to buy or set up:
+With `"zerio_domain": true`, the voice server gets an address like `my-rp-server.voice.zerio-radio.com` and a certificate for it from the Zerio portal. There's nothing to buy or set up:
 
 - The address points at the machine's public IP, and follows it if the IP changes.
 - The certificate renews by itself.
