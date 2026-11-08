@@ -1,0 +1,171 @@
+import { Callout, Steps } from "nextra/components";
+
+# Migrating from v2
+
+<Callout type="warning">
+  **V3 is in public beta.** These pages are for zerio-radio V3. Still on V2? See
+  the [V2 documentation](/radio/description).
+</Callout>
+
+v3 is a rewrite. Radio audio runs on the zerio-voice server instead of pma-voice, the config moved from `shared/` (`Shared.*`) to `configs/` (`Config.*`), and channels are stored in the database.
+
+Your **database upgrades itself** on the first start. Your **config doesn't**: copy your values over using the tables on this page.
+
+## Before You Start
+
+1. **Back up your database.** v3 changes the v2 tables in place on its first start.
+2. Keep your old `zerio-radio` folder somewhere outside `resources`. You'll copy values out of its `shared/` folder.
+3. Don't copy any v2 files into v3. v3 doesn't load `shared/main.lua` or the other v2 config files.
+
+## Upgrade Steps
+
+<Steps>
+
+### Install v3
+
+Delete the old `zerio-radio` folder from `resources` and install v3 by following the [Installation Guide](/radio/v3/installationguide). What's new compared to v2:
+
+- **`zerio-radio-prop`** is its own resource. Move it next to `zerio-radio` and `ensure` it first.
+- **`ox_lib` and `oxmysql`** must start before `zerio-radio`.
+- **zerio-voice**: fill in `Config.VoiceServer` in `configs/voice.lua`, and put the admin token in `server.cfg` with `set` (never `setr`). See [Set Up the Voice Server](/radio/v3/installationguide#set-up-the-voice-server).
+- **pma-voice** can stay for proximity voice. The radio doesn't use it any more, so its radio settings (`voice_enableRadioSubmix` and similar) do nothing for zerio-radio.
+- **New items**, only needed if you turn on the feature that uses them: `radio_jammer`, `mobile_radio_jammer`, `radio_repeater`, `radio_battery`, and `radio_repair_kit` for repairing towers. Images are in `_ITEM IMAGES`.
+- **The scanner item** is now called `radio_scanner` (it was `radioscanner`). Rename the item in your inventory, or set `Config.Scanner.Item = "radioscanner"`.
+
+### Bring Your Channels Over
+
+Copy the `Shared.Channels` table from your old `shared/channels.lua` into `configs/channels.lua` and rename it to `Config.Channels`. Remove the example channels already in that file unless you want them. See [Channels](#channels) for what is imported.
+
+### Copy Your Config Values
+
+Go through [Config Options](#config-options) below and copy your v2 values into the v3 files. Check the options marked **default changed** even if you never touched them in v2.
+
+### Undo the v2 Edits
+
+v3 notices removed radios and plays its own push-to-talk sounds, so the v2 edits to other resources are no longer needed:
+
+- ox_inventory: remove the `client.remove` callback from the `radio` item.
+- ESX: remove the `zerio-radio:client:removedradio` snippet from `removeInventoryItem` in `es_extended/server/classes/player.lua`.
+- QBCore: remove the `zerio-radio:client:removedradio` snippet from `RemoveItem` in `qb-inventory/server/functions.lua`.
+- pma-voice: undo the mic click edit. You can also remove `setr voice_enableRadioAnim 0` from `server.cfg`; zerio-radio turns pma-voice's radio off by itself.
+
+### Start the Server
+
+Start the server once. v3 upgrades the database and imports your channels. Check the server console for the `[zerio-radio] Migrated …` lines, then join and check your channels in `/radioadmin`.
+
+</Steps>
+
+## Database
+
+You don't run any SQL by hand. On the first start v3 creates its new tables and upgrades the v2 ones:
+
+| Table                                          | What changes                                                                                                                                                                                                                                      |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `zerio_radio_settings`                         | The new v3 columns are added with their defaults. Volume, callsign, theme, anonymous, streamer mode and the member list setting carry over. The radio's position and size reset to the v3 defaults, because the new radio has a different layout. |
+| `zerio_radio_favorites`, `zerio_radio_recents` | `frequency` changes from `FLOAT` to `DECIMAL(10,2)`, so 145.30 stays exactly 145.30.                                                                                                                                                              |
+| `zerio_radio_messages`                         | `timestamp` changes from unix seconds in an `INT` to a real `TIMESTAMP`. The old values are kept in a new `timestamp_v2` column.                                                                                                                  |
+| All of the above                               | Indexes are added on the player and contact columns v3 looks rows up by.                                                                                                                                                                          |
+
+The server console prints a `[zerio-radio] Migrated …` line for every change. Contacts, favorites and recent channels keep working.
+
+Once you've checked everything works, you can drop the columns v3 no longer uses. This is optional:
+
+```sql
+ALTER TABLE zerio_radio_settings
+  DROP COLUMN size, DROP COLUMN useMouse, DROP COLUMN allowDrag,
+  DROP COLUMN positionX, DROP COLUMN positionY, DROP COLUMN position2X, DROP COLUMN position2Y;
+ALTER TABLE zerio_radio_messages DROP COLUMN timestamp_v2;
+```
+
+## Channels
+
+In v3 you manage channels in the admin menu (`/radioadmin`), and they're stored in the `zerio_radio_channels` table.
+
+While `zerio_radio_channels` is empty, v3 imports every entry in `Config.Channels` on start: the label, the access rules (`jobs`, `gangs`, `whitelisted`, `discordRoles`, `acePermissions`) and `noTalkOver`. From then on, use the admin menu. `Config.Channels` is ignored as soon as the table has any channel in it, so you can empty the file, and a channel you delete in the admin menu doesn't come back on restart.
+
+Two things don't come across:
+
+- **`customCheck` functions** can't be stored in the database. A channel that had one is imported **locked**, so nobody can join it until you set its access in the admin menu and unlock it. Use ACE permissions or a whitelist instead. The console prints a `Locked channel …` line for each one.
+- **Decimal frequencies** such as `[145.5]` are skipped, because channel frequencies must be whole numbers. The console prints a `Skipped Config.Channels[…]` line for each one.
+
+<Callout type="warning">
+  `sql/!data.sql` is optional sample data (channels and towers). Don't run it
+  after your channels have been imported: its channels 911, 912, 913 and 100
+  would clash with yours.
+</Callout>
+
+## Config Options
+
+Every v2 option, and where it is in v3. **Default changed** means the shipped value is different, so check it even if you never changed the v2 option.
+
+### `shared/main.lua`
+
+| v2                                                                         | v3                                                                    | Notes                                                                                                                                                                                      |
+| -------------------------------------------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Shared.Locale`                                                            | `Config.Locale` in `configs/main.lua`                                 | Locale files are JSON now (`locales/en.json`). Copy custom translations from `locales/*.lua` into the JSON files by hand.                                                                  |
+| `Shared.ShowPlayerList`                                                    | `Config.ShowPlayerList` in `configs/main.lua`                         |                                                                                                                                                                                            |
+| `Shared.DisableAnonymous`                                                  | `Config.DisableAnonymous` in `configs/main.lua`                       |                                                                                                                                                                                            |
+| `Shared.ChangeRadioChannelCommand`                                         | `Config.ChangeRadioChannelCommand` in `configs/main.lua`              |                                                                                                                                                                                            |
+| `Shared.RadioKey`                                                          | Removed                                                               | It was for mumble-voip only. The talk key is `Config.PTTKeybind` in `configs/gameplay.lua` (default `LMENU`, Left Alt). Players can rebind it in FiveM's key bindings.                     |
+| `Shared.DisconnectOnDeath`                                                 | `Config.DisconnectOnDeath` in `configs/gameplay.lua`                  | **Default changed** from `true` to `false`. Dead players now stay on their channels and can hear, but can't transmit.                                                                      |
+| `Shared.NavigateWithArrowKeys`                                             | Removed                                                               |                                                                                                                                                                                            |
+| `Shared.EnablePanicButton`                                                 | `Config.EnablePanicButton` in `configs/features/panic.lua`            |                                                                                                                                                                                            |
+| `Shared.PanicButtonCooldown`                                               | `Config.PanicButtonCooldown` in `configs/features/panic.lua`          | **Default changed** from `300` to `5` seconds.                                                                                                                                             |
+| `Shared.PanicButtonSound`                                                  | Removed                                                               | The panic sound is built into the radio (`html/sounds/panic_alert.ogg`), so high_3dsounds or sounity are no longer needed. `Config.PanicAlertReceive` controls what receiving players see. |
+| `Shared.RemoveWeaponOnOpenRadio` and `Shared.RemoveWeaponOnTalkingOnRadio` | `Config.RemoveWeaponOnRadio` in `configs/main.lua`                    | One switch for both. **Default changed** to `true`.                                                                                                                                        |
+| `Shared.DisableShootingWhileTalkingOnRadio`                                | `Config.DisableShootingWhileTalkingOnRadio` in `configs/gameplay.lua` |                                                                                                                                                                                            |
+| `Shared.CallsignCommand`                                                   | `Config.CallsignCommand` in `configs/main.lua`                        |                                                                                                                                                                                            |
+| `Shared.AllowCallSigns`                                                    | `Config.AllowCallSigns` in `configs/main.lua`                         |                                                                                                                                                                                            |
+| `Shared.RadioFilter`                                                       | Removed                                                               | The radio effect no longer comes from pma-voice. The radio sound and signal-based degradation are set in `configs/audio/submix.lua`.                                                       |
+| `Shared.MessageLimit`                                                      | `Config.MessageLimit` in `configs/main.lua`                           |                                                                                                                                                                                            |
+| `Shared.DisconnectInWater`                                                 | `Config.DisconnectInWater` in `configs/gameplay.lua`                  | **Default changed** from `true` to `false`.                                                                                                                                                |
+| `Shared.MinimumWaterDepth`                                                 | `Config.MinimumWaterDepth` in `configs/gameplay.lua`                  |                                                                                                                                                                                            |
+| `Shared.RecentLimit`                                                       | `Config.RecentLimit` in `configs/main.lua`                            |                                                                                                                                                                                            |
+| `Shared.RemoveOnOffDuty`                                                   | `Config.RemoveOnOffDuty` in `configs/gameplay.lua`                    | New in v3: `Config.JobChannelsRequireDuty` also stops off-duty players from joining job channels at all.                                                                                   |
+| `Shared.DisplayRadioName`                                                  | `Config.DisplayRadioName` in `configs/main.lua`                       |                                                                                                                                                                                            |
+| `Shared.Debug`                                                             | `Config.Debug` in `configs/main.lua`                                  | v3 adds `Config.DebugClient` for client-side logging. Leave both `false` on a live server.                                                                                                 |
+
+### `shared/channels.lua`
+
+See [Channels](#channels).
+
+### `shared/framework.lua`
+
+This is now `configs/framework.lua` and works the same. Leave it alone.
+
+### `shared/animation.lua`
+
+This is now `configs/features/animation.lua`. `Shared.Animation` becomes `Config.Animation`, with the same `OpenProp`, `TalkProp`, `OpenAnimation` and `TalkAnimation` fields, so you can copy your values straight over. New in v3: `ClothingAnimations`, which changes the talk animation based on clothing.
+
+### `shared/opentype.lua`
+
+| v2                               | v3                                                | Notes                                                                                                                                                                                            |
+| -------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Shared.OpenType.Value`          | `Config.OpenType.Value` in `configs/opentype.lua` | `"control"` is gone, so use `"keybind"`. `"item"` can't be combined with other types any more: if it's listed, the others are ignored. **Default changed** from `{ "keybind" }` to `{ "item" }`. |
+| `Shared.OpenType.Item = "radio"` | `Config.OpenType.Items = { ["radio"] = {} }`      | Now a table keyed by item name, so you can have several radio items. An item can also be a [codeplug radio](/radio/v3/configurationguide#radio-items-and-codeplug-radios).                       |
+| `Shared.OpenType.Keybind`        | `Config.OpenType.Keybind`                         |                                                                                                                                                                                                  |
+| `Shared.OpenType.Button`         | Removed                                           | It went with `"control"`.                                                                                                                                                                        |
+| `Shared.OpenType.Command`        | `Config.OpenType.Command`                         |                                                                                                                                                                                                  |
+
+### `shared/scanner.lua`
+
+`Shared.Scanner` becomes `Config.Scanner` in `configs/features/scanner.lua`.
+
+| v2                                             | v3         | Notes                                                                                                                  |
+| ---------------------------------------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `OpenType`                                     | `OpenType` | `"control"` is gone. **Default changed** from `"item"` to `"command"`.                                                 |
+| `Item`                                         | `Item`     | **Default changed** from `radioscanner` to `radio_scanner`. If your inventory already has `radioscanner`, set it back. |
+| `Keybind`, `Command`, `Time`, `HiddenChannels` | Same names |                                                                                                                        |
+| `Button`                                       | Removed    |                                                                                                                        |
+| `Distance`                                     | `Distance` | **Default changed** from `100` to `500` meters.                                                                        |
+
+New in v3: `FrequencyRange`, `BackgroundScan`, `LockOn` and `ScanSpeed`.
+
+## New in v3
+
+These have no v2 equivalent. The [Configuration Guide](/radio/v3/configurationguide) explains each one.
+
+- `configs/admin.lua`: who can open `/radioadmin` (the `zerio.admin` ace, or the QBCore/ESX `admin` group by default).
+- `configs/gameplay.lua`: `Config.MaxChannels`, how many channels a player can be on at once (default `3`), and the push-to-talk keys.
+- `configs/main.lua`: `Config.DefaultTheme` and `Config.DefaultSkin`, with the themes in `configs/themes.lua`.
+- `configs/features/`: towers, underground signal loss, weather, jammers, repeaters, battery, man-down, GPS, groups, speakers and more.
