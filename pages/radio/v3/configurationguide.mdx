@@ -384,12 +384,20 @@ All options are in `Config.AmbientCapture`.
 | ----------------- | ----------------- | ---------------------------------------------------------------------------------------------------------- |
 | `enabled`         | `true`            | Master switch for the transmit sounds.                                                                     |
 | `localKeying`     | `true`            | Plays a sound when you start and stop transmitting. Players can still turn this off in their own settings. |
+| `receiveSquelch`  | `true`            | Plays a squelch sound when someone else starts and stops talking on a channel you hear.                    |
 | `natoBeep`        | `false`           | Plays a short "over" beep when you release push-to-talk.                                                   |
 | `natoBeepSound`   | `"ptt_nato_beep"` | The sound used for the beep.                                                                               |
 | `defaultSoundSet` | `"default"`       | The sound set used on channels that don't have their own. Must match an `id` in `soundSets`.               |
 | `soundSets`       | two sets          | The sound sets you can choose from. zerio-radio ships with `default` and `subtle`.                         |
 
 You can pick a different sound set per channel in `/radioadmin` (channel editor, "Mic Click Sound").
+
+Two more settings sit above `Config.PTTAudioCues` and apply to listen-only channels (channels you hear but can't talk on):
+
+| Option                            | Default | Description                                                                                                                            |
+| --------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `Config.ListenOnlyMicClicks`      | `true`  | Plays the clicks when someone starts and stops talking on a listen-only channel. Turn it off if many monitored channels make it noisy. |
+| `Config.ListenOnlyVolumeFraction` | `nil`   | Volume for listen-only channels, from `0.0` to `1.0`. `nil` uses the player's normal radio volume.                                     |
 
 ### Custom Sound Sets
 
@@ -420,9 +428,10 @@ These settings decide how a weak signal sounds. The signal itself comes from tow
 
 ### General
 
-| Option                       | Default | Description                                      |
-| ---------------------------- | ------- | ------------------------------------------------ |
-| `Config.SubmixCheckInterval` | `2000`  | How often (ms) the signal bars in the UI update. |
+| Option                       | Default | Description                                                                               |
+| ---------------------------- | ------- | ----------------------------------------------------------------------------------------- |
+| `Config.SubmixEnabled`       | `true`  | Master switch. When `false`, everyone sounds the same no matter how weak their signal is. |
+| `Config.SubmixCheckInterval` | `2000`  | How often (ms) the signal bars in the UI update.                                          |
 
 ### Signal Degradation
 
@@ -657,17 +666,18 @@ See [Animations & Props](/radio/v3/faq#animations--props) in the FAQ for example
 
 Players standing near someone on the radio hear that radio's audio from the world, unless the radio user wears an earpiece. All options are in `Config.RadioLeak`.
 
-| Option                              | Default | Description                                                                    |
-| ----------------------------------- | ------- | ------------------------------------------------------------------------------ |
-| `enabled`                           | `true`  | Turns audio leak on or off.                                                    |
-| `range`                             | `5.0`   | How far away (meters) nearby players hear the radio.                           |
-| `maxVolume`                         | `0.8`   | Volume up close.                                                               |
-| `fadeStart`                         | `1.5`   | Distance (meters) where the volume starts to fade. It reaches zero at `range`. |
-| `vehicleRadioUser.enabled`          | `true`  | Makes the leak quieter when the radio user is in a vehicle.                    |
-| `vehicleRadioUser.volumeMultiplier` | `0.35`  | Volume multiplier in a vehicle.                                                |
-| `maxChannelsPerPlayer`              | `8`     | Maximum channels per player that can leak. A safety cap.                       |
-| `checkInterval`                     | `1500`  | How often (ms) nearby players are checked.                                     |
-| `volumeInterval`                    | `500`   | How often (ms) leak volume is updated.                                         |
+| Option                              | Default | Description                                                                                            |
+| ----------------------------------- | ------- | ------------------------------------------------------------------------------------------------------ |
+| `enabled`                           | `true`  | Turns audio leak on or off.                                                                            |
+| `range`                             | `5.0`   | How far away (meters) nearby players hear the radio.                                                   |
+| `maxVolume`                         | `0.8`   | Volume up close.                                                                                       |
+| `fadeStart`                         | `1.5`   | Distance (meters) where the volume starts to fade. It reaches zero at `range`.                         |
+| `vehicleRadioUser.enabled`          | `true`  | Makes the leak quieter when the radio user is in a vehicle.                                            |
+| `vehicleRadioUser.volumeMultiplier` | `0.35`  | Volume multiplier in a vehicle.                                                                        |
+| `maxChannelsPerPlayer`              | `8`     | Maximum channels per player that can leak. A safety cap.                                               |
+| `checkInterval`                     | `1500`  | How often (ms) nearby players are checked.                                                             |
+| `volumeInterval`                    | `500`   | How often (ms) leak volume is updated.                                                                 |
+| `submix`                            | table   | How the leaked audio sounds (the tinny "radio speaker" effect). Advanced; most servers leave it alone. |
 
 ### Earpieces
 
@@ -966,11 +976,18 @@ Shows live map blips for the other players on your channels. Blips change shape 
 
 Speakers are PA speakers placed in the world. Admins place them in `/radioadmin` on the Speakers page and group them into stations. Speakers need OneSync.
 
+<Callout type="info">
+  **Coming in full release.** Speakers play alert tones sent from the dispatch
+  tone board, which is not part of the beta. You can already place speakers and
+  set up stations, and they start playing once the tone board is out.
+</Callout>
+
 | Option             | Default             | Description                                                                    |
 | ------------------ | ------------------- | ------------------------------------------------------------------------------ |
 | `enabled`          | `true`              | Turns speakers on or off.                                                      |
 | `defaultProp`      | `"prop_speaker_01"` | Prop for new speakers.                                                         |
 | `defaultRadius`    | `30.0`              | How far (meters) a new speaker can be heard. Each speaker can override it.     |
+| `maxRepeatCount`   | `10`                | Maximum times a tone can repeat when it is set to repeat.                      |
 | `propDrawDistance` | `80.0`              | Distance (meters) at which speaker props are hidden. Keep it above the radius. |
 | `placementProp`    | `"prop_speaker_01"` | Preview prop shown while placing.                                              |
 | `placeRaycastDist` | `30.0`              | How far (meters) the placement preview can reach.                              |
