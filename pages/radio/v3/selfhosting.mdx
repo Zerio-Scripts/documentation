@@ -90,12 +90,12 @@ Create a file called `config.json` next to the program:
 }
 ```
 
-| Setting            | What to put there                                                                                                                                                         |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `server.port`      | The port players connect to. `30130` unless you change it.                                                                                                                |
-| `database.url`     | `mysql://user:password@host/database` for the database you just created.                                                                                                  |
+| Setting            | What to put there                                                                                                                                                              |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `server.port`      | The port players connect to. `30130` unless you change it.                                                                                                                     |
+| `database.url`     | `mysql://user:password@host/database` for the database you just created.                                                                                                       |
 | `auth.admin_token` | A long random secret (at least 16 characters). Your FiveM server uses the same value. Generate one with `openssl rand -hex 32`, or any password generator. **Keep it secret.** |
-| `licence.key`      | Your production licence key (`zvl_...`).                                                                                                                                  |
+| `licence.key`      | Your production licence key (`zvl_...`).                                                                                                                                       |
 
 ### Start It
 
@@ -229,12 +229,12 @@ setr zerio_voice_domain "radio.example.com"
 
 Nothing updates by itself. When a new version is out, the voice server console tells you, and so do zerio-radio admins in game. Type these in the voice server's console:
 
-| Command        | What it does                                                                                                                 |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `status`       | The running version, whether it's healthy, and the last update check.                                                        |
-| `update check` | Look for a new version now.                                                                                                  |
+| Command        | What it does                                                                                                                   |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `status`       | The running version, whether it's healthy, and the last update check.                                                          |
+| `update check` | Look for a new version now.                                                                                                    |
 | `update`       | Install the newest version. The radio is quiet for 10 to 20 seconds. If the new version doesn't start, it goes back by itself. |
-| `stop`         | Stop the voice server.                                                                                                       |
+| `stop`         | Stop the voice server.                                                                                                         |
 
 On Linux with systemd there's no console: stop the service, run it once in a terminal and type `update`, then start the service again. Or replace the `zerio-voice` file with the new download and restart the service.
 
@@ -242,14 +242,14 @@ Don't edit or delete the `.zerio-voice` folder the voice server creates next to 
 
 ## Troubleshooting
 
-| You see                            | What to do                                                                                                                                                  |
-| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `licence: no valid licence … reason=missing` | `licence.key` is empty. Copy your production key from the portal.                                                                                 |
-| `reason=unknown`                   | The key has a typo. Copy it again, or rotate it on the portal.                                                                                              |
-| `reason=instance_limit`            | The production key already runs on 2 machines. A machine stops counting 13 hours after it was last online.                                                  |
-| `reason=dev_not_loopback`          | You used the development key on a public server. Use the production key.                                                                                    |
-| `reason=unreachable`               | The machine can't reach `portal.radio.zerio-scripts.com` over HTTPS. Check its outgoing firewall. It tries again every 5 minutes.                           |
-| Red "admin token" box in FiveM      | `zerio_voice_admin_token` in `server.cfg` isn't the same as `auth.admin_token` in `config.json`.                                                            |
-| Players can't hear anyone           | Check the port is open (TCP 30130) in every firewall, and that `zerio_voice_domain` has the right public IP and port.                                        |
+| You see                                      | What to do                                                                                                                        |
+| -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `licence: no valid licence … reason=missing` | `licence.key` is empty. Copy your production key from the portal.                                                                 |
+| `reason=unknown`                             | The key has a typo. Copy it again, or rotate it on the portal.                                                                    |
+| `reason=instance_limit`                      | The production key already runs on 2 machines. A machine stops counting 13 hours after it was last online.                        |
+| `reason=dev_not_loopback`                    | You used the development key on a public server. Use the production key.                                                          |
+| `reason=unreachable`                         | The machine can't reach `portal.radio.zerio-scripts.com` over HTTPS. Check its outgoing firewall. It tries again every 5 minutes. |
+| Red "admin token" box in FiveM               | `zerio_voice_admin_token` in `server.cfg` isn't the same as `auth.admin_token` in `config.json`.                                  |
+| Players can't hear anyone                    | Check the port is open (TCP 30130) in every firewall, and that `zerio_voice_domain` has the right public IP and port.             |
 
 Still stuck? Ask in our [Discord](https://discord.zerio-scripts.com).
