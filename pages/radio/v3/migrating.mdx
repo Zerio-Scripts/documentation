@@ -27,7 +27,7 @@ Delete the old `zerio-radio` folder from `resources` and install v3 by following
 
 - **`zerio-radio-prop`** is its own resource. Move it next to `zerio-radio` and `ensure` it first.
 - **`ox_lib` and `oxmysql`** must start before `zerio-radio`.
-- **zerio-voice**: during the beta you run the voice server yourself; claim your licence with your zerio-radio transaction ID, see [Self-Hosting](/radio/v3/selfhosting). Then fill in `Config.VoiceServer` in `configs/voice.lua`, and put the admin token in `server.cfg` with `set` (never `setr`). See [Set Up the Voice Server](/radio/v3/installationguide#set-up-the-voice-server).
+- **zerio-voice**: self-host the voice server on your own machine, and claim its licence with your zerio-radio transaction ID, see [Self-Hosting](/radio/v3/selfhosting). Hosting on our own infrastructure is coming in the full release. Then fill in `Config.VoiceServer` in `configs/voice.lua`, and put the admin token in `server.cfg` with `set` (never `setr`). See [Set Up the Voice Server](/radio/v3/installationguide#set-up-the-voice-server).
 - **pma-voice** can stay for proximity voice. The radio doesn't use it any more, so its radio settings (`voice_enableRadioSubmix` and similar) do nothing for zerio-radio.
 - **New items**, only needed if you turn on the feature that uses them: `radio_jammer`, `mobile_radio_jammer`, `radio_repeater`, `radio_battery`, and `radio_repair_kit` for repairing towers. Images are in `_ITEM IMAGES`.
 - **The scanner item** is now called `radio_scanner` (it was `radioscanner`). Rename the item in your inventory, or set `Config.Scanner.Item = "radioscanner"`.
