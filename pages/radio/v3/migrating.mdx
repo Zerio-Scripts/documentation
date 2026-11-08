@@ -2,6 +2,10 @@ import { Callout, Steps } from "nextra/components";
 
 # Migrating from v2
 
+<Callout type="warning">
+  **V3 is in public beta.** These pages are for zerio-radio V3. Still on V2? See the [V2 documentation](/radio/description).
+</Callout>
+
 v3 is a rewrite. Radio audio runs on the zerio-voice server instead of pma-voice, the config moved from `shared/` (`Shared.*`) to `configs/` (`Config.*`), and channels are stored in the database.
 
 Your **database upgrades itself** on the first start. Your **config doesn't**: copy your values over using the tables on this page.
@@ -18,11 +22,11 @@ Your **database upgrades itself** on the first start. Your **config doesn't**: c
 
 ### Install v3
 
-Delete the old `zerio-radio` folder from `resources` and install v3 by following the [Installation Guide](/radio/installationguide). What's new compared to v2:
+Delete the old `zerio-radio` folder from `resources` and install v3 by following the [Installation Guide](/radio/v3/installationguide). What's new compared to v2:
 
 - **`zerio-radio-prop`** is its own resource. Move it next to `zerio-radio` and `ensure` it first.
 - **`ox_lib` and `oxmysql`** must start before `zerio-radio`.
-- **zerio-voice**: fill in `Config.VoiceServer` in `configs/voice.lua`, and put the admin token in `server.cfg` with `set` (never `setr`). See [Set Up the Voice Server](/radio/installationguide#set-up-the-voice-server).
+- **zerio-voice**: fill in `Config.VoiceServer` in `configs/voice.lua`, and put the admin token in `server.cfg` with `set` (never `setr`). See [Set Up the Voice Server](/radio/v3/installationguide#set-up-the-voice-server).
 - **pma-voice** can stay for proximity voice. The radio doesn't use it any more, so its radio settings (`voice_enableRadioSubmix` and similar) do nothing for zerio-radio.
 - **New items**, only needed if you turn on the feature that uses them: `radio_jammer`, `mobile_radio_jammer`, `radio_repeater`, `radio_battery`, and `radio_repair_kit` for repairing towers. Images are in `_ITEM IMAGES`.
 - **The scanner item** is now called `radio_scanner` (it was `radioscanner`). Rename the item in your inventory, or set `Config.Scanner.Item = "radioscanner"`.
@@ -137,7 +141,7 @@ This is now `configs/features/animation.lua`. `Shared.Animation` becomes `Config
 | v2                               | v3                                                | Notes                                                                                                                                                                                            |
 | -------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `Shared.OpenType.Value`          | `Config.OpenType.Value` in `configs/opentype.lua` | `"control"` is gone, so use `"keybind"`. `"item"` can't be combined with other types any more: if it's listed, the others are ignored. **Default changed** from `{ "keybind" }` to `{ "item" }`. |
-| `Shared.OpenType.Item = "radio"` | `Config.OpenType.Items = { ["radio"] = {} }`      | Now a table keyed by item name, so you can have several radio items. An item can also be a [codeplug radio](/radio/configurationguide#radio-items-and-codeplug-radios).                          |
+| `Shared.OpenType.Item = "radio"` | `Config.OpenType.Items = { ["radio"] = {} }`      | Now a table keyed by item name, so you can have several radio items. An item can also be a [codeplug radio](/radio/v3/configurationguide#radio-items-and-codeplug-radios).                          |
 | `Shared.OpenType.Keybind`        | `Config.OpenType.Keybind`                         |                                                                                                                                                                                                  |
 | `Shared.OpenType.Button`         | Removed                                           | It went with `"control"`.                                                                                                                                                                        |
 | `Shared.OpenType.Command`        | `Config.OpenType.Command`                         |                                                                                                                                                                                                  |
@@ -158,7 +162,7 @@ New in v3: `FrequencyRange`, `BackgroundScan`, `LockOn` and `ScanSpeed`.
 
 ## New in v3
 
-These have no v2 equivalent. The [Configuration Guide](/radio/configurationguide) explains each one.
+These have no v2 equivalent. The [Configuration Guide](/radio/v3/configurationguide) explains each one.
 
 - `configs/admin.lua`: who can open `/radioadmin` (the `zerio.admin` ace, or the QBCore/ESX `admin` group by default).
 - `configs/gameplay.lua`: `Config.MaxChannels`, how many channels a player can be on at once (default `3`), and the push-to-talk keys.

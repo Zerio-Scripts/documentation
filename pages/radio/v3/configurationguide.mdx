@@ -2,6 +2,10 @@ import { Callout } from "nextra/components";
 
 # Configuration Guide
 
+<Callout type="warning">
+  **V3 is in public beta.** These pages are for zerio-radio V3. Still on V2? See the [V2 documentation](/radio/description).
+</Callout>
+
 All of zerio-radio's settings are Lua files in the `configs/` folder. This guide explains every option and its default. Restart zerio-radio after you change a config file.
 
 Channels, towers, signal zones, speakers and patches are not in the config files. They are stored in the database and managed in the in-game admin menu (`/radioadmin`).
@@ -137,7 +141,7 @@ The admin token is not in this file. It goes in `server.cfg`, with `set` and nev
 set zerio_voice_admin_token "your-token-from-the-setup-wizard"
 ```
 
-See [Set Up the Voice Server](/radio/installationguide#set-up-the-voice-server) for where to get these values.
+See [Set Up the Voice Server](/radio/v3/installationguide#set-up-the-voice-server) for where to get these values.
 
 ### Per-Environment Voice Server
 
@@ -157,7 +161,7 @@ set zerio_voice_admin_url "http://127.0.0.1:30130"
 
 ### Voice Server Version
 
-zerio-radio checks the voice server's version, and whether the voice server still supports your version of zerio-radio, on start and every few seconds after that. When either is too old, radio voice turns off and the console shows a red box until it is fixed. Admins also get a notice in game. When your version is being phased out, you get a yellow warning with the date it stops working. See [Troubleshooting](/radio/installationguide#troubleshooting).
+zerio-radio checks the voice server's version, and whether the voice server still supports your version of zerio-radio, on start and every few seconds after that. When either is too old, radio voice turns off and the console shows a red box until it is fixed. Admins also get a notice in game. When your version is being phased out, you get a yellow warning with the date it stops working. See [Troubleshooting](/radio/v3/installationguide#troubleshooting).
 
 Radio audio uses the Opus codec with zerio-voice 1.1.0 or newer. With an older voice server, zerio-radio falls back to the older Codec2 audio by itself.
 
@@ -296,7 +300,7 @@ Config.OpenType.Command = "radio"
 | `"item"`    | By using a radio item from `Config.OpenType.Items`. The player must carry and use the item.                                                         |
 | `"command"` | With the command in `Config.OpenType.Command` (`/radio`).                                                                                           |
 | `"keybind"` | With a keybind. The default key is `Config.OpenType.Keybind` (F5); players can rebind it.                                                           |
-| `"custom"`  | Only from your own scripts, through the `zerio-radio:client:open` client event or the `Open` export. See [Developer Documentation](/radio/devdocs). |
+| `"custom"`  | Only from your own scripts, through the `zerio-radio:client:open` client event or the `Open` export. See [Developer Documentation](/radio/v3/devdocs). |
 
 `"command"`, `"keybind"` and `"custom"` can be combined, for example `{ "command", "keybind" }`. `"item"` can't be combined with anything: if you list `"item"` with other types, the others are ignored and a warning is printed. That keeps players from getting around the item requirement.
 
@@ -341,7 +345,7 @@ A **codeplug** turns an item into a locked radio, like a department radio:
 | `codeplug.channels`           | none    | List of `{ frequency, label }`. The channels don't have to exist in `/radioadmin`. If they do, their settings (label, no-talk-over and so on) still apply. |
 | `codeplug.allowOtherChannels` | `false` | When `true`, the radio can also join any other channel the player has normal access to. The codeplug channels stay locked to the item.                     |
 
-Every item here must also exist in your inventory. See [Add the Items](/radio/installationguide#add-the-items).
+Every item here must also exist in your inventory. See [Add the Items](/radio/v3/installationguide#add-the-items).
 
 <Callout type="warning">
   The commented-out examples in `configs/opentype.lua` use frequencies 911 to
@@ -563,7 +567,7 @@ Config.DispatchAlerts = {
 
 The alert is only sent once the server has accepted it, so the panic cooldown also applies to the dispatch script.
 
-To support another dispatch script, edit `Functions.SendDispatchAlert` in `server/functions.lua` (for scripts that take alerts on the server) and `client/functions.lua` (for scripts that take alerts from the player's client). Or listen to the [`dispatchAlert`](/radio/devdocs#dispatchalert) event from your own resource.
+To support another dispatch script, edit `Functions.SendDispatchAlert` in `server/functions.lua` (for scripts that take alerts on the server) and `client/functions.lua` (for scripts that take alerts from the player's client). Or listen to the [`dispatchAlert`](/radio/v3/devdocs#dispatchalert) event from your own resource.
 
 ---
 
@@ -644,7 +648,7 @@ Config.Animation = {
 
 Remove a block (or set it to `nil`) to turn it off. The `zerio_radio` model comes from the `zerio-radio-prop` resource. Bone IDs are listed on the [RAGE:MP wiki](https://wiki.rage.mp/index.php?title=Bones).
 
-See [Animations & Props](/radio/faq#animations--props) in the FAQ for examples, including clothing-based animations.
+See [Animations & Props](/radio/v3/faq#animations--props) in the FAQ for examples, including clothing-based animations.
 
 ---
 
@@ -821,7 +825,7 @@ Where the charge is stored:
 - **ESX's built-in inventory**: in server memory for the session. Not shown on the item.
 - **Command, keybind or custom open type**: one battery per player, in server memory.
 
-If you use ox_inventory, add the `radio_battery` item with its `server.export` when you turn this on (see [Add the Items](/radio/installationguide#add-the-items)).
+If you use ox_inventory, add the `radio_battery` item with its `server.export` when you turn this on (see [Add the Items](/radio/v3/installationguide#add-the-items)).
 
 ### Drain
 
@@ -978,8 +982,8 @@ Groups split the people on a channel into named groups, for example "SWAT", "Tra
 
 - A group belongs to one channel, and a player is in at most one group per channel.
 - Groups last for the server session and are removed once their last member is gone.
-- A group a player picked themselves is dropped when they leave the channel. A group a script assigned with [`SetPlayerGroup`](/radio/devdocs#setplayergroup) stays for the session, so the player is back in it when they rejoin.
-- Scripts can lock a player in a group, so they can't change it themselves, and give a group a colour with [`SetGroupColor`](/radio/devdocs#setgroupcolor), for example to use groups as statuses.
+- A group a player picked themselves is dropped when they leave the channel. A group a script assigned with [`SetPlayerGroup`](/radio/v3/devdocs#setplayergroup) stays for the session, so the player is back in it when they rejoin.
+- Scripts can lock a player in a group, so they can't change it themselves, and give a group a colour with [`SetGroupColor`](/radio/v3/devdocs#setgroupcolor), for example to use groups as statuses.
 - Players can hide groups with the "Show Groups" setting in the radio.
 
 | Option              | Default | Description                                                                                                             |
