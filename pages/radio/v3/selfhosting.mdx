@@ -91,12 +91,12 @@ Start the program once. It creates `config.json` next to itself, with a random a
 }
 ```
 
-| Setting            | What to put there                                                                                                                       |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `server.port`      | The port players connect to. `30130` unless you change it.                                                                              |
-| `database.url`     | `mysql://user:password@host/database` for the database you just created.                                                                |
-| `auth.admin_token` | Filled in for you. Your FiveM server uses the same value. **Keep it secret.**                                                           |
-| `licence.key`      | Your production licence key (`zvl_...`).                                                                                                |
+| Setting            | What to put there                                                                                                                                                         |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `server.port`      | The port players connect to. `30130` unless you change it.                                                                                                                |
+| `database.url`     | `mysql://user:password@host/database` for the database you just created.                                                                                                  |
+| `auth.admin_token` | Filled in for you. Your FiveM server uses the same value. **Keep it secret.**                                                                                             |
+| `licence.key`      | Your production licence key (`zvl_...`).                                                                                                                                  |
 | `zerio_domain`     | `true`: the voice server gets its address and certificate from us (see [Your Voice Server's Address](#your-voice-servers-address)). `false` when you use your own domain. |
 
 ### Start It
@@ -268,16 +268,16 @@ Don't edit or delete the `.zerio-voice` folder the voice server creates next to 
 
 ## Troubleshooting
 
-| You see                                      | What to do                                                                                                                        |
-| -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `licence: no valid licence … reason=missing` | `licence.key` is empty. Copy your production key from the portal.                                                                 |
-| `reason=unknown`                             | The key has a typo. Copy it again, or rotate it on the portal.                                                                    |
-| `reason=instance_limit`                      | The production key already runs on 2 machines. A machine stops counting 13 hours after it was last online.                        |
-| `reason=dev_not_loopback`                    | You used the development key on a public server. Use the production key.                                                          |
-| `reason=unreachable`                         | The machine can't reach `portal.radio.zerio-scripts.com` over HTTPS. Check its outgoing firewall. It tries again every 5 minutes. |
-| Red "admin token" box in FiveM               | `zerio_voice_admin_token` in `server.cfg` isn't the same as `auth.admin_token` in `config.json`.                                  |
+| You see                                      | What to do                                                                                                                           |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `licence: no valid licence … reason=missing` | `licence.key` is empty. Copy your production key from the portal.                                                                    |
+| `reason=unknown`                             | The key has a typo. Copy it again, or rotate it on the portal.                                                                       |
+| `reason=instance_limit`                      | The production key already runs on 2 machines. A machine stops counting 13 hours after it was last online.                           |
+| `reason=dev_not_loopback`                    | You used the development key on a public server. Use the production key.                                                             |
+| `reason=unreachable`                         | The machine can't reach `portal.radio.zerio-scripts.com` over HTTPS. Check its outgoing firewall. It tries again every 5 minutes.    |
+| Red "admin token" box in FiveM               | `zerio_voice_admin_token` in `server.cfg` isn't the same as `auth.admin_token` in `config.json`.                                     |
 | Players can't hear anyone                    | Check the port is open (TCP 30130) in every firewall, and that `zerio_voice_domain` is exactly the address the voice server printed. |
-| `zerio domain: … development key`            | `zerio_domain` needs the production key. For testing on your own PC with the development key, set `"zerio_domain": false`.       |
-| `zerio domain: … public IPv4 address`        | Add `"public_ip": "<the machine's public IPv4>"` to `config.json`.                                                                 |
+| `zerio domain: … development key`            | `zerio_domain` needs the production key. For testing on your own PC with the development key, set `"zerio_domain": false`.           |
+| `zerio domain: … public IPv4 address`        | Add `"public_ip": "<the machine's public IPv4>"` to `config.json`.                                                                   |
 
 Still stuck? Ask in our [Discord](https://discord.zerio-scripts.com).
