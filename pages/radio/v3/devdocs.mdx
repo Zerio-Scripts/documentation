@@ -506,6 +506,10 @@ Returns the same entry for one player, or `nil` when they're on no channel with 
 
 ### Dispatch Console
 
+<Callout type="info">
+  **Coming in full release.** The web dispatch console is not part of the beta. These exports are safe to call now and start working once it is out.
+</Callout>
+
 These send to the hosted dispatch console. They need the voice server set up in `configs/voice.lua` and `zerio_voice_admin_token` set in your `server.cfg`.
 
 #### DispatchNotify
@@ -544,7 +548,7 @@ exports["zerio-radio"]:DispatchManDownClear({ playerId = source })
 
 ### Signal 100
 
-While Signal 100 is active on a channel, players can't talk on it and only dispatchers can. Players who press push-to-talk hear the busy tone, and anyone talking when it starts is cut off. Dispatchers start it from the dispatch console; these exports start it from your own scripts. The channel needs Signal 100 turned on in the admin menu.
+While Signal 100 is active on a channel, players can't talk on it and only dispatchers can. Players who press push-to-talk hear the busy tone, and anyone talking when it starts is cut off. Dispatchers start it from the dispatch console _(Coming in full release)_; these exports start it from your own scripts. The channel needs Signal 100 turned on in the admin menu.
 
 #### StartSignal100
 
@@ -819,7 +823,7 @@ AddEventHandler("zerio-radio:server:signal100Started", function(frequency, activ
 | `frequency`   | `number` | The channel                                           |
 | `activatedBy` | `string` | The dispatcher, or the name given to `StartSignal100` |
 
-Triggered when Signal 100 starts on a channel, from the dispatch console or `StartSignal100`. When a dispatcher starts it, the event can arrive up to 5 seconds later.
+Triggered when Signal 100 starts on a channel, from the dispatch console _(Coming in full release)_ or `StartSignal100`. When a dispatcher starts it, the event can arrive up to 5 seconds later.
 
 #### signal100Ended
 
@@ -907,6 +911,6 @@ Triggered when a repeater is removed, whether it was picked up, removed by an ad
 | `/removerepeater <id>`          | Ace `zerio.repeater`, console                                | Removes a repeater                                  |
 | `/listrepeaters`                | Ace `zerio.repeater`, console                                | Lists repeaters in the server console               |
 | `/listtowers`                   | Admins, console                                              | Lists towers and their health in the server console |
-| `zerio:testdispatch [priority]` | Console, or admins with the ace `command.zerio:testdispatch` | Sends a test notification to the dispatch console   |
+| `zerio:testdispatch [priority]` | Console, or admins with the ace `command.zerio:testdispatch` | Sends a test notification to the dispatch console _(Coming in full release)_  |
 
 The command names for opening the radio, the scanner, changing channel, callsigns and the admin menu can be changed in the config. See the [Configuration Guide](/radio/v3/configurationguide).

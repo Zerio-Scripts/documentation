@@ -125,10 +125,10 @@ Config.VoiceServer = {
 
 | Option      | Description                                                                                                                                                                  |
 | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Enabled`   | Turns the voice connection on. When `false`, there is no radio audio and no dispatch panel connection.                                                                       |
+| `Enabled`   | Turns the voice connection on. When `false`, there is no radio audio and no dispatch panel connection _(Coming in full release)_.                                                                       |
 | `Domain`    | The voice region host from the setup wizard: `eu.radio.zerio-scripts.com` or `na.radio.zerio-scripts.com`. Only the host, with no `https://` and no trailing slash.          |
 | `ServerId`  | The Server ID you entered in the setup wizard.                                                                                                                               |
-| `PortalUrl` | The customer portal. zerio-radio uses it to sync patches made in the web dispatch panel. Set it to `"https://portal.radio.zerio-scripts.com"`, or `""` to turn the sync off. |
+| `PortalUrl` | The customer portal. zerio-radio uses it to sync patches made in the web dispatch panel _(Coming in full release)_. Set it to `"https://portal.radio.zerio-scripts.com"`, or `""` to turn the sync off. |
 
 <Callout type="warning">
   The file ships with local development values (`Domain = "localhost:30130"`,
@@ -540,13 +540,13 @@ Players who receive a panic alert hear `html/sounds/panic_alert.ogg` and see a s
 
 When unit GPS is on for the channel, the player's blip also flashes (see `FlashOnPanic` in [Unit GPS](#unit-gps-configsfeaturesgpslua)).
 
-Every panic alert also shows up in the dispatch console. To send it to zerio-dispatch, ps-dispatch or lb-tablet as well, see [Dispatch Scripts](#dispatch-scripts-configsfeaturesdispatchlua).
+Every panic alert also shows up in the dispatch console _(Coming in full release)_. To send it to zerio-dispatch, ps-dispatch or lb-tablet as well, see [Dispatch Scripts](#dispatch-scripts-configsfeaturesdispatchlua).
 
 ---
 
 ## Dispatch Scripts (`configs/features/dispatch.lua`)
 
-Panic and man-down alerts always reach the dispatch console. These settings also send them to a third-party dispatch script.
+Panic and man-down alerts always reach the dispatch console _(Coming in full release)_. These settings also send them to a third-party dispatch script.
 
 ```lua
 Config.DispatchAlerts = {
@@ -883,7 +883,7 @@ Locations = {
 
 ## Channel Patches (`configs/features/patches.lua`)
 
-A patch links two or more channels so players on one channel hear the others. Admins manage patches in `/radioadmin` on the Patches page. Patches made in the web dispatch panel are synced to the game when `PortalUrl` is set in `configs/voice.lua`.
+A patch links two or more channels so players on one channel hear the others. Admins manage patches in `/radioadmin` on the Patches page. Patches made in the web dispatch panel _(Coming in full release)_ are synced to the game when `PortalUrl` is set in `configs/voice.lua`.
 
 | Option             | Default | Description                                                                                              |
 | ------------------ | ------- | -------------------------------------------------------------------------------------------------------- |

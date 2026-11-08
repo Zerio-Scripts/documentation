@@ -196,7 +196,7 @@ For a quick start, run `sql/!data.sql` once. It adds 911 Police Radio, 912 EMS R
 In the channel editor you can also set:
 
 - **No-talk-over**: Only one person can transmit at a time. Others get "Channel busy".
-- **Signal 100**: Lets a dispatcher in the web dispatch panel take over the channel. While it is active, players can't transmit. Scripts can start it too, with [`StartSignal100`](/radio/v3/devdocs#startsignal100).
+- **Signal 100**: Lets a dispatcher in the web dispatch panel _(Coming in full release)_ take over the channel. While it is active, players can't transmit. Scripts can start it too, with [`StartSignal100`](/radio/v3/devdocs#startsignal100).
 - **Man-Down** and **Unit GPS**: See [below](#why-dont-man-down-alerts-or-unit-gps-work).
 - **Mic Click Sound**: The push-to-talk sound set for the channel.
 - **Player Groups**: Whether players can create and join groups on the channel. See [How do groups work?](#how-do-groups-work)
@@ -350,7 +350,7 @@ For any other dispatch script, either:
 
 ### Do panic alerts show up in the dispatch console?
 
-Yes. Every panic alert shows up in the web dispatch panel, with the player's callsign and channel. Man-down alerts show up for dispatchers monitoring the channel.
+The web dispatch panel is coming in the full release; it is not part of the beta. Once it is out, every panic alert shows up there, with the player's callsign and channel. Man-down alerts show up for dispatchers monitoring the channel.
 
 ---
 
