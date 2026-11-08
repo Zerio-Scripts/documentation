@@ -3,7 +3,8 @@ import { Callout } from "nextra/components";
 # Configuration Guide
 
 <Callout type="warning">
-  **V3 is in public beta.** These pages are for zerio-radio V3. Still on V2? See the [V2 documentation](/radio/description).
+  **V3 is in public beta.** These pages are for zerio-radio V3. Still on V2? See
+  the [V2 documentation](/radio/description).
 </Callout>
 
 All of zerio-radio's settings are Lua files in the `configs/` folder. This guide explains every option and its default. Restart zerio-radio after you change a config file.
@@ -295,11 +296,11 @@ Config.OpenType.Command = "radio"
 
 `Config.OpenType.Value` is a list of ways players can open the radio:
 
-| Value       | How the radio opens                                                                                                                                 |
-| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `"item"`    | By using a radio item from `Config.OpenType.Items`. The player must carry and use the item.                                                         |
-| `"command"` | With the command in `Config.OpenType.Command` (`/radio`).                                                                                           |
-| `"keybind"` | With a keybind. The default key is `Config.OpenType.Keybind` (F5); players can rebind it.                                                           |
+| Value       | How the radio opens                                                                                                                                    |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `"item"`    | By using a radio item from `Config.OpenType.Items`. The player must carry and use the item.                                                            |
+| `"command"` | With the command in `Config.OpenType.Command` (`/radio`).                                                                                              |
+| `"keybind"` | With a keybind. The default key is `Config.OpenType.Keybind` (F5); players can rebind it.                                                              |
 | `"custom"`  | Only from your own scripts, through the `zerio-radio:client:open` client event or the `Open` export. See [Developer Documentation](/radio/v3/devdocs). |
 
 `"command"`, `"keybind"` and `"custom"` can be combined, for example `{ "command", "keybind" }`. `"item"` can't be combined with anything: if you list `"item"` with other types, the others are ignored and a warning is printed. That keeps players from getting around the item requirement.

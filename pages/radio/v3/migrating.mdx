@@ -3,7 +3,8 @@ import { Callout, Steps } from "nextra/components";
 # Migrating from v2
 
 <Callout type="warning">
-  **V3 is in public beta.** These pages are for zerio-radio V3. Still on V2? See the [V2 documentation](/radio/description).
+  **V3 is in public beta.** These pages are for zerio-radio V3. Still on V2? See
+  the [V2 documentation](/radio/description).
 </Callout>
 
 v3 is a rewrite. Radio audio runs on the zerio-voice server instead of pma-voice, the config moved from `shared/` (`Shared.*`) to `configs/` (`Config.*`), and channels are stored in the database.
@@ -141,7 +142,7 @@ This is now `configs/features/animation.lua`. `Shared.Animation` becomes `Config
 | v2                               | v3                                                | Notes                                                                                                                                                                                            |
 | -------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `Shared.OpenType.Value`          | `Config.OpenType.Value` in `configs/opentype.lua` | `"control"` is gone, so use `"keybind"`. `"item"` can't be combined with other types any more: if it's listed, the others are ignored. **Default changed** from `{ "keybind" }` to `{ "item" }`. |
-| `Shared.OpenType.Item = "radio"` | `Config.OpenType.Items = { ["radio"] = {} }`      | Now a table keyed by item name, so you can have several radio items. An item can also be a [codeplug radio](/radio/v3/configurationguide#radio-items-and-codeplug-radios).                          |
+| `Shared.OpenType.Item = "radio"` | `Config.OpenType.Items = { ["radio"] = {} }`      | Now a table keyed by item name, so you can have several radio items. An item can also be a [codeplug radio](/radio/v3/configurationguide#radio-items-and-codeplug-radios).                       |
 | `Shared.OpenType.Keybind`        | `Config.OpenType.Keybind`                         |                                                                                                                                                                                                  |
 | `Shared.OpenType.Button`         | Removed                                           | It went with `"control"`.                                                                                                                                                                        |
 | `Shared.OpenType.Command`        | `Config.OpenType.Command`                         |                                                                                                                                                                                                  |
