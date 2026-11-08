@@ -1,0 +1,255 @@
+import { Callout, Steps, Tabs } from "nextra/components";
+
+# Self-Hosting the Voice Server
+
+<Callout type="warning">
+  **V3 is in public beta.** These pages are for zerio-radio V3. Still on V2? See
+  the [V2 documentation](/radio/description).
+</Callout>
+
+zerio-radio V3 sends radio voice through a voice server (zerio-voice). During the beta you run it yourself, next to your FiveM server. It's a single program with a small config file, on Windows or Linux.
+
+## What You Need
+
+- A Windows (10/11 or Server 2019+) or Linux machine (Ubuntu 22.04+, Debian 12+). The same machine as your FiveM server is fine.
+- MySQL 8 or MariaDB 10.6+, with an **empty** database for the voice server. Don't reuse your FiveM database.
+- A port players can reach: TCP **30130** by default.
+- zerio-radio V3 on your FiveM server.
+
+## Get Your Licence and Download
+
+<Steps>
+
+### Claim Your Beta Access
+
+1. Open [portal.radio.zerio-scripts.com/setup](https://portal.radio.zerio-scripts.com/setup).
+2. Under **Already own zerio-radio? Join the V3 beta**, enter the **transaction ID** of your zerio-radio purchase (it starts with `tbx-` and is in your purchase receipt email) and the **email you bought it with**.
+3. Choose a **Server ID**, for example `my-rp-server`.
+4. The portal shows two licence keys, a **production** key and a **development** key. **They're only shown once**, so save both somewhere safe.
+5. Set a portal email when asked. You need it to sign in to the portal later.
+
+Each purchase can set up one voice server.
+
+### Download the Voice Server
+
+Sign in at [portal.radio.zerio-scripts.com](https://portal.radio.zerio-scripts.com), open the **Server** page, and download the Windows or Linux version from the **Self-hosting** card.
+
+</Steps>
+
+### Which Licence Key?
+
+- **Production**: for the server your players use. It runs on up to 2 machines at once (for example a live and a staging server).
+- **Development**: for testing on your own PC. It only works when the voice server listens on `127.0.0.1`, with up to 8 players.
+
+Lost a key, or think someone else has it? **Rotate** it on the portal's **Server** page. You get a new key and the old one stops working.
+
+## Set It Up
+
+<Steps>
+
+### Put It in Its Own Folder
+
+The download is named like `zerio-voice-1.1.0-win-x64.exe` or `zerio-voice-1.1.0-linux-x64`. Rename it to `zerio-voice.exe` (Windows) or `zerio-voice` (Linux), and put it in a folder of its own that it can write to, for example `C:\zerio-voice` on Windows (not inside `Program Files`) or `/opt/zerio-voice` on Linux. Keep it there: updates are installed into this folder.
+
+### Create the Database
+
+Create an empty database and a user for it, for example in HeidiSQL or the `mysql` command line:
+
+```sql
+CREATE DATABASE zerio_voice;
+CREATE USER 'zerio_voice'@'127.0.0.1' IDENTIFIED BY 'a-strong-password';
+GRANT ALL ON zerio_voice.* TO 'zerio_voice'@'127.0.0.1';
+```
+
+Use `@'127.0.0.1'`, not only `@'localhost'`. The voice server creates its own tables on its first start.
+
+### Create `config.json`
+
+Create a file called `config.json` next to the program:
+
+```json
+{
+  "mode": "single",
+  "server": {
+    "host": "0.0.0.0",
+    "port": 30130
+  },
+  "database": {
+    "url": "mysql://zerio_voice:a-strong-password@127.0.0.1/zerio_voice"
+  },
+  "auth": {
+    "admin_token": "CHANGE_ME"
+  },
+  "licence": {
+    "key": "zvl_your_production_key"
+  },
+  "updates": {
+    "check": true,
+    "supervisor": true
+  }
+}
+```
+
+| Setting            | What to put there                                                                                                                                                         |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `server.port`      | The port players connect to. `30130` unless you change it.                                                                                                                |
+| `database.url`     | `mysql://user:password@host/database` for the database you just created.                                                                                                  |
+| `auth.admin_token` | A long random secret (at least 16 characters). Your FiveM server uses the same value. Generate one with `openssl rand -hex 32`, or any password generator. **Keep it secret.** |
+| `licence.key`      | Your production licence key (`zvl_...`).                                                                                                                                  |
+
+### Start It
+
+<Tabs items={['Windows', 'Linux']}>
+  <Tabs.Tab>
+    Open a terminal in the folder and run:
+
+    ```bat
+    zerio-voice.exe
+    ```
+
+    It's running when it prints `zerio-voice ready (v1.1.0) on 0.0.0.0:30130`. Check that it also prints `licence: valid`.
+
+    Allow the port in Windows Firewall (and in your host's firewall, if it has one):
+
+    ```bat
+    netsh advfirewall firewall add rule name="zerio-voice" dir=in action=allow protocol=TCP localport=30130
+    ```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+    Create a user for it and make the program runnable:
+
+    ```bash
+    sudo useradd --system --home /opt/zerio-voice --shell /usr/sbin/nologin zerio-voice
+    sudo chmod +x /opt/zerio-voice/zerio-voice
+    sudo chown -R zerio-voice:zerio-voice /opt/zerio-voice
+    ```
+
+    Try it in a terminal first:
+
+    ```bash
+    cd /opt/zerio-voice && sudo -u zerio-voice ./zerio-voice
+    ```
+
+    Wait for `zerio-voice ready (v1.1.0) on 0.0.0.0:30130` and `licence: valid`, then type `stop`.
+
+    To keep it running, create `/etc/systemd/system/zerio-voice.service`:
+
+    ```ini
+    [Unit]
+    Description=zerio-voice
+    After=network-online.target mariadb.service
+    Wants=network-online.target
+
+    [Service]
+    User=zerio-voice
+    WorkingDirectory=/opt/zerio-voice
+    ExecStart=/opt/zerio-voice/zerio-voice
+    Restart=on-failure
+    RestartSec=3
+    KillMode=mixed
+    TimeoutStopSec=20
+
+    [Install]
+    WantedBy=multi-user.target
+    ```
+
+    ```bash
+    sudo systemctl daemon-reload && sudo systemctl enable --now zerio-voice
+    sudo ufw allow 30130/tcp
+    ```
+
+    See its output with `journalctl -u zerio-voice -f`.
+
+  </Tabs.Tab>
+</Tabs>
+
+**Game server panels** (Pterodactyl, Pelican, TCAdmin...): use `zerio-voice` (or `zerio-voice.exe`) as the start command, `stop` as the stop command, and `zerio-voice ready` as the "server started" text.
+
+### Connect zerio-radio
+
+In `configs/voice.lua`, leave `ServerId` empty:
+
+```lua
+Config.VoiceServer = {
+    Enabled = true,
+    Domain = "",
+    ServerId = "",
+    PortalUrl = "https://portal.radio.zerio-scripts.com",
+}
+```
+
+Add these to your `server.cfg`, above `ensure zerio-radio`. Replace `203.0.113.5` with the public IP of the machine running the voice server:
+
+```cfg
+set  zerio_voice_admin_token "the same admin_token as in config.json"
+setr zerio_voice_domain      "203.0.113.5:30130"
+set  zerio_voice_admin_url   "http://127.0.0.1:30130"
+```
+
+<Callout type="error">
+  Use `set` for the admin token, never `setr`. `setr` sends the value to every
+  player's game.
+</Callout>
+
+If the voice server runs on a different machine than FiveM, set `zerio_voice_admin_url` to `http://<that machine's IP>:30130` instead.
+
+Restart your FiveM server. The console shows a red box if zerio-radio can't reach the voice server or the token doesn't match.
+
+</Steps>
+
+## Using a Domain
+
+With a domain (for example `radio.example.com`) pointed at the voice server's machine, players connect over a secure connection. Pick one:
+
+- **Let the voice server get its own certificate.** Add this to `config.json`. Ports 80 and 443 must be free and open on the machine:
+
+  ```json
+  "tls": { "domain": "radio.example.com", "contact_email": "you@example.com" }
+  ```
+
+- **Use your own web server** (when the machine already runs one on 80/443). Set `"host": "127.0.0.1"` in `config.json` and forward only `/ws` to the voice server. For example with Caddy:
+
+  ```text
+  radio.example.com {
+  	handle /ws {
+  		reverse_proxy 127.0.0.1:30130
+  	}
+  	respond 404
+  }
+  ```
+
+Then use the domain in `server.cfg`:
+
+```cfg
+setr zerio_voice_domain "radio.example.com"
+```
+
+## Updates
+
+Nothing updates by itself. When a new version is out, the voice server console tells you, and so do zerio-radio admins in game. Type these in the voice server's console:
+
+| Command        | What it does                                                                                                                 |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `status`       | The running version, whether it's healthy, and the last update check.                                                        |
+| `update check` | Look for a new version now.                                                                                                  |
+| `update`       | Install the newest version. The radio is quiet for 10 to 20 seconds. If the new version doesn't start, it goes back by itself. |
+| `stop`         | Stop the voice server.                                                                                                       |
+
+On Linux with systemd there's no console: stop the service, run it once in a terminal and type `update`, then start the service again. Or replace the `zerio-voice` file with the new download and restart the service.
+
+Don't edit or delete the `.zerio-voice` folder the voice server creates next to it. It holds the installed versions and this machine's licence ID.
+
+## Troubleshooting
+
+| You see                            | What to do                                                                                                                                                  |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `licence: no valid licence … reason=missing` | `licence.key` is empty. Copy your production key from the portal.                                                                                 |
+| `reason=unknown`                   | The key has a typo. Copy it again, or rotate it on the portal.                                                                                              |
+| `reason=instance_limit`            | The production key already runs on 2 machines. A machine stops counting 13 hours after it was last online.                                                  |
+| `reason=dev_not_loopback`          | You used the development key on a public server. Use the production key.                                                                                    |
+| `reason=unreachable`               | The machine can't reach `portal.radio.zerio-scripts.com` over HTTPS. Check its outgoing firewall. It tries again every 5 minutes.                           |
+| Red "admin token" box in FiveM      | `zerio_voice_admin_token` in `server.cfg` isn't the same as `auth.admin_token` in `config.json`.                                                            |
+| Players can't hear anyone           | Check the port is open (TCP 30130) in every firewall, and that `zerio_voice_domain` has the right public IP and port.                                        |
+
+Still stuck? Ask in our [Discord](https://discord.zerio-scripts.com).
