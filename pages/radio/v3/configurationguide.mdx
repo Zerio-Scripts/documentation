@@ -131,16 +131,20 @@ Config.VoiceServer = {
 | `PortalUrl` | The customer portal. zerio-radio uses it to sync patches made in the web dispatch panel _(Coming in full release)_. Set it to `"https://portal.radio.zerio-scripts.com"`, or `""` to turn the sync off. |
 
 <Callout type="warning">
-  The file ships with local development values (`Domain = "localhost:30130"`,
-  `ServerId = ""`, `PortalUrl = "http://localhost:3000"`). Replace all three
-  with your own values, or the radio can't connect.
+  **Self-hosting the voice server?** Leave `Domain` and `ServerId` as they ship
+  (`ServerId` must stay `""`), and set the address in `server.cfg` with the
+  `setr zerio_voice_domain` line your voice server prints. See
+  [Self-Hosting](/radio/v3/selfhosting#connect-zerio-radio). `Domain` and
+  `ServerId` from the setup wizard are only for a voice server hosted by us.
 </Callout>
 
 The admin token is not in this file. It goes in `server.cfg`, with `set` and never `setr`:
 
 ```cfg
-set zerio_voice_admin_token "your-token-from-the-setup-wizard"
+set zerio_voice_admin_token "your-admin-token"
 ```
+
+Self-hosted: the token is `auth.admin_token` in the voice server's `config.json`. Hosted by us: it's shown in the setup wizard.
 
 See [Set Up the Voice Server](/radio/v3/installationguide#set-up-the-voice-server) for where to get these values.
 
@@ -152,10 +156,11 @@ If you run several environments (for example local, test and live) from the same
 # Overrides Domain. Use setr: players' games need it to connect.
 setr zerio_voice_domain "radio.example.com"
 
-# Optional, server only. Sends zerio-radio's admin calls straight to the voice
-# server instead of through Domain, for example when a reverse proxy only
-# exposes the voice connection.
-set zerio_voice_admin_url "http://127.0.0.1:30130"
+# Optional, server only, and only when the voice server runs on the same
+# machine as FiveM. Sends zerio-radio's admin calls straight to it instead of
+# through the public address. Port 30131 with an address from us, 30130 behind
+# your own reverse proxy.
+set zerio_voice_admin_url "http://127.0.0.1:30131"
 ```
 
 `ServerId` still comes from `configs/voice.lua` and is added to both addresses.

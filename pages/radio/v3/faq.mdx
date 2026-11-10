@@ -289,7 +289,7 @@ For man-down, check `Config.ManDown.Trigger`. With `"ragdoll"`, death systems th
 
 Go through these in order:
 
-1. **Towers enabled with no towers.** If `enabled` is `true` in `configs/features/towers.lua`, players only have signal near a tower. With no towers in the database and `defaultSignal = 0.0`, nobody has signal and push-to-talk shows "No signal — cannot transmit". Add towers in `/radioadmin`, run `sql/!data.sql`, set `enabled = false`, or raise `defaultSignal`.
+1. **Out of range of every tower.** If `enabled` is `true` in `configs/features/towers.lua` and you have placed at least one tower, players only have signal near a tower: elsewhere push-to-talk shows "No signal — cannot transmit" (with `defaultSignal = 0.0`). Add more towers in `/radioadmin`, run `sql/!data.sql` for a ready-made set, set `enabled = false`, or raise `defaultSignal`. With no towers at all, everyone has full signal.
 2. **Out of range, or the tower doesn't serve the frequency.** Each tower has a range and a list of frequencies (`all` for every frequency). Use the Signal Map in `/radioadmin` to see coverage.
 3. **Destroyed tower.** Shot-down towers give no signal until they are repaired or their `downtime` runs out. `/listtowers` prints each tower's health to the server console.
 4. **Signal zone.** A zone set to 0% in `/radioadmin` (Signal Zones) removes signal inside it.
@@ -304,8 +304,8 @@ Go through these in order:
 
 ### Players can't hear each other on the radio
 
-1. **Check the server console** for a red box from `[zerio-radio:voice]`. It means the token is missing or wrong, or `Domain`/`ServerId` is wrong. See [Troubleshooting](/radio/v3/installationguide#troubleshooting).
-2. **Check the region.** `Domain` in `configs/voice.lua` must be the region your server was set up in. If you switched region in the portal, update `Domain`.
+1. **Check the server console** for a red or yellow box from `[zerio-radio:voice]`. It says what's wrong: the token, the voice server's address, or an address players can't use. See [Troubleshooting](/radio/v3/installationguide#troubleshooting).
+2. **Check the voice server.** Self-hosted: its console should say `players can reach wss://...`; if it says the port is closed, open it. See [Self-Hosting](/radio/v3/selfhosting#troubleshooting).
 3. **Check the channel.** Both players must be on the same frequency, and the talker must transmit on their active channel.
 4. **Check the microphone.** The radio doesn't use the device in FiveM's voice chat settings. Pick the microphone in the radio's own settings under **Microphone** (Audio). "System default" uses the microphone Windows uses as the default recording device. The choice is saved on the player's computer. If the chosen microphone is unplugged, the radio uses the default until it's plugged in again. Also make sure Windows allows desktop apps to use the microphone.
 5. **Check signal.** With no signal, push-to-talk is blocked with "No signal". See [Why do players have no signal?](#why-do-players-have-no-signal)

@@ -428,7 +428,8 @@ Coming from v2? Your database upgrades itself on the first start, but your confi
 
 - Add `set zerio_voice_admin_token "<token>"` to `server.cfg`, above `ensure zerio-radio`.
 - Restart the server. Radio voice and dispatch stay off until the token is set.
-- If you lost the token, sign in at [portal.radio.zerio-scripts.com](https://portal.radio.zerio-scripts.com) with your Server ID and portal email, and use **Reset admin token** in the account settings. Then put the new token in `server.cfg`.
+- Self-hosted: the token is `auth.admin_token` in the voice server's `config.json`.
+- Hosted by us: if you lost the token, sign in at [portal.radio.zerio-scripts.com](https://portal.radio.zerio-scripts.com) with your Server ID and portal email, and use **Reset admin token** in the account settings. Then put the new token in `server.cfg`.
 
 ### Red "admin token REJECTED" box in the console
 
@@ -443,13 +444,28 @@ Coming from v2? Your database upgrades itself on the first start, but your confi
 
 ### Red "voice admin API unreachable" box in the console
 
-**Cause**: zerio-radio can't reach the voice server at the address built from `configs/voice.lua`.
+**Cause**: zerio-radio can't reach the voice server at the address in the box.
 
 **Solution**:
 
-- Check `Domain`: only the host, like `eu.radio.zerio-scripts.com`, with no `https://` and no trailing slash.
-- Check `ServerId`: it must match the Server ID you entered in the setup wizard.
+- Self-hosted: check that the voice server is running, and that `zerio_voice_domain` in `server.cfg` is exactly the address it printed, including `:30130`. If you set `zerio_voice_admin_url`, the voice server must run on the same machine as FiveM; otherwise remove that line.
+- Hosted by us: check `Domain` in `configs/voice.lua`: only the host, like `eu.radio.zerio-scripts.com`, with no `https://` and no trailing slash.
 - Check that your host's firewall allows outgoing HTTPS connections.
+
+### Red "wrong voice server address (404)" box in the console
+
+**Cause**: something answers at the address, but not your voice server.
+
+**Solution**:
+
+- Self-hosted: `ServerId` in `configs/voice.lua` must be empty (`""`).
+- Hosted by us: `ServerId` must match the Server ID you entered in the setup wizard.
+
+### Yellow "players can't reach this address" box in the console
+
+**Cause**: `zerio_voice_domain` (or `Domain`) is `localhost` or a bare IP address. Players' games only connect to an address with a certificate.
+
+**Solution**: use the address your voice server prints when it starts. See [Self-Hosting](/radio/v3/selfhosting#your-voice-servers-address).
 
 ### Red "voice server is too old" or "this zerio-radio is unsupported" box in the console
 
