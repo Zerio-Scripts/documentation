@@ -83,6 +83,7 @@ Create a file called `config.json` next to the program:
   "licence": {
     "key": "zvl_your_production_key"
   },
+  "zerio_domain": true,
   "updates": {
     "check": true,
     "supervisor": true
@@ -90,12 +91,13 @@ Create a file called `config.json` next to the program:
 }
 ```
 
-| Setting            | What to put there                                                                                                                                                              |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `server.port`      | The port players connect to. `30130` unless you change it.                                                                                                                     |
-| `database.url`     | `mysql://user:password@host/database` for the database you just created.                                                                                                       |
-| `auth.admin_token` | A long random secret (at least 16 characters). Your FiveM server uses the same value. Generate one with `openssl rand -hex 32`, or any password generator. **Keep it secret.** |
-| `licence.key`      | Your production licence key (`zvl_...`).                                                                                                                                       |
+| Setting            | What to put there                                                                                                                                                                   |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `server.port`      | The port players connect to. `30130` unless you change it.                                                                                                                          |
+| `database.url`     | `mysql://user:password@host/database` for the database you just created.                                                                                                            |
+| `auth.admin_token` | A long random secret (at least 16 characters). Your FiveM server uses the same value. Generate one with `openssl rand -hex 32`, or any password generator. **Keep it secret.**      |
+| `licence.key`      | Your production licence key (`zvl_...`).                                                                                                                                            |
+| `zerio_domain`     | Keep it `true`. The voice server then gets its own address (`<your-id>.voice.zerio-radio.com`) and certificate, which players' games need to connect. Open TCP port `30130` for it. |
 
 ### Start It
 
@@ -168,31 +170,29 @@ Create a file called `config.json` next to the program:
 
 ### Connect zerio-radio
 
-In `configs/voice.lua`, leave `ServerId` empty:
+In `configs/voice.lua`, leave `Domain` and `ServerId` as they are. The address goes in `server.cfg`.
 
-```lua
-Config.VoiceServer = {
-    Enabled = true,
-    Domain = "",
-    ServerId = "",
-    PortalUrl = "https://portal.radio.zerio-scripts.com",
-}
-```
-
-Add these to your `server.cfg`, above `ensure zerio-radio`. Replace `203.0.113.5` with the public IP of the machine running the voice server:
+When the voice server starts, it prints the address to use. Add these to your `server.cfg`, above `ensure zerio-radio`, with the address it printed:
 
 ```cfg
 set  zerio_voice_admin_token "the same admin_token as in config.json"
-setr zerio_voice_domain      "203.0.113.5:30130"
-set  zerio_voice_admin_url   "http://127.0.0.1:30130"
+setr zerio_voice_domain      "my-server.voice.zerio-radio.com:30130"
 ```
+
+Use the printed address, not the machine's IP. Players' games only connect to an address with a certificate, so a bare IP only works for testing alone on your own PC.
 
 <Callout type="error">
   Use `set` for the admin token, never `setr`. `setr` sends the value to every
   player's game.
 </Callout>
 
-If the voice server runs on a different machine than FiveM, set `zerio_voice_admin_url` to `http://<that machine's IP>:30130` instead.
+If FiveM runs on the same machine as the voice server (not in a separate game-panel server or container), you can add this so admin calls stay on that machine:
+
+```cfg
+set  zerio_voice_admin_url   "http://127.0.0.1:30131"
+```
+
+Otherwise leave it out. zerio-radio then reaches the voice server through the address above.
 
 Restart your FiveM server. The console shows a red box if zerio-radio can't reach the voice server or the token doesn't match.
 
@@ -200,7 +200,7 @@ Restart your FiveM server. The console shows a red box if zerio-radio can't reac
 
 ## Using a Domain
 
-With a domain (for example `radio.example.com`) pointed at the voice server's machine, players connect over a secure connection. Pick one:
+The address the voice server gets by itself is all you need. To use your own domain instead (for example `radio.example.com`, pointed at the voice server's machine), set `"zerio_domain": false` in `config.json` and pick one:
 
 - **Let the voice server get its own certificate.** Add this to `config.json`. Ports 80 and 443 must be free and open on the machine:
 

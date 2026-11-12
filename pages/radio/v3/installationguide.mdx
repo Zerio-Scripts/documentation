@@ -95,7 +95,7 @@ Item images are in the `_ITEM IMAGES` folder of the download: `radio`, `radio_ba
 
 <Tabs items={['ox_inventory', 'QBCore', 'ESX', 'Standalone']}>
   <Tabs.Tab>
-    Use this tab for ox_inventory on any framework, including Qbox. Add the entries to `ox_inventory/data/items.lua`:
+    Use this tab for ox_inventory on any framework, including Qbox. Add the entries to `ox_inventory/data/items.lua`. ox_inventory already ships a `radio` item: replace that entry instead of adding a second one.
 
     ```lua
     return {
@@ -181,7 +181,7 @@ Item images are in the `_ITEM IMAGES` folder of the download: `radio`, `radio_ba
   </Tabs.Tab>
 
   <Tabs.Tab>
-    Add the entries to `qb-core/shared/items.lua`:
+    Add the entries to `qb-core/shared/items.lua`. qb-core already ships a `radio` item: replace that entry instead of adding a second one.
 
     ```lua
     QBShared.Items = {
@@ -369,7 +369,7 @@ If you want a starting point, run `sql/!data.sql` once on your database. It adds
 ### Test the Installation
 
 1. Give yourself a `radio` item and use it (or use `/radio` or F5 if you changed the open type).
-2. Join a channel, for example 911.
+2. Join a channel, for example 1. Any frequency that isn't set up in `/radioadmin` is open to everyone; the sample channel 911 only lets the `police` job in.
 3. Have a second player join the same channel.
 4. Hold Left Alt (or the key in `Config.PTTKeybind`) and talk. The other player should hear you.
 

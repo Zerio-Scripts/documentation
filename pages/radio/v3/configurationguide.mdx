@@ -211,16 +211,11 @@ Config.Themes = {
 | `Config.DisconnectOnDeath`                  | `false`   | When `true`, players leave all channels when they die. Dead players can never transmit, but by default they stay on their channels so man-down alerts still work.                                    |
 | `Config.DisconnectInWater`                  | `false`   | When `true`, players leave all channels and can't open the radio while in water.                                                                                                                     |
 | `Config.MinimumWaterDepth`                  | `-1`      | Used with `DisconnectInWater`. `-1` means any water counts.                                                                                                                                          |
-| `Config.RemoveOnOffDuty`                    | `true`    | QBCore and Qbox only. Removes players from channels when they go off duty.                                                                                                                           |
+| `Config.RemoveOnOffDuty`                    | `true`    | QBCore and Qbox only. Removes players from their job's channels when they go off duty.                                                                                                               |
 | `Config.JobChannelsRequireDuty`             | `false`   | QBCore and Qbox only. A channel's job rule only lets on-duty players in, so off-duty players can't join their job's channels at all. Going off duty takes them off, whatever `RemoveOnOffDuty` says. |
 | `Config.DisableShootingWhileTalkingOnRadio` | `false`   | Blocks shooting while the player holds push-to-talk.                                                                                                                                                 |
 | `Config.PTTKeybind`                         | `"LMENU"` | The default push-to-talk key, as a FiveM key name, for example `"LMENU"` (Left Alt) or `"CAPITAL"` (Caps Lock).                                                                                      |
 | `Config.CycleTalkChannelKeybind`            | `""`      | The default key for switching the active channel to the next channel the player is on, in frequency order. `""` leaves it unbound. Does nothing while the player is talking.                         |
-
-<Callout type="info">
-  `RemoveOnOffDuty` removes the player from every channel created in
-  `/radioadmin` when they go off duty, not only from job-restricted channels.
-</Callout>
 
 The two keybind options only set the default key for players who haven't bound the keybind yet. Players change their keys in **Settings → Key Bindings → FiveM**.
 
