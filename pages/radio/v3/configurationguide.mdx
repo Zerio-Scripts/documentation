@@ -134,12 +134,12 @@ Config.VoiceServer = {
 }
 ```
 
-| Option      | Description                                                                                                                                                                                          |
-| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Enabled`   | Turns the voice connection on. When `false`, there is no radio audio, but the radio UI still opens.                                                                                                   |
+| Option      | Description                                                                                                                                                                                                |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Enabled`   | Turns the voice connection on. When `false`, there is no radio audio, but the radio UI still opens.                                                                                                        |
 | `Domain`    | The voice server's address, with no `https://` and no trailing slash. `zerio_voice_domain` in `server.cfg` overrides it, so leave it as it ships. `localhost` only works for testing alone on your own PC. |
-| `ServerId`  | Must stay `""` for a voice server you host yourself. It's only for voice servers hosted by us _(Coming in full release)_.                                                                             |
-| `PortalUrl` | The customer portal. zerio-radio uses it to sync patches made in the web dispatch panel _(Coming in full release)_. Leave it as it ships, or set it to `""` to turn the sync off.                      |
+| `ServerId`  | Must stay `""` for a voice server you host yourself. It's only for voice servers hosted by us _(Coming in full release)_.                                                                                  |
+| `PortalUrl` | The customer portal. zerio-radio uses it to sync patches made in the web dispatch panel _(Coming in full release)_. Leave it as it ships, or set it to `""` to turn the sync off.                          |
 
 ### Per-Environment Voice Server
 
