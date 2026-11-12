@@ -897,21 +897,20 @@ Triggered when a repeater is removed, whether it was picked up, removed by an ad
 
 ## Commands
 
-| Command                         | Who can use it                                               | What it does                                                                 |
-| ------------------------------- | ------------------------------------------------------------ | ---------------------------------------------------------------------------- |
-| `/radio`                        | Everyone, when the radio opens by command                    | Opens the radio                                                              |
-| `/radioscanner`                 | Everyone, when the scanner opens by command                  | Opens the scanner                                                            |
-| `/changeradio <frequency>`      | Everyone                                                     | Joins a channel. `0` leaves the radio                                        |
-| `/callsign <callsign>`          | Everyone                                                     | Sets your callsign                                                           |
-| `/radioadmin`                   | Admins                                                       | Opens the admin menu                                                         |
-| `/placejammer [type]`           | Ace `zerio.jammer`                                           | Places a ground jammer                                                       |
-| `/personaljammer [type]`        | Ace `zerio.jammer`                                           | Turns a personal jammer on or off                                            |
-| `/removejammer <id>`            | Ace `zerio.jammer`, console                                  | Removes a jammer                                                             |
-| `/listjammers`                  | Ace `zerio.jammer`, console                                  | Lists jammers in the server console                                          |
-| `/placerepeater [type]`         | Ace `zerio.repeater`                                         | Places a repeater                                                            |
-| `/removerepeater <id>`          | Ace `zerio.repeater`, console                                | Removes a repeater                                                           |
-| `/listrepeaters`                | Ace `zerio.repeater`, console                                | Lists repeaters in the server console                                        |
-| `/listtowers`                   | Admins, console                                              | Lists towers and their health in the server console                          |
-| `zerio:testdispatch [priority]` | Console, or admins with the ace `command.zerio:testdispatch` | Sends a test notification to the dispatch console _(Coming in full release)_ |
+| Command                    | Who can use it                              | What it does                                        |
+| -------------------------- | ------------------------------------------- | --------------------------------------------------- |
+| `/radio`                   | Everyone, when the radio opens by command   | Opens the radio                                     |
+| `/radioscanner`            | Everyone, when the scanner opens by command | Opens the scanner                                   |
+| `/changeradio <frequency>` | Everyone                                    | Joins a channel. `0` leaves the radio               |
+| `/callsign <callsign>`     | Everyone                                    | Sets your callsign                                  |
+| `/radioadmin`              | Admins                                      | Opens the admin menu                                |
+| `/placejammer [type]`      | Ace `zerio.jammer`                          | Places a ground jammer                              |
+| `/personaljammer [type]`   | Ace `zerio.jammer`                          | Turns a personal jammer on or off                   |
+| `/removejammer <id>`       | Ace `zerio.jammer`, console                 | Removes a jammer                                    |
+| `/listjammers`             | Ace `zerio.jammer`, console                 | Lists jammers in the server console                 |
+| `/placerepeater [type]`    | Ace `zerio.repeater`                        | Places a repeater                                   |
+| `/removerepeater <id>`     | Ace `zerio.repeater`, console               | Removes a repeater                                  |
+| `/listrepeaters`           | Ace `zerio.repeater`, console               | Lists repeaters in the server console               |
+| `/listtowers`              | Admins, console                             | Lists towers and their health in the server console |
 
 The command names for opening the radio, the scanner, changing channel, callsigns and the admin menu can be changed in the config. See the [Configuration Guide](/radio/v3/configurationguide).

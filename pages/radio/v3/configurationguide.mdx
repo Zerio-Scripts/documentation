@@ -54,7 +54,7 @@ Channels, towers, signal zones, speakers and patches are not in the config files
 Config.Locale = "en"
 ```
 
-The language for notifications and command help. It must match a file in `locales/`. zerio-radio ships with `en` (English) and `sv` (Swedish). See [Translations](#translations-locales).
+The language for notifications, command help and the radio's interface. It must match a file in `locales/`. zerio-radio ships with `en` (English) and `sv` (Swedish). See [Translations](#translations-locales).
 
 ### Radio Behaviour
 
@@ -392,13 +392,6 @@ All options are in `Config.AmbientCapture`.
 
 You can pick a different sound set per channel in `/radioadmin` (channel editor, "Mic Click Sound").
 
-Two more settings sit above `Config.PTTAudioCues` and apply to listen-only channels (channels you hear but can't talk on):
-
-| Option                            | Default | Description                                                                                                                            |
-| --------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `Config.ListenOnlyMicClicks`      | `true`  | Plays the clicks when someone starts and stops talking on a listen-only channel. Turn it off if many monitored channels make it noisy. |
-| `Config.ListenOnlyVolumeFraction` | `nil`   | Volume for listen-only channels, from `0.0` to `1.0`. `nil` uses the player's normal radio volume.                                     |
-
 ### Custom Sound Sets
 
 Each sound set names four sounds. A sound name is a file in `html/sounds/` without `.ogg`.
@@ -428,10 +421,9 @@ These settings decide how a weak signal sounds. The signal itself comes from tow
 
 ### General
 
-| Option                       | Default | Description                                                                               |
-| ---------------------------- | ------- | ----------------------------------------------------------------------------------------- |
-| `Config.SubmixEnabled`       | `true`  | Master switch. When `false`, everyone sounds the same no matter how weak their signal is. |
-| `Config.SubmixCheckInterval` | `2000`  | How often (ms) the signal bars in the UI update.                                          |
+| Option                       | Default | Description                                      |
+| ---------------------------- | ------- | ------------------------------------------------ |
+| `Config.SubmixCheckInterval` | `2000`  | How often (ms) the signal bars in the UI update. |
 
 ### Signal Degradation
 
@@ -488,11 +480,10 @@ Towers give radio coverage. Each tower has a position, a range, a power and the 
 | `checkInterval`      | `2000`    | How often (ms) each player's signal is recalculated.                                                                                                         |
 | `coreRadiusFraction` | `0.5`     | The inner part of a tower's range that gets full signal. `0.5` means the inner half; signal falls off linearly beyond that. `0.0` falls off from the center. |
 
-<Callout type="warning">
-  Check `enabled` in your copy of the file. With towers enabled, `defaultSignal
-  = 0.0` and no towers in the database, nobody has signal and push-to-talk is
-  blocked with "No signal". Add towers in `/radioadmin` or with `sql/!data.sql`,
-  set `enabled = false`, or raise `defaultSignal`.
+<Callout type="info">
+  Until the first tower is placed, everyone has full signal everywhere, whatever
+  `defaultSignal` says. Once there is at least one tower, players outside every
+  tower's range get `defaultSignal`.
 </Callout>
 
 ### Destructible Towers
@@ -609,7 +600,6 @@ Config.Scanner = {
 | `BackgroundScanInterval` | `30`                   | Seconds between background scans.                                                                                                                                               |
 | `LockOn`                 | `true`                 | Lets players lock on to a scanned channel and hear it.                                                                                                                          |
 | `LockOnSilenceSeconds`   | `3`                    | The lock-on ends after this many seconds without anyone talking.                                                                                                                |
-| `ScanSpeed`              | `1.0`                  | Speed of the scanning animation. `2.0` is twice as fast, `0.5` half as fast.                                                                                                    |
 
 ---
 
@@ -880,7 +870,7 @@ Between the two thresholds the multiplier goes linearly from `LowMultiplier` to 
 | `ShowBlip`                 | `true`        | Adds a map blip for each station.                                             |
 | `Marker`                   | table         | Marker `type`, `size` and `color`.                                            |
 | `Blip`                     | table         | Blip `sprite = 354`, `color = 2`, `scale = 0.7`, `label = "Radio Charger"`.   |
-| `Locations`                | one example   | The stations. Replace the example with your own.                              |
+| `Locations`                | `{}`          | The stations. Empty by default: add your own, as in the example below.        |
 
 ```lua
 Locations = {
@@ -978,8 +968,8 @@ Speakers are PA speakers placed in the world. Admins place them in `/radioadmin`
 
 <Callout type="info">
   **Coming in full release.** Speakers play alert tones sent from the dispatch
-  tone board, which is not part of the beta. You can already place speakers and
-  set up stations, and they start playing once the tone board is out.
+  tone board, which is not part of the beta. `enabled` is `false` by default:
+  leave it off until the tone board is out.
 </Callout>
 
 | Option             | Default             | Description                                                                    |
@@ -1032,7 +1022,9 @@ Each channel also has a **Player Groups** setting in `/radioadmin` (channel edit
 
 Texts are in `locales/en.json` and `locales/sv.json`. `Config.Locale` in `configs/main.lua` picks the file.
 
-- The top-level keys in the JSON file are the in-game notifications and command help. You can edit them, and they change after a restart.
-- The `ui` section is the text inside the radio itself. That text is built into the radio's interface, so editing it in the JSON file changes nothing.
+- The top-level keys in the JSON file are the in-game notifications and command help.
+- The `ui` section is the text inside the radio itself.
 
-To add a language, copy `en.json` to a new file such as `de.json`, translate it and set `Config.Locale = "de"`. Notifications and command help then use your file. The radio's interface only has English and Swedish built in and shows English for other languages. Contact support if you want your translation added to the radio's interface.
+You can edit both, and the changes show after a restart.
+
+To add a language, copy `en.json` to a new file such as `de.json`, translate it and set `Config.Locale = "de"`. Notifications, command help and the radio's interface then use your file. Any text missing from it shows in English.

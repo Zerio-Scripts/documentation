@@ -289,7 +289,7 @@ For man-down, check `Config.ManDown.Trigger`. With `"ragdoll"`, death systems th
 
 Go through these in order:
 
-1. **Towers enabled with no towers.** If `enabled` is `true` in `configs/features/towers.lua`, players only have signal near a tower. With no towers in the database and `defaultSignal = 0.0`, nobody has signal and push-to-talk shows "No signal — cannot transmit". Add towers in `/radioadmin`, run `sql/!data.sql`, set `enabled = false`, or raise `defaultSignal`.
+1. **Towers are enabled.** If `enabled` is `true` in `configs/features/towers.lua` and there is at least one tower, players only have signal near a tower. Away from every tower they get `defaultSignal` (`0.0` by default), and push-to-talk shows "No signal — cannot transmit". With no towers in the database at all, everyone has full signal. Add towers in `/radioadmin`, run `sql/!data.sql`, set `enabled = false`, or raise `defaultSignal`.
 2. **Out of range, or the tower doesn't serve the frequency.** Each tower has a range and a list of frequencies (`all` for every frequency). Use the Signal Map in `/radioadmin` to see coverage.
 3. **Destroyed tower.** Shot-down towers give no signal until they are repaired or their `downtime` runs out. `/listtowers` prints each tower's health to the server console.
 4. **Signal zone.** A zone set to 0% in `/radioadmin` (Signal Zones) removes signal inside it.
@@ -443,6 +443,4 @@ Notifications use ox_lib. To use another notification system, edit `Notify` in `
 
 ### How do I translate the radio?
 
-Copy `locales/en.json` to a new file, for example `locales/de.json`, translate it, and set `Config.Locale = "de"` in `configs/main.lua`. This translates notifications and command help.
-
-The text inside the radio itself is built into the radio's interface, which has English and Swedish. For other languages it shows English. Contact support if you want your translation added to the interface. See [Translations](/radio/v3/configurationguide#translations-locales).
+Copy `locales/en.json` to a new file, for example `locales/de.json`, translate it, and set `Config.Locale = "de"` in `configs/main.lua`. This translates notifications, command help and the text inside the radio itself. Any text you leave out shows in English. See [Translations](/radio/v3/configurationguide#translations-locales).
