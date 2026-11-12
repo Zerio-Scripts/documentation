@@ -16,7 +16,7 @@ Channels, towers, signal zones, speakers and patches are not in the config files
 | File                               | Purpose                                                  |
 | ---------------------------------- | -------------------------------------------------------- |
 | `configs/main.lua`                 | Language, general radio behaviour, commands, callsigns   |
-| `configs/voice.lua`                | Connection to the hosted voice server                    |
+| `configs/voice.lua`                | Connection to your voice server                          |
 | `configs/themes.lua`               | UI color themes players can choose from                  |
 | `configs/gameplay.lua`             | Channel limit, disconnect rules, shooting restriction    |
 | `configs/framework.lua`            | Framework detection (don't edit)                         |
@@ -114,39 +114,32 @@ Leave both `false` on a live server.
 
 ## Voice Server (`configs/voice.lua`)
 
+During the beta you run the voice server yourself ([Self-Hosting](/radio/v3/selfhosting)). Leave this file as it ships and put the address and admin token in `server.cfg` instead:
+
+```cfg
+setr zerio_voice_domain      "my-server.voice.zerio-radio.com:30130"
+set  zerio_voice_admin_token "<auth.admin_token>"
+```
+
+Your voice server prints the `zerio_voice_domain` line when it starts. The admin token is `auth.admin_token` in the voice server's `config.json`; use `set` for it, never `setr`. Only if FiveM runs on the same machine as the voice server, also add `set zerio_voice_admin_url "http://127.0.0.1:30131"`. See [Connect zerio-radio](/radio/v3/selfhosting#connect-zerio-radio).
+
+The file as it ships:
+
 ```lua
 Config.VoiceServer = {
     Enabled = true,
-    Domain = "eu.radio.zerio-scripts.com",
-    ServerId = "my-rp-server",
+    Domain = "localhost:30130",
+    ServerId = "",
     PortalUrl = "https://portal.radio.zerio-scripts.com",
 }
 ```
 
-| Option      | Description                                                                                                                                                                                             |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Enabled`   | Turns the voice connection on. When `false`, there is no radio audio and no dispatch panel connection _(Coming in full release)_.                                                                       |
-| `Domain`    | The voice region host from the setup wizard: `eu.radio.zerio-scripts.com` or `na.radio.zerio-scripts.com`. Only the host, with no `https://` and no trailing slash.                                     |
-| `ServerId`  | The Server ID you entered in the setup wizard.                                                                                                                                                          |
-| `PortalUrl` | The customer portal. zerio-radio uses it to sync patches made in the web dispatch panel _(Coming in full release)_. Set it to `"https://portal.radio.zerio-scripts.com"`, or `""` to turn the sync off. |
-
-<Callout type="warning">
-  **Self-hosting the voice server?** Leave `Domain` and `ServerId` as they ship
-  (`ServerId` must stay `""`), and set the address in `server.cfg` with the
-  `setr zerio_voice_domain` line your voice server prints. See
-  [Self-Hosting](/radio/v3/selfhosting#connect-zerio-radio). `Domain` and
-  `ServerId` from the setup wizard are only for a voice server hosted by us.
-</Callout>
-
-The admin token is not in this file. It goes in `server.cfg`, with `set` and never `setr`:
-
-```cfg
-set zerio_voice_admin_token "your-admin-token"
-```
-
-Self-hosted: the token is `auth.admin_token` in the voice server's `config.json`. Hosted by us: it's shown in the setup wizard.
-
-See [Set Up the Voice Server](/radio/v3/installationguide#set-up-the-voice-server) for where to get these values.
+| Option      | Description                                                                                                                                                                                                |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Enabled`   | Turns the voice connection on. When `false`, there is no radio audio, but the radio UI still opens.                                                                                                        |
+| `Domain`    | The voice server's address, with no `https://` and no trailing slash. `zerio_voice_domain` in `server.cfg` overrides it, so leave it as it ships. `localhost` only works for testing alone on your own PC. |
+| `ServerId`  | Must stay `""` for a voice server you host yourself. It's only for voice servers hosted by us _(Coming in full release)_.                                                                                  |
+| `PortalUrl` | The customer portal. zerio-radio uses it to sync patches made in the web dispatch panel _(Coming in full release)_. Leave it as it ships, or set it to `""` to turn the sync off.                          |
 
 ### Per-Environment Voice Server
 
