@@ -139,13 +139,13 @@ This is now `configs/features/animation.lua`. `Shared.Animation` becomes `Config
 
 ### `shared/opentype.lua`
 
-| v2                               | v3                                                | Notes                                                                                                                                                                                            |
-| -------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `Shared.OpenType.Value`          | `Config.OpenType.Value` in `configs/opentype.lua` | `"control"` is gone, so use `"keybind"`. `"item"` can't be combined with other types any more: if it's listed, the others are ignored. **Default changed** from `{ "keybind" }` to `{ "item" }`. |
-| `Shared.OpenType.Item = "radio"` | `Config.OpenType.Items = { ["radio"] = {} }`      | Now a table keyed by item name, so you can have several radio items. An item can also be a [codeplug radio](/radio/v3/configurationguide#radio-items-and-codeplug-radios).                       |
-| `Shared.OpenType.Keybind`        | `Config.OpenType.Keybind`                         |                                                                                                                                                                                                  |
-| `Shared.OpenType.Button`         | Removed                                           | It went with `"control"`.                                                                                                                                                                        |
-| `Shared.OpenType.Command`        | `Config.OpenType.Command`                         |                                                                                                                                                                                                  |
+| v2                               | v3                                                | Notes                                                                                                                                                                        |
+| -------------------------------- | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Shared.OpenType.Value`          | `Config.OpenType.Value` in `configs/opentype.lua` | `"control"` is gone, so use `"keybind"`. `"item"` can't be combined with other types any more: if it's listed, the others are ignored. The default is still `{ "keybind" }`. |
+| `Shared.OpenType.Item = "radio"` | `Config.OpenType.Items = { ["radio"] = {} }`      | Now a table keyed by item name, so you can have several radio items. An item can also be a [codeplug radio](/radio/v3/configurationguide#radio-items-and-codeplug-radios).   |
+| `Shared.OpenType.Keybind`        | `Config.OpenType.Keybind`                         |                                                                                                                                                                              |
+| `Shared.OpenType.Button`         | Removed                                           | It went with `"control"`.                                                                                                                                                    |
+| `Shared.OpenType.Command`        | `Config.OpenType.Command`                         |                                                                                                                                                                              |
 
 ### `shared/scanner.lua`
 

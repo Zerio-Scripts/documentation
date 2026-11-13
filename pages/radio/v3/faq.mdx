@@ -15,7 +15,7 @@ Common questions about zerio-radio v3. If your question isn't answered here, ask
 
 ### How do I set up the radio as an item?
 
-Item mode is the default. Check that `configs/opentype.lua` has:
+By default the radio opens with a key (F5). To make it an item, set this in `configs/opentype.lua`:
 
 ```lua
 Config.OpenType.Value = { "item" }
@@ -82,7 +82,7 @@ Then add the `radio` item to your inventory. The full item lists are in [Add the
   </Tabs.Tab>
 </Tabs>
 
-If you don't want an item at all, use a command or keybind instead:
+Without an item, players open the radio with the key (the default), a command, or both:
 
 ```lua
 Config.OpenType.Value = { "command", "keybind" }
