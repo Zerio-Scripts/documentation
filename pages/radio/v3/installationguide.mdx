@@ -89,7 +89,7 @@ If you run several environments (for example a test server and a live server) fr
 
 ### Add the Items
 
-By default players open the radio by using a `radio` item. Add the items to your inventory. If you run standalone with no inventory, skip to the Standalone tab.
+By default players open the radio with a key (F5), so the radio works before you add any item. Add the `radio` item only if you want players to need it, and set `Config.OpenType.Value = { "item" }` in `configs/opentype.lua`. The other items each belong to a feature (batteries, the scanner, jammers, repeaters, tower repair): add the ones you use. If you run standalone with no inventory, skip to the Standalone tab.
 
 Item images are in the `_ITEM IMAGES` folder of the download: `radio`, `radio_battery`, `radio_scanner`, `radio_jammer`, `mobile_radio_jammer` and `radio_repeater`. There is no image for `radio_repair_kit`, so add your own if you want one. Copy the images to your inventory's image folder (`ox_inventory/web/images/` or `qb-inventory/html/images/`).
 
@@ -298,13 +298,13 @@ Item images are in the `_ITEM IMAGES` folder of the download: `radio`, `radio_ba
   </Tabs.Tab>
 
   <Tabs.Tab>
-    Standalone servers have no items. Open `configs/opentype.lua` and change how players open the radio, because the default (`"item"`) needs an inventory:
+    Standalone servers have no items and need none: players open the radio with F5 by default. To add the `/radio` command as well, open `configs/opentype.lua` and set:
 
     ```lua
     Config.OpenType.Value = { "command", "keybind" }
     ```
 
-    Players then use `/radio` or press F5. Jammers and repeaters are placed with commands that need an ace permission. Admin menu access also uses an ace. Add the ones you need to `server.cfg`:
+    Jammers and repeaters are placed with commands that need an ace permission. Admin menu access also uses an ace. Add the ones you need to `server.cfg`:
 
     ```cfg
     add_ace group.admin zerio.admin allow
@@ -520,7 +520,7 @@ Coming from v2? Your database upgrades itself on the first start, but your confi
 
 **Solution**:
 
-- Check that `Config.OpenType.Value` in `configs/opentype.lua` is `{ "item" }`.
+- Check that `Config.OpenType.Value` in `configs/opentype.lua` is `{ "item" }`. With the default, `{ "keybind" }`, items don't open the radio.
 - ox_inventory: check that the item has `client = { export = 'zerio-radio.Open' }`.
 - QBCore: check that the item has `useable = true`.
 - Check that the item name is a key in `Config.OpenType.Items`.

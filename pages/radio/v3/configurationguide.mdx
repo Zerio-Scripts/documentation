@@ -282,7 +282,7 @@ Players who are not admins but have patch access (see [Channel Patches](#channel
 ### Open Types
 
 ```lua
-Config.OpenType.Value = { "item" }
+Config.OpenType.Value = { "keybind" }
 Config.OpenType.Keybind = "f5"
 Config.OpenType.Command = "radio"
 ```
@@ -299,8 +299,8 @@ Config.OpenType.Command = "radio"
 `"command"`, `"keybind"` and `"custom"` can be combined, for example `{ "command", "keybind" }`. `"item"` can't be combined with anything: if you list `"item"` with other types, the others are ignored and a warning is printed. That keeps players from getting around the item requirement.
 
 <Callout type="warning">
-  Standalone servers have no inventory. Change `Config.OpenType.Value` to
-  `"command"` and/or `"keybind"`, or nobody can open the radio.
+  Standalone servers have no inventory, so `"item"` doesn't work there. Keep
+  `"keybind"`, or use `"command"`.
 </Callout>
 
 ### Radio Items and Codeplug Radios
