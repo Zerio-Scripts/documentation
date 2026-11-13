@@ -30,7 +30,7 @@ Before installing, make sure you have:
 
 ### Download and Extract
 
-Download zerio-radio and extract it. The download contains two resources: `zerio-radio` and `zerio-radio-prop`. `zerio-radio-prop` comes inside the `zerio-radio` folder. Move it out so both sit next to each other in your resources folder:
+Download zerio-radio and extract it. The download contains two resource folders, `zerio-radio` and `zerio-radio-prop`. Put both in your resources folder, next to each other, and keep their names:
 
 ```
 resources/
@@ -40,9 +40,8 @@ resources/
 ```
 
 <Callout type="warning">
-  `zerio-radio-prop` must be its own resource. FiveM does not load a resource
-  that is nested inside another resource's folder, and zerio-radio will not
-  start without it.
+  Keep them as two separate folders. `zerio-radio-prop` is its own resource, and
+  zerio-radio will not start without it.
 </Callout>
 
 ### Set Up the Voice Server
@@ -96,7 +95,7 @@ Item images are in the `_ITEM IMAGES` folder of the download: `radio`, `radio_ba
 
 <Tabs items={['ox_inventory', 'QBCore', 'ESX', 'Standalone']}>
   <Tabs.Tab>
-    Use this tab for ox_inventory on any framework, including Qbox. Add the entries to `ox_inventory/data/items.lua`:
+    Use this tab for ox_inventory on any framework, including Qbox. Add the entries to `ox_inventory/data/items.lua`. ox_inventory already ships a `radio` item: replace that entry instead of adding a second one.
 
     ```lua
     return {
@@ -182,7 +181,7 @@ Item images are in the `_ITEM IMAGES` folder of the download: `radio`, `radio_ba
   </Tabs.Tab>
 
   <Tabs.Tab>
-    Add the entries to `qb-core/shared/items.lua`:
+    Add the entries to `qb-core/shared/items.lua`. qb-core already ships a `radio` item: replace that entry instead of adding a second one.
 
     ```lua
     QBShared.Items = {
@@ -356,21 +355,21 @@ If you see a red box instead, check [Troubleshooting](#troubleshooting).
 
 Channels and towers live in the database. Join the server and open the admin menu with `/radioadmin` to create them. See [Who can open /radioadmin?](/radio/v3/faq#who-can-open-radioadmin) if you get no access.
 
-If you want a starting point, run `sql/!data.sql` once on your database. It adds four channels (911 Police Radio, 912 EMS Radio, 913 Fire Radio and 100 Dispatch) and nine towers around the map. Running it a second time fails, because those frequencies and tower IDs already exist.
+If you want a starting point, run `sql/!data.sql` once on your database. It adds four channels (911 Police Radio, 912 EMS Radio, 913 Fire Radio and 100 Dispatch) and nine towers around the map. Channels and towers that already exist are skipped, so it is safe to run again.
 
-<Callout type="warning">
+<Callout type="info">
   When towers are enabled (`enabled` in `configs/features/towers.lua`), players
-  only have signal near a tower. With towers enabled and no towers in the
-  database, nobody has signal and push-to-talk is blocked with "No signal". Add
-  towers in `/radioadmin` (or run `sql/!data.sql`), turn towers off, or raise
-  `defaultSignal`. See [Radio
+  only have signal near a tower. Until you place the first tower, everyone has
+  full signal everywhere, so a fresh install can talk straight away. Add towers
+  in `/radioadmin` (or run `sql/!data.sql`) when you want coverage to matter.
+  See [Radio
   Towers](/radio/v3/configurationguide#radio-towers-configsfeaturestowerslua).
 </Callout>
 
 ### Test the Installation
 
 1. Give yourself a `radio` item and use it (or use `/radio` or F5 if you changed the open type).
-2. Join a channel, for example 911.
+2. Join a channel, for example 1. Any frequency that isn't set up in `/radioadmin` is open to everyone; the sample channel 911 only lets the `police` job in.
 3. Have a second player join the same channel.
 4. Hold Left Alt (or the key in `Config.PTTKeybind`) and talk. The other player should hear you.
 
@@ -380,22 +379,21 @@ If you want a starting point, run `sql/!data.sql` once on your database. It adds
 
 ### Commands
 
-| Command                    | Who                                                                 | Description                                                                                                                             |
-| -------------------------- | ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `/radio`                   | Everyone                                                            | Opens the radio. Only exists when `Config.OpenType.Value` contains `"command"`.                                                         |
-| `/radioscanner`            | Everyone                                                            | Opens the radio scanner. Only exists when `Config.Scanner.OpenType` is `"command"` (the default).                                       |
-| `/changeradio <frequency>` | Everyone                                                            | Joins a frequency without opening the radio, or leaves the radio with `0`. In item mode the player must carry a radio and have used it. |
-| `/callsign <text>`         | Everyone                                                            | Sets your callsign. Run it with no text to clear it.                                                                                    |
-| `/radioadmin`              | Admins                                                              | Opens the admin menu.                                                                                                                   |
-| `/placejammer [type]`      | Ace `zerio.jammer`                                                  | Starts placing a ground jammer.                                                                                                         |
-| `/personaljammer [type]`   | Ace `zerio.jammer`                                                  | Turns your personal jammer on or off.                                                                                                   |
-| `/removejammer <id>`       | Ace `zerio.jammer`                                                  | Removes a jammer.                                                                                                                       |
-| `/listjammers`             | Ace `zerio.jammer`                                                  | Prints active jammers and their IDs to the server console.                                                                              |
-| `/placerepeater [type]`    | Ace `zerio.repeater`                                                | Starts placing a repeater.                                                                                                              |
-| `/removerepeater <id>`     | Ace `zerio.repeater`                                                | Removes a repeater.                                                                                                                     |
-| `/listrepeaters`           | Ace `zerio.repeater`                                                | Prints active repeaters and their IDs to the server console.                                                                            |
-| `/listtowers`              | Admins                                                              | Prints every tower and its health to the server console.                                                                                |
-| `zerio:testdispatch`       | Server console, or admins with the ace `command.zerio:testdispatch` | Sends a test alert to the dispatch panel _(Coming in full release)_. Optional priority: `low`, `medium`, `high` or `critical`.          |
+| Command                    | Who                  | Description                                                                                                                             |
+| -------------------------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `/radio`                   | Everyone             | Opens the radio. Only exists when `Config.OpenType.Value` contains `"command"`.                                                         |
+| `/radioscanner`            | Everyone             | Opens the radio scanner. Only exists when `Config.Scanner.OpenType` is `"command"` (the default).                                       |
+| `/changeradio <frequency>` | Everyone             | Joins a frequency without opening the radio, or leaves the radio with `0`. In item mode the player must carry a radio and have used it. |
+| `/callsign <text>`         | Everyone             | Sets your callsign. Run it with no text to clear it.                                                                                    |
+| `/radioadmin`              | Admins               | Opens the admin menu.                                                                                                                   |
+| `/placejammer [type]`      | Ace `zerio.jammer`   | Starts placing a ground jammer.                                                                                                         |
+| `/personaljammer [type]`   | Ace `zerio.jammer`   | Turns your personal jammer on or off.                                                                                                   |
+| `/removejammer <id>`       | Ace `zerio.jammer`   | Removes a jammer.                                                                                                                       |
+| `/listjammers`             | Ace `zerio.jammer`   | Prints active jammers and their IDs to the server console.                                                                              |
+| `/placerepeater [type]`    | Ace `zerio.repeater` | Starts placing a repeater.                                                                                                              |
+| `/removerepeater <id>`     | Ace `zerio.repeater` | Removes a repeater.                                                                                                                     |
+| `/listrepeaters`           | Ace `zerio.repeater` | Prints active repeaters and their IDs to the server console.                                                                            |
+| `/listtowers`              | Admins               | Prints every tower and its health to the server console.                                                                                |
 
 The command names for `/radio`, `/radioscanner`, `/changeradio`, `/callsign` and `/radioadmin` can be changed in the config. The jammer and repeater commands work on every framework, not only standalone.
 
@@ -503,16 +501,16 @@ Coming from v2? Your database upgrades itself on the first start, but your confi
 
 ### "Could not find dependency zerio-radio-prop"
 
-**Cause**: `zerio-radio-prop` is missing, still inside the `zerio-radio` folder, or not started.
+**Cause**: `zerio-radio-prop` is missing or not started.
 
 **Solution**:
 
-- Move `zerio-radio-prop` out so it sits next to `zerio-radio`.
+- Put the `zerio-radio-prop` folder from the download next to `zerio-radio`.
 - Add `ensure zerio-radio-prop` above `ensure zerio-radio`.
 
 ### "No signal — cannot transmit"
 
-**Cause**: The player's signal on the active channel is zero. Most often towers are enabled but there are no towers in the database. A jammer, a 0% signal zone or a dead battery also cause it.
+**Cause**: The player's signal on the active channel is zero. Most often the player is outside every tower's range. A jammer, a 0% signal zone or a dead battery also cause it.
 
 **Solution**: See [Why do players have no signal?](/radio/v3/faq#why-do-players-have-no-signal)
 

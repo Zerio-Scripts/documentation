@@ -189,16 +189,7 @@ When the voice server starts, it prints its address and the lines for your `serv
     set  zerio_voice_admin_url "http://127.0.0.1:30131"
 ```
 
-In `configs/voice.lua`, leave `ServerId` empty:
-
-```lua
-Config.VoiceServer = {
-    Enabled = true,
-    Domain = "",
-    ServerId = "",
-    PortalUrl = "https://portal.radio.zerio-scripts.com",
-}
-```
+In `configs/voice.lua`, leave `Domain` and `ServerId` as they are. The address goes in `server.cfg`.
 
 Add the printed lines and the admin token to your `server.cfg`, above `ensure zerio-radio`:
 
