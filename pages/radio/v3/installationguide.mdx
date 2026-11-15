@@ -83,7 +83,7 @@ set zerio_voice_admin_token "your-token-from-the-setup-wizard"
   the token gives full control over your voice server.
 </Callout>
 
-To manage your server later, sign in at [portal.radio.zerio-scripts.com](https://portal.radio.zerio-scripts.com) with your Server ID and portal email. If you switch region there, update `Domain` in `configs/voice.lua` to match.
+To manage your server later, sign in at [portal.radio.zerio-scripts.com](https://portal.radio.zerio-scripts.com) with your portal email. If you switch region there, update `Domain` in `configs/voice.lua` to match.
 
 If you run several environments (for example a test server and a live server) from the same files, you can set the voice server per environment in `server.cfg` instead. See [Voice Server](/radio/v3/configurationguide#voice-server-configsvoicelua).
 
@@ -427,7 +427,7 @@ Coming from v2? Your database upgrades itself on the first start, but your confi
 - Add `set zerio_voice_admin_token "<token>"` to `server.cfg`, above `ensure zerio-radio`.
 - Restart the server. Radio voice and dispatch stay off until the token is set.
 - Self-hosted: the token is `auth.admin_token` in the voice server's `config.json`.
-- Hosted by us: if you lost the token, sign in at [portal.radio.zerio-scripts.com](https://portal.radio.zerio-scripts.com) with your Server ID and portal email, and use **Reset admin token** in the account settings. Then put the new token in `server.cfg`.
+- Hosted by us: if you lost the token, sign in at [portal.radio.zerio-scripts.com](https://portal.radio.zerio-scripts.com) with your portal email, and use **Reset admin token** in the account settings. Then put the new token in `server.cfg`.
 
 ### Red "admin token REJECTED" box in the console
 
