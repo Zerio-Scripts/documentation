@@ -1,0 +1,222 @@
+import { Callout } from "nextra/components";
+
+# Developer Documentation
+
+Everything a developer can use to build on Zerio Chat: server exports, compatibility with the default chat, and how to add support for another framework.
+
+<Callout type="info">
+  The resource ships LuaLS type definitions in `types/zerio-chat.lua`. Add the
+  `types` folder to your workspace library (for example in `.luarc.json`) and
+  annotate the export table once to get autocomplete for every export: `---@type
+  ZerioChatServer` above `local chat = exports["zerio-chat"]`.
+</Callout>
+
+## Messages
+
+### sendMessage
+
+```lua
+local id = exports["zerio-chat"]:sendMessage(target, data)
+```
+
+Sends a message. `target` is a server ID, a list of server IDs, or `-1` (or `nil`) for everyone. `data` is a string, or a table:
+
+| Field       | Description                                                       |
+| ----------- | ----------------------------------------------------------------- |
+| `content`   | The text. `^0`-`^9` colour codes work.                            |
+| `channel`   | The channel (tab) ID. Defaults to `system`.                       |
+| `author`    | `{ source, name, tag?, color? }`. Leave out for a system message. |
+| `ephemeral` | Marked "Only you can see this".                                   |
+| `notice`    | Show as a highlighted block with a header, see below.             |
+| `buttons`   | Up to five buttons under the message, see below.                  |
+
+It returns the message ID, for `editMessage` and `deleteMessage`.
+
+```lua
+exports["zerio-chat"]:sendMessage(source, { content = "Your vehicle is ready.", ephemeral = true })
+```
+
+#### Notices
+
+A notice shows the message as a block with a header, tinted blue (`announcement`), amber (`warning`) or red (`danger`). txAdmin announcements use it.
+
+```lua
+exports["zerio-chat"]:sendMessage(-1, {
+    content = "Server event at the pier tonight at 20:00.",
+    notice = { kind = "announcement", title = "Announcement", by = "Staff" }
+})
+```
+
+#### Buttons
+
+A button either runs your server code when clicked (`onClick`), or does something built in on the player's side (`action`). Zerio Chat checks every click before your code runs: the player received the message, the button is still live and not used up, and they are not clicking too fast.
+
+```lua
+exports["zerio-chat"]:sendMessage(staffIds, {
+    content = ("Report #%d from %s"):format(id, name),
+    buttons = {
+        { label = "Claim", style = "primary", once = true, onClick = function(clicker)
+            return { label = ("Claimed by %s"):format(GetPlayerName(clicker)), reply = "You claimed it." }
+        end },
+        { label = "Waypoint", action = "waypoint", coords = coords },
+        { label = "Copy ID", action = "copy", text = tostring(reporter) },
+        { label = "Reply", action = "command", command = ("/pm %d "):format(reporter) },
+        { label = "Rules", action = "link", url = "https://example.com/rules" }
+    }
+})
+```
+
+| Field           | Description                                                                                                                                                                         |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `label`         | The text, at most 40 characters.                                                                                                                                                    |
+| `style`         | `primary` (blue), `secondary` (grey, default), `success` (green) or `danger` (red).                                                                                                 |
+| `disabled`      | Shown but not clickable.                                                                                                                                                            |
+| `onClick`       | `function(source, click)`, runs on the server. `click` holds `messageId`, `button` (its position) and `label`.                                                                      |
+| `once`          | The first click by anyone uses it up (for "Claim").                                                                                                                                 |
+| `oncePerPlayer` | Each player can click it once. Default `true`.                                                                                                                                      |
+| `action`        | Built in, instead of `onClick`: `waypoint` (with `coords`, FiveM only), `copy` (with `text`), `command` (with `command`, put in the message bar) or `link` (with an http(s) `url`). |
+
+`onClick` may return a table to change the message for everyone who has it: `disable = true` (this button) or `disable = "all"`, `label` (new button text), `content` (new message text), `reply` (a line only the clicker sees).
+
+Buttons with `onClick` stop working after `Config.buttons.expireMinutes` (10 by default) or when your resource stops. Buttons can only be clicked while the chat is open.
+
+### editMessage, deleteMessage, clear
+
+```lua
+local found = exports["zerio-chat"]:editMessage(id, newContent)
+local found = exports["zerio-chat"]:deleteMessage(id)
+exports["zerio-chat"]:clear(target, channel) -- both optional
+```
+
+`editMessage` and `deleteMessage` work on recently sent messages (the last 500) and reach everyone who received them.
+
+## Channels
+
+```lua
+exports["zerio-chat"]:registerChannel({
+    id = "dispatch",
+    label = "Dispatch",
+    color = "#f28b82",
+    scope = "global",            -- or "proximity" with range = metres
+    permission = { job = { "police", "ems" }, onDuty = true },
+    readOnly = true
+})
+
+exports["zerio-chat"]:removeChannel("dispatch")
+local allowed = exports["zerio-chat"]:hasChannelAccess(source, "dispatch")
+```
+
+Channels you register are removed again when your resource stops. Permissions take every form described in the [Configuration Guide](/chat/configurationguide#permissions).
+
+## Commands
+
+### registerCommand
+
+Register a command with typed parameters. Zerio Chat shows each parameter as a field in the message bar, validates what is typed, and hands you converted values.
+
+```lua
+exports["zerio-chat"]:registerCommand({
+    name = "giveitem",
+    description = "Give an item to a player",
+    category = "Admin",
+    permission = { group = "admin" },
+    params = {
+        { name = "target", type = "player", description = "Who gets it" },
+        { name = "item", type = "string", autocomplete = "items" },
+        { name = "count", type = "integer", min = 1, max = 100, optional = true, default = 1 }
+    }
+}, function(source, args, context)
+    -- args.target is a server ID, args.count a number
+    context.reply(("Gave %dx %s."):format(args.count, args.item))
+end)
+```
+
+- **Types:** `string`, `text` (the rest of the line, must be last), `integer`, `number`, `boolean`, `player`, `choice` (with `choices`).
+- **Subcommands:** name them with a space, for example `"admin ban"`.
+- **`aliases`**: a list of other names.
+- **`context`**: `source`, `command`, `raw` (the line as typed) and `reply(data)`, which sends to the player and is "Only you can see this" unless you pass `ephemeral = false`.
+
+### registerAutocomplete
+
+```lua
+exports["zerio-chat"]:registerAutocomplete("items", function(source, query)
+    return {
+        { value = "water", label = "Water", detail = "Drink" },
+        { value = "bread", label = "Bread", detail = "Food" }
+    }
+end)
+```
+
+Parameters that name a provider in `autocomplete` get its choices as the player types. A provider can also be a fixed list.
+
+### refreshCommands
+
+```lua
+exports["zerio-chat"]:refreshCommands(source) -- omit source for everyone
+```
+
+Recomputes which commands a player sees, for example after you changed their permissions.
+
+## Hooks
+
+```lua
+exports["zerio-chat"]:registerHook("beforeSend", function(info)
+    -- info: source, channel, content, author
+    if info.content:find("forbidden") then
+        return false -- cancel the message
+    end
+    return { content = info.content:upper() } -- or change it (content, target)
+end)
+
+exports["zerio-chat"]:registerHook("afterSend", function(info) end)
+```
+
+## Moderation and players
+
+```lua
+exports["zerio-chat"]:mute(source, minutes, reason, by)
+exports["zerio-chat"]:unmute(source)
+local muted, secondsLeft, reason = exports["zerio-chat"]:isMuted(source)
+
+exports["zerio-chat"]:setTag(source, { text = "VIP", color = "#101216", background = "#fdd663" })
+exports["zerio-chat"]:setNameColor(source, "#81c995")
+```
+
+Mutes are stored by licence, so they survive reconnects and restarts. Pass `nil` to `setTag` or `setNameColor` to remove them.
+
+## Default chat compatibility
+
+Zerio Chat declares `provide 'chat'` and supports what the default chat offers, so existing resources keep working:
+
+- **Server exports:** `exports.chat:addMessage`, `registerMessageHook`, `registerMode`
+- **Client exports:** `exports.chat:addMessage`, `addSuggestion`
+- **Client events:** `chat:addMessage`, `chatMessage`, `chat:addSuggestion`, `chat:addSuggestions`, `chat:removeSuggestion`, `chat:addTemplate`, `chat:clear`
+- **Server events:** `chatMessage` (cancel it with `CancelEvent()` to block a message)
+
+Legacy modes registered with `registerMode` appear as tabs. Older resources' HTML templates are shown according to `Config.legacyTemplates`.
+
+## Adding or changing a framework
+
+Everything framework-specific is outside escrow, in the `bridge` folder:
+
+1. Copy `bridge/standalone.lua` to `bridge/<name>.lua`, rename `Chat.bridges.standalone` to `Chat.bridges.<name>`, and set `resource` to your framework's resource name.
+2. Fill in the functions you need; anything you leave out falls back to standalone:
+
+| Function                            | Returns                                                               |
+| ----------------------------------- | --------------------------------------------------------------------- |
+| `init()`                            | Called when the bridge is chosen, and again if the framework restarts |
+| `getName(source)`                   | The name shown on messages                                            |
+| `getJob(source)`                    | `{ name, label, type, grade, onDuty }` or `nil`                       |
+| `getGang(source)`                   | `{ name, label, grade }` or `nil`                                     |
+| `hasPermission(source, permission)` | Whether the player has an ACE or framework permission of that name    |
+| `hasGroup(source, group)`           | Whether the player is in a staff group, counting higher groups        |
+
+3. Call `Chat.playerUpdated(source)` when a player's job, gang or staff group changes, so their channels and commands update.
+4. Your bridge is detected automatically, after the frameworks in `Config.bridgeOrder`. Or force it with `Config.bridge = "<name>"`.
+
+Client-side parts live in `bridge/client/`:
+
+- **`commands.lua`**: how other resources' command parameters are read. Add your command system's type names to `TYPE_MAP`.
+- **`masks.lua`**: what counts as a mask (`Chat.detectMask(ped)`). Replace it for another clothing system, or define it for RedM.
+
+Run `refresh` before `ensure zerio-chat` after adding files.

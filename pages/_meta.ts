@@ -5,6 +5,7 @@ export default {
   updateresource: "Update resource",
   commonissues: "Common issues",
   radio: "Zerio Radio",
+  chat: "Zerio Chat",
   cardealer: "Zerio Cardealer",
   bossmenu: "Zerio Bossmenu",
   invoice: "Zerio Invoice",

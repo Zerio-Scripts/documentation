@@ -1,0 +1,178 @@
+import { Callout } from "nextra/components";
+
+# Configuration Guide
+
+Everything you can change lives outside escrow, in these folders of the resource:
+
+| Path                     | What it holds                                                                                                                                             |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `config/general.lua`     | Language, preset, framework, open key, message length, history, formatting, nearby IDs, welcome message, txAdmin, buttons, auto messages, player defaults |
+| `config/channels.lua`    | The channels (tabs)                                                                                                                                       |
+| `config/commands.lua`    | Slashless mode, hidden commands, and corrections for other resources' commands                                                                            |
+| `config/presets.lua`     | The `rp`, `pvp` and `freeroam` profiles                                                                                                                   |
+| `config/permissions.lua` | How permissions are checked, and the full admin ACE                                                                                                       |
+| `config/moderation.lua`  | Rate limit, repeated messages, word filter, links, mutes, staff permissions                                                                               |
+| `config/logging.lua`     | What is logged, and where                                                                                                                                 |
+| `config/console.lua`     | The staff Console tab                                                                                                                                     |
+| `config/rp.lua`          | `/me`, `/do`, `/sme`, the typing marker and masks                                                                                                         |
+| `config/themes.lua`      | Themes your players can pick                                                                                                                              |
+| `locales/*.json`         | All interface text, one file per language                                                                                                                 |
+| `bridge/`                | Framework support (see the [Developer Documentation](/chat/devdocs#adding-or-changing-a-framework))                                                       |
+| `theme/tokens.css`       | Colours, spacing, corners and fonts of the interface                                                                                                      |
+
+Restart the resource (`ensure zerio-chat`) after changing a config file.
+
+## Presets
+
+`Config.preset` in `config/general.lua` picks a profile that is applied on top of the rest of the config:
+
+| Preset         | What it does                                                                |
+| -------------- | --------------------------------------------------------------------------- |
+| `rp` (default) | Plain messages go to Local (nearby players); Global is off; OOC and LOOC on |
+| `pvp`          | One global chat; no Local, OOC or LOOC; roleplay commands off               |
+| `freeroam`     | Global chat plus Local on `/l`; no OOC or LOOC; roleplay commands off       |
+
+Change a preset or add your own in `config/presets.lua`.
+
+## Channels
+
+Each channel is a tab. Edit, add or remove them in `config/channels.lua`:
+
+```lua
+{
+    id = 'police',
+    label = 'Police',
+    color = '#8ab4f8',
+    scope = 'global',          -- 'global', or 'proximity' with a range in metres
+    command = 'pd',            -- /pd <message> sends to this channel
+    permission = { job = 'police', onDuty = true },
+    cooldown = 2,              -- seconds between messages per player
+},
+```
+
+- Leave out `label` to use the channel's name from the language file (`channel_<id>` in `locales/`), so the default tabs read in your server's language.
+- `readOnly = true` makes a channel players cannot type into (like System).
+- `enabled = false` removes a channel.
+- `Config.defaultChannel` in `config/general.lua` is where plain messages go.
+
+## Permissions
+
+A permission can be written in several ways, everywhere one is asked for (channels, commands, the console, moderation):
+
+```lua
+permission = nil                                  -- everyone
+permission = 'zeriochat.staff'                    -- an ACE, or a framework permission of that name
+permission = { group = 'admin' }                  -- a framework staff group (higher groups pass)
+permission = { job = 'police', onDuty = true }    -- a job (name or job type), optionally on duty
+permission = { job = { 'police', 'ems' } }        -- any of these jobs
+permission = { gang = 'ballas' }                  -- a gang
+permission = { 'zeriochat.staff', { group = 'mod' } } -- a list: any entry is enough
+permission = function(source) return true end    -- your own check
+```
+
+Fields in one table must all pass. Full admins (`Config.permissions.superuserAce`, the `command` ACE by default) pass every staff check, but not job or gang checks.
+
+## Moderation
+
+In `config/moderation.lua`:
+
+- **`rateLimit`**: how many messages a player may send in how many seconds.
+- **`duplicates`**: refuses the same message twice in a row in one channel within 30 seconds.
+- **`filter`**: a word list that is either censored with asterisks or blocks the message.
+- **`links`**: set `allow = false` to block links except to the listed sites (subdomains count).
+- **`mute.maxMinutes`**: the longest mute staff can give.
+- **`permissions`**: who may mute, delete messages, and bypass all of the above.
+
+Mutes are stored by licence on the server, so they survive reconnects and restarts without a database.
+
+## Logging
+
+In `config/logging.lua`, choose **what** is logged (`events`: chat messages, private messages, roleplay, moderation; private messages are off by default) and **where**. Outputs can be combined:
+
+- **Console**: the server console.
+- **Discord**: webhooks, one for everything or one per event. Messages are batched to stay inside Discord's rate limits and can never ping `@everyone`.
+- **ox_lib's logger**: sends to Datadog, Grafana Loki or Fivemanage, whichever your server set with `set ox:logger "..."`. Needs ox_lib started.
+- **Fivemanage**: through its FiveM SDK (the `fmsdk` resource).
+
+## Roleplay
+
+In `config/rp.lua`:
+
+- **`/me` and `/do`**: range, colour, and how long the text stays on the character.
+- **`/sme`**: a line that stays on the character until removed with `/sme` on its own (an injury, a description).
+- **`overhead`**: on the chest or above the head, draw distance, and `lineOfSight` (no text through walls).
+- **`typing`**: the "..." marker above typing players.
+- **`mask`**: masked players show as "Masked Individual" on `/me` and `/do`. Add mask-slot items that do not hide the face to `ignore`, and full-face helmets (hat slot) to `helmets`.
+
+The `pvp` and `freeroam` presets switch the roleplay commands off.
+
+## General settings
+
+In `config/general.lua`:
+
+| Setting                   | What it does                                                                                                                          |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `Config.openKey`          | Default key to open the chat (`T`). Players can rebind it in the game's key bindings.                                                 |
+| `Config.maxMessageLength` | Longest message, in bytes.                                                                                                            |
+| `Config.formatting`       | Bold, italic, spoilers and so on, and clickable links.                                                                                |
+| `Config.privateMessages`  | `/pm` and `/r` and their aliases.                                                                                                     |
+| `Config.nearbyIds`        | Server IDs above nearby players' heads while the chat is open.                                                                        |
+| `Config.welcome`          | Lines only a joining player sees: `{name}`, `{id}` and `{players}` are filled in. Off by default.                                     |
+| `Config.txAdmin`          | txAdmin announcements, direct messages, restart and shutdown warnings in the chat; warns, kicks and bans on the Staff tab.            |
+| `Config.buttons`          | How long message buttons from other resources keep working, and how fast players may click.                                           |
+| `Config.autoMessages`     | Rotating announcements on an interval.                                                                                                |
+| `Config.legacyTemplates`  | How older resources' HTML messages look: `'sanitize'` (fits the chat), `'original'` (keeps their own box), or `'strip'` (plain text). |
+| `Config.bridge`           | `'auto'`, or force a framework.                                                                                                       |
+
+## Player settings and themes
+
+`Config.defaults` sets what new players start with, and what "Reset to defaults" returns to: position, opacity, text size, fade time, timestamps, sounds, theme, blur and size. On RedM, `Config.defaultsRedM` replaces some of them (an 80% tint by default, since RedM has no blur).
+
+Players change their own settings in the chat (`/chatsettings`), and the settings follow them to every server that runs Zerio Chat.
+
+Add server themes in `config/themes.lua`:
+
+```lua
+Config.themes = {
+    {
+        id = 'my-server',
+        name = 'My Server',
+        tokens = { glass = '#101820', accent = '#f2aa4c', radius = 0.8 },
+        suggests = { blur = true, opacity = 0.6 },
+    },
+}
+```
+
+A theme is a small set of values (colours, border, shadow, roundness, density, font), never raw CSS, so it cannot break the layout. Set `Config.defaults.theme` to its `id` to make it the default.
+
+## Staff console
+
+`config/console.lua` controls the Console tab: who may open it, how many lines the server keeps, resources to leave out, and patterns that are masked before a line leaves the server (webhooks, database URLs, licence keys and IP addresses by default). Turn it on with `enabled = true` or the `zerio_chat_console` convar.
+
+## Commands from other resources
+
+Zerio Chat reads the command suggestions your other resources send. When one is missing parameter types or descriptions, correct it in `config/commands.lua`, without editing that resource:
+
+```lua
+['giveitem'] = {
+    description = 'Give an item to a player',
+    params = {
+        { name = 'target', type = 'player' },
+        { name = 'item', type = 'string' },
+        { name = 'count', type = 'integer', min = 1, optional = true },
+    },
+},
+```
+
+Parameter types: `string`, `text` (the rest of the line), `integer`, `number`, `boolean`, `player`, `choice` (with `choices`).
+
+## Languages
+
+Set `Config.locale` in `config/general.lua`: `en`, `de`, `es`, `fr`, `pt` (Brazil), `it`, `nl`, `pl`, `sv`, `da`, `no`, `fi`, `cs` or `tr`.
+
+All interface text is in `locales/<language>.json`. To change a text, edit it there. To add a language, copy `en.json` to a new file (for example `hu.json`), translate the values, and set `Config.locale = 'hu'`. Keep everything in curly braces (such as `{name}`) and the `^1`-style colour codes as they are. Anything missing from a translation falls back to English.
+
+<Callout type="info">
+  Command names and players' messages are never translated; only the chat's own
+  interface and notices are.
+</Callout>
