@@ -81,6 +81,7 @@ In `config/moderation.lua`:
 - **`filter`**: a word list that is either censored with asterisks or blocks the message.
 - **`links`**: set `allow = false` to block links except to the listed sites (subdomains count).
 - **`mute.maxMinutes`**: the longest mute staff can give.
+- **`report`**: `/report`, the channel reports go to (Staff), and the cooldown between reports. Muted players can still report.
 - **`permissions`**: who may mute, delete messages, and bypass all of the above.
 
 Mutes are stored by licence on the server, so they survive reconnects and restarts without a database.
@@ -100,6 +101,7 @@ In `config/rp.lua`:
 
 - **`/me` and `/do`**: range, colour, and how long the text stays on the character.
 - **`/sme`**: a line that stays on the character until removed with `/sme` on its own (an injury, a description).
+- **`dice`, `coin`, `try`**: the `/roll`, `/coin` and `/try` commands, the most dice and sides for `/roll`, and how often `/try` succeeds.
 - **`overhead`**: on the chest or above the head, draw distance, and `lineOfSight` (no text through walls).
 - **`typing`**: the "..." marker above typing players.
 - **`mask`**: masked players show as "Masked Individual" on `/me` and `/do`. Add mask-slot items that do not hide the face to `ignore`, and full-face helmets (hat slot) to `helmets`.
@@ -117,6 +119,7 @@ In `config/general.lua`:
 | `Config.formatting`       | Bold, italic, spoilers and so on, and clickable links.                                                                                |
 | `Config.privateMessages`  | `/pm` and `/r` and their aliases.                                                                                                     |
 | `Config.nearbyIds`        | Server IDs above nearby players' heads while the chat is open.                                                                        |
+| `Config.shareLocation`    | `/shareloc`: share where you are with a waypoint button, privately or with players nearby (FiveM).                                    |
 | `Config.welcome`          | Lines only a joining player sees: `{name}`, `{id}` and `{players}` are filled in. Off by default.                                     |
 | `Config.txAdmin`          | txAdmin announcements, direct messages, restart and shutdown warnings in the chat; warns, kicks and bans on the Staff tab.            |
 | `Config.buttons`          | How long message buttons from other resources keep working, and how fast players may click.                                           |
