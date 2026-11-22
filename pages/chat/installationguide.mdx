@@ -1,0 +1,108 @@
+import { Callout, Steps } from "nextra/components";
+
+# Installation Guide
+
+This guide walks you through installing Zerio Chat on a FiveM or RedM server. It replaces the default `chat` resource, so you remove that one as part of the install.
+
+## Prerequisites
+
+- **FXServer build 6188 or newer.** Use the build the Cfx server download page marks as recommended. Zerio Chat prints a warning in the server console when the build is older.
+- **OneSync on.** Proximity channels and `/me`, `/do` find nearby players on the server, which needs OneSync. txAdmin turns it on by default, and server builds from 35245 always have it. Zerio Chat warns in the console when it is off.
+- **A framework is optional.** Qbox, QBCore, ESX and ox_core (FiveM) and RSG-Core and VORP (RedM) are detected automatically. Without one, Zerio Chat runs standalone.
+
+No database and no other resources are needed.
+
+## Installation Steps
+
+<Steps>
+
+### Download and place the resource
+
+Download Zerio Chat from the [Cfx portal](https://portal.cfx.re) (see [After Buying](/afterbuying)). The download holds a ready `zerio-chat` folder: put it in your resources, for example:
+
+```
+resources/
+  └── [zerio]/
+      └── zerio-chat/
+```
+
+<Callout type="warning">
+  Keep the folder name `zerio-chat`. Players' chat settings are stored under
+  that name, and they follow players to every server that uses the same name.
+</Callout>
+
+### Replace the default chat in server.cfg
+
+Remove (or comment out) `ensure chat` and start Zerio Chat **in the same place**:
+
+```cfg
+# ensure chat
+ensure zerio-chat
+```
+
+<Callout type="warning">
+  Start Zerio Chat **before** any resource that lists `chat` as a dependency. If
+  such a resource starts first, the server starts the old chat for it, and you
+  see the old chat instead of Zerio Chat.
+</Callout>
+
+Zerio Chat declares `provide 'chat'`, so resources that use the default chat's events (`chat:addMessage`, `chat:addSuggestion`, ...) or exports (`exports.chat:addMessage`, ...) keep working without changes.
+
+### Grant permissions
+
+Staff features are given by an ACE **or** by your framework's staff group. Full admins (anyone allowed the `command` ACE) pass every staff check.
+
+| ACE                 | Framework group | Grants                                                       |
+| ------------------- | --------------- | ------------------------------------------------------------ |
+| `zeriochat.staff`   | `mod`           | The Staff channel                                            |
+| `zeriochat.console` | `admin`         | The Console tab (also needs the console turned on, below)    |
+| `zeriochat.mute`    | `mod`           | `/mute`, `/unmute`, and Mute in a message's right-click menu |
+| `zeriochat.delete`  | `mod`           | Delete message in a message's right-click menu               |
+| `zeriochat.bypass`  | `admin`         | Not rate limited, filtered or muted                          |
+
+On a server without a framework, grant the ACEs, for example:
+
+```cfg
+add_ace group.admin zeriochat.staff allow
+add_ace group.admin zeriochat.mute allow
+add_ace group.admin zeriochat.delete allow
+```
+
+Framework groups: QBCore and Qbox permission levels (`god`, `admin`, `mod`), ESX groups, RSG-Core permission levels (`god` down to `helper`), VORP user groups (`admin`, and `moderator` or `mod` if your server has it). Higher groups pass lower ones. Every permission can be changed in the config, see the [Configuration Guide](/chat/configurationguide#permissions).
+
+### Turn on the staff console (optional)
+
+The Console tab shows the server console to staff, inside the chat. It is off by default. Turn it on with a convar **before** `ensure zerio-chat`:
+
+```cfg
+set zerio_chat_console true
+add_ace group.admin zeriochat.console allow
+ensure zerio-chat
+```
+
+### Pick a language
+
+Set `Config.locale` in `config/general.lua`. Available: `en`, `de`, `es`, `fr`, `pt` (Brazil), `it`, `nl`, `pl`, `sv`, `da`, `no`, `fi`, `cs`, `tr`. See [translations](/chat/configurationguide#languages) to change texts or add a language.
+
+### Start the server
+
+Start (or restart) the server. The console shows which framework Zerio Chat found:
+
+```
+[zerio-chat] using bridge: qbx
+```
+
+Join, press **T** and type `/` to see your commands. The settings are behind the button at the end of the tab bar, or `/chatsettings`.
+
+</Steps>
+
+## RedM
+
+The same resource runs on RedM. Two differences:
+
+- **No frosted glass.** RedM does not share the game's picture with the chat, so the chat uses a darker tint instead (80% by default, `Config.defaultsRedM` in `config/general.lua`). The blur settings are hidden on RedM.
+- **Masks** are not detected on RedM out of the box. Server owners can add their own detection, see the [Developer Documentation](/chat/devdocs#adding-or-changing-a-framework).
+
+## Updating
+
+Read the changelog in the download, then replace the `zerio-chat` folder, keeping your `config` folder and any changes you made to `bridge`, `locales` or `theme`. When an update adds files, run `refresh` before `ensure zerio-chat` (or restart the server); otherwise Zerio Chat tells you which files did not load.

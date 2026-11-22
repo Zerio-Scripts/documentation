@@ -1,0 +1,57 @@
+# Description
+
+Zerio Chat is a drop-in replacement for the default FiveM and RedM chat. Its headline feature is a typed, Discord-style command input: once a player picks a command, each parameter becomes a labelled field in the message bar, with a player picker and value lists. It works with the commands your server already has, from ox_lib, QBCore, Qbox, ESX and plain `RegisterCommand`.
+
+Around that it has everything a roleplay, PvP or freeroam server needs from a chat: channels as tabs, proximity and job/gang channels, private messages, roleplay commands, moderation, logging and a staff console view, in a frosted-glass interface that players can theme and resize.
+
+It declares `provide 'chat'`, so resources that use the default chat's events and exports keep working.
+
+## Key Features
+
+### Commands
+
+- **Typed parameters**: every parameter is a labelled field in the message bar, checked as you type (numbers, players, choices, on/off)
+- **Player picker**: you, the nearest players, or search by name or ID
+- **Works with existing commands**: reads ox_lib, QBCore, Qbox and ESX command suggestions; add or correct types for any command in the config
+- **Fuzzy search**: commands ranked by how often you use them, with a preview of the highlighted one and "did you mean" for typos
+- **Developer API**: register commands with typed parameters, subcommands, aliases and server-side autocomplete
+
+### Channels and messages
+
+- **Channels as tabs**: Global, Local (proximity), OOC, LOOC, Staff, Private and System by default, all configurable
+- **Job and gang channels**: from your framework, with on-duty checks
+- **Private messages**: `/pm` and `/r`, shown as "To" and "From" on the Private tab
+- **Mentions**: `@` lists players; a mention highlights the message, plays a sound and badges the tab
+- **Formatting**: bold, italic, underline, strikethrough, spoilers, code and clickable links, previewed in the message bar while typing
+- **Emoji**: `:shortcode:` completion and a searchable picker
+- **Message buttons**: other resources can put buttons on messages, running their own server code or a built-in action (set a waypoint, copy text, fill in a command, open a link)
+- **Announcements**: txAdmin announcements, direct messages and restart warnings shown as highlighted blocks
+
+### Roleplay
+
+- **`/me`, `/do` and `/sme`**: action lines in nearby chat and text on the character, with line of sight
+- **Typing marker**: "..." above players who are typing
+- **Mask anonymity**: masked players show as "Masked Individual" on `/me` and `/do`
+- **Nearby IDs**: players' server IDs above their heads while the chat is open
+
+### Moderation and staff
+
+- **Rate limit, word filter, repeated-message blocking and link allowlist**
+- **Mutes**: `/mute` and `/unmute` with reason and duration, kept across restarts without a database
+- **Right-click menu**: copy text or name, and for staff mute or delete a message
+- **Staff console tab**: the server console in the chat, filtered by resource, with secrets masked
+- **Logging**: to Discord webhooks, ox_lib's logger (Datadog, Loki, Fivemanage) or Fivemanage's SDK
+
+### Players
+
+- **Settings**: position, size (drag the corner), text size, theme, blur, opacity, fade time, timestamps, sounds and channel colours
+- **Themes**: built-in themes, server themes, and players' own made in an editor and shared as codes
+- **Settings follow players** to every server that runs Zerio Chat
+
+### Servers
+
+- **FiveM and RedM** in one resource
+- **Frameworks**: Qbox, QBCore, ESX, ox_core, RSG-Core, VORP, or standalone, detected automatically
+- **Open where it matters**: config, framework bridges, translations and theme are outside escrow
+- **14 languages**: English, German, Spanish, French, Portuguese (Brazil), Italian, Dutch, Polish, Swedish, Danish, Norwegian, Finnish, Czech and Turkish
+- **No database needed**

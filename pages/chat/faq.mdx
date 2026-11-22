@@ -1,0 +1,114 @@
+import { Callout } from "nextra/components";
+
+# Frequently Asked Questions
+
+Common questions and solutions for Zerio Chat. If your question isn't answered here, visit our [community server](https://discord.zerio-scripts.com) for support!
+
+---
+
+## Installing
+
+### I still see the old chat
+
+Another resource started the old one. Two things to check in your `server.cfg`:
+
+1. `ensure chat` is removed or commented out.
+2. `ensure zerio-chat` comes **before** any resource that lists `chat` as a dependency. If such a resource starts first, the server starts the old chat to satisfy it.
+
+On some servers the built-in chat also starts by itself. Add `set resources_useSystemChat false` near the top of `server.cfg`.
+
+Then restart the server; `ensure` alone does not stop a chat that is already running.
+
+---
+
+### The console says a file "did not load"
+
+The update added files, but the server still has the old file list. Run `refresh` and then `ensure zerio-chat`, or restart the server.
+
+---
+
+### Another resource prints "No such export addMessage in resource chat"
+
+Update Zerio Chat: from version 0.2.0 it answers calls to the default chat's exports (`exports.chat:addMessage` and the others), as qbx_core and qbx_chat_theme use.
+
+---
+
+### Proximity channels and /me reach nobody
+
+OneSync is off. Turn it on in txAdmin's settings, or start the server with `+set onesync on`. Zerio Chat warns about this in the server console when it starts.
+
+---
+
+### The console warns about my server build
+
+Zerio Chat needs FXServer build 6188 or newer. Update your server artifacts to the build the Cfx download page marks as recommended.
+
+---
+
+## Using the chat
+
+### The mouse is stuck after closing the chat
+
+Open the F8 console and run `zchat_unfocus`. The chat also closes by itself on death, the pause menu and screen fades, which are the usual causes.
+
+---
+
+### How do players change the key that opens the chat?
+
+In the game's key bindings (FiveM: Settings, Key Bindings, FiveM). The default for new players is set with `Config.openKey`.
+
+---
+
+### Do players' settings carry over between servers?
+
+Yes. Settings and players' own themes are stored on their own computer, under the resource name, so they follow them to every server that runs Zerio Chat as `zerio-chat`. Keep the folder name.
+
+---
+
+### Why is there no blur on RedM?
+
+RedM does not share the game's picture with the chat, so the frosted glass cannot work there. Zerio Chat uses a darker tint instead (80% by default, `Config.defaultsRedM`) and hides the blur settings on RedM.
+
+---
+
+### A command from another resource has no parameter fields
+
+That resource did not describe its parameters. Add them in `config/commands.lua` under the command's name, see [Commands from other resources](/chat/configurationguide#commands-from-other-resources).
+
+---
+
+### Players can't chat at all, only run commands
+
+Something else cancels the `chatMessage` event, often on purpose (some servers allow commands only). Zerio Chat respects that, like the default chat did.
+
+---
+
+## Roleplay and staff
+
+### A mask is not detected (or a scarf counts as a mask)
+
+Masks are read from the mask clothing slot of the standard multiplayer characters. In `config/rp.lua`, add mask-slot items that do not cover the face to `mask.ignore`, and full-face helmets to `mask.helmets`. For another clothing system, change `Chat.detectMask` in `bridge/client/masks.lua`.
+
+---
+
+### How do I give someone access to the Staff channel?
+
+With the `zeriochat.staff` ACE, or your framework's `mod` group or higher:
+
+```cfg
+add_ace group.mod zeriochat.staff allow
+```
+
+All staff permissions are listed in the [Installation Guide](/chat/installationguide#grant-permissions) and can be changed in `config/moderation.lua` and `config/channels.lua`.
+
+---
+
+### Where do mutes get stored?
+
+On the server, by licence, so they survive reconnects and restarts. No database is used.
+
+<Callout type="info">
+  Staff and full admins with the `zeriochat.bypass` permission are never rate
+  limited, filtered or muted. When testing moderation, use a player account
+  without it.
+</Callout>
