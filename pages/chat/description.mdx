@@ -26,16 +26,19 @@ It declares `provide 'chat'`, so resources that use the default chat's events an
 - **Emoji**: `:shortcode:` completion and a searchable picker
 - **Message buttons**: other resources can put buttons on messages, running their own server code or a built-in action (set a waypoint, copy text, fill in a command, open a link)
 - **Announcements**: txAdmin announcements, direct messages and restart warnings shown as highlighted blocks
+- **Location sharing**: `/shareloc` sends where you are with a one-click waypoint (FiveM)
 
 ### Roleplay
 
 - **`/me`, `/do` and `/sme`**: action lines in nearby chat and text on the character, with line of sight
+- **`/roll`, `/coin` and `/try`**: dice, coin flips and actions that succeed or fail, drawn on the server
 - **Typing marker**: "..." above players who are typing
 - **Mask anonymity**: masked players show as "Masked Individual" on `/me` and `/do`
 - **Nearby IDs**: players' server IDs above their heads while the chat is open
 
 ### Moderation and staff
 
+- **`/report`**: players ask staff for help; staff get Claim, Reply and Set waypoint buttons
 - **Rate limit, word filter, repeated-message blocking and link allowlist**
 - **Mutes**: `/mute` and `/unmute` with reason and duration, kept across restarts without a database
 - **Right-click menu**: copy text or name, and for staff mute or delete a message
