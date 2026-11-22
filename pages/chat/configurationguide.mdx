@@ -50,6 +50,7 @@ Each channel is a tab. Edit, add or remove them in `config/channels.lua`:
 },
 ```
 
+- Leave out `label` to use the channel's name from the language file (`channel_<id>` in `locales/`), so the default tabs read in your server's language.
 - `readOnly = true` makes a channel players cannot type into (like System).
 - `enabled = false` removes a channel.
 - `Config.defaultChannel` in `config/general.lua` is where plain messages go.
