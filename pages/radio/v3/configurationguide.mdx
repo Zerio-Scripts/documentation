@@ -2,9 +2,9 @@ import { Callout } from "nextra/components";
 
 # Configuration Guide
 
-<Callout type="warning">
-  **V3 is in public beta.** These pages are for zerio-radio V3. Still on V2? See
-  the [V2 documentation](/radio/description).
+<Callout type="info">
+  These pages are for zerio-radio V3. Still on V2? See the [V2
+  documentation](/radio/description).
 </Callout>
 
 All of zerio-radio's settings are Lua files in the `configs/` folder. This guide explains every option and its default. Restart zerio-radio after you change a config file.
@@ -141,7 +141,7 @@ Config.VoiceServer = {
 | `Enabled`   | Turns the voice connection on. When `false`, there is no radio audio, but the radio UI still opens.                                                                                                                                                                                                                      |
 | `Domain`    | The voice server's address, with no `https://` and no trailing slash. Hosted: `eu.radio.zerio-scripts.com` or `na.radio.zerio-scripts.com`, as the setup wizard shows. Self-hosted: `zerio_voice_domain` in `server.cfg` overrides it, so leave it as it ships. `localhost` only works for testing alone on your own PC. |
 | `ServerId`  | Hosted: the Server ID you picked in the setup wizard. Self-hosted: must stay `""`.                                                                                                                                                                                                                                       |
-| `PortalUrl` | The customer portal. zerio-radio uses it to sync patches made in the web dispatch panel _(hosted voice servers only for now)_. Leave it as it ships, or set it to `""` to turn the sync off.                                                                                                                             |
+| `PortalUrl` | The customer portal. zerio-radio uses it to sync patches made in the web dispatch panel. Leave it as it ships, or set it to `""` to turn the sync off.                                                                                                                                                                   |
 
 ### Per-Environment Voice Server
 
@@ -535,13 +535,13 @@ Players who receive a panic alert hear `html/sounds/panic_alert.ogg` and see a s
 
 When unit GPS is on for the channel, the player's blip also flashes (see `FlashOnPanic` in [Unit GPS](#unit-gps-configsfeaturesgpslua)).
 
-Every panic alert also shows up in the dispatch console _(hosted voice servers only for now)_. To send it to zerio-dispatch, ps-dispatch or lb-tablet as well, see [Dispatch Scripts](#dispatch-scripts-configsfeaturesdispatchlua).
+Every panic alert also shows up in the dispatch console. To send it to zerio-dispatch, ps-dispatch or lb-tablet as well, see [Dispatch Scripts](#dispatch-scripts-configsfeaturesdispatchlua).
 
 ---
 
 ## Dispatch Scripts (`configs/features/dispatch.lua`)
 
-Panic and man-down alerts always reach the dispatch console _(hosted voice servers only for now)_. These settings also send them to a third-party dispatch script.
+Panic and man-down alerts always reach the dispatch console. These settings also send them to a third-party dispatch script.
 
 ```lua
 Config.DispatchAlerts = {
@@ -878,7 +878,7 @@ Locations = {
 
 ## Channel Patches (`configs/features/patches.lua`)
 
-A patch links two or more channels so players on one channel hear the others. Admins manage patches in `/radioadmin` on the Patches page. Patches made in the web dispatch panel _(hosted voice servers only for now)_ are synced to the game when `PortalUrl` is set in `configs/voice.lua`.
+A patch links two or more channels so players on one channel hear the others. Admins manage patches in `/radioadmin` on the Patches page. Patches made in the web dispatch panel are synced to the game when `PortalUrl` is set in `configs/voice.lua`.
 
 | Option             | Default | Description                                                                                              |
 | ------------------ | ------- | -------------------------------------------------------------------------------------------------------- |
@@ -961,11 +961,7 @@ Shows live map blips for the other players on your channels. Blips change shape 
 
 Speakers are PA speakers placed in the world. Admins place them in `/radioadmin` on the Speakers page and group them into stations. Speakers need OneSync.
 
-<Callout type="info">
-  **Coming in full release.** Speakers play alert tones sent from the dispatch
-  tone board, which is not part of the beta. `enabled` is `false` by default:
-  leave it off until the tone board is out.
-</Callout>
+Dispatchers play alert tones on them from the tone board in the web dispatch console, on [portal.radio.zerio-scripts.com](https://portal.radio.zerio-scripts.com).
 
 | Option             | Default             | Description                                                                    |
 | ------------------ | ------------------- | ------------------------------------------------------------------------------ |

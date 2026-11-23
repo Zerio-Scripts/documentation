@@ -2,9 +2,9 @@ import { Callout, Steps, Tabs } from "nextra/components";
 
 # Self-Hosting the Voice Server
 
-<Callout type="warning">
-  **V3 is in public beta.** These pages are for zerio-radio V3. Still on V2? See
-  the [V2 documentation](/radio/description).
+<Callout type="info">
+  These pages are for zerio-radio V3. Still on V2? See the [V2
+  documentation](/radio/description).
 </Callout>
 
 zerio-radio V3 sends radio voice through a voice server (zerio-voice). You can self-host it on your own machine, next to your FiveM server: it's a single program with a small config file, on Windows or Linux.
@@ -22,10 +22,10 @@ A VPS, a dedicated server or a game server panel that lets you run your own prog
 
 <Steps>
 
-### Claim Your Beta Access
+### Claim Your Licence
 
 1. Open [portal.radio.zerio-scripts.com/setup](https://portal.radio.zerio-scripts.com/setup).
-2. Under **Already own zerio-radio? Join the V3 beta**, enter the **transaction ID** of your zerio-radio purchase (it starts with `tbx-` and is in your purchase receipt email) and the **email or Cfx.re username you bought it with**. If your email isn't accepted, use your Cfx.re username.
+2. Under **Already own zerio-radio? Set up your voice server**, enter the **transaction ID** of your zerio-radio purchase (it starts with `tbx-` and is in your purchase receipt email) and the **email or Cfx.re username you bought it with**. If your email isn't accepted, use your Cfx.re username.
 3. Choose a **Server ID**, for example `my-rp-server`. It becomes part of your voice server's address and can't be changed later.
 4. Set your sign-in email and enter the 6-digit code we send to it. You need this email to sign in to the portal later.
 5. The portal then shows two licence keys, a **production** key and a **development** key. **They're only shown once**, so save both somewhere safe.
@@ -252,6 +252,17 @@ Then use the domain in `server.cfg`:
 ```cfg
 setr zerio_voice_domain "radio.example.com"
 ```
+
+## Dispatch
+
+The web dispatch console and tone board on [portal.radio.zerio-scripts.com](https://portal.radio.zerio-scripts.com) work with your own voice server too. Two connections make them work:
+
+- Your voice server keeps an outbound connection to the portal, signed in with its licence key. There is no port to open, and its console shows `portal link: connected`.
+- Dispatchers' browsers connect straight to your voice server for audio, so it must be on a domain with HTTPS. The address from us (the default) has that. With your own domain behind a reverse proxy, set `dispatch.public_url` in `config.json` to `wss://<your domain>`.
+
+Sign in at the portal with your portal email to add dispatch accounts and groups. The **Server** page shows whether the link is up and which address dispatchers connect to.
+
+To turn dispatch off, set `"dispatch": { "portal_link": false }` in `config.json`. Voice keeps working.
 
 ## Updates
 
