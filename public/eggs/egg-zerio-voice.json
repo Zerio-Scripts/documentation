@@ -1,0 +1,92 @@
+{
+  "_comment": "DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY PTERODACTYL PANEL - PTERODACTYL.IO",
+  "meta": {
+    "version": "PTDL_v2",
+    "update_url": null
+  },
+  "exported_at": "2026-11-23T20:00:00+00:00",
+  "name": "Zerio Voice",
+  "author": "fivem@zerio.se",
+  "description": "The self-hosted voice server for Zerio-Radio V3. Needs a production licence key from portal.radio.zerio-scripts.com and an empty MySQL 8 / MariaDB 10.6+ database (create one in the server's Databases tab). Guide: https://docs.zerio-scripts.com/radio/v3/selfhosting",
+  "features": null,
+  "docker_images": {
+    "Debian 12": "ghcr.io/parkervcp/yolks:debian"
+  },
+  "file_denylist": [],
+  "startup": "./zerio-voice",
+  "config": {
+    "files": "{\n    \"config.json\": {\n        \"parser\": \"json\",\n        \"find\": {\n            \"server.host\": \"0.0.0.0\",\n            \"server.port\": \"{{server.build.default.port}}\",\n            \"database.url\": \"mysql://{{server.build.env.DB_USERNAME}}:{{server.build.env.DB_PASSWORD}}@{{server.build.env.DB_HOST}}/{{server.build.env.DB_DATABASE}}\",\n            \"licence.key\": \"{{server.build.env.LICENCE_KEY}}\",\n            \"public_ip\": \"{{server.build.env.PUBLIC_IP}}\"\n        }\n    }\n}",
+    "startup": "{\n    \"done\": \"zerio-voice ready\"\n}",
+    "logs": "{}",
+    "stop": "stop"
+  },
+  "scripts": {
+    "installation": {
+      "script": "#!/bin/bash\n# zerio-voice installer for Pterodactyl / Pelican.\n# Downloads the newest release from the signed update feed with your licence key\n# (the same download the \"update\" console command uses) and writes a starter\n# config.json on the first install. A reinstall keeps config.json, instance-id,\n# licence.lease and zerio-domain/.\nset -euo pipefail\n\nFEED_URL=\"https://updates.radio.zerio-scripts.com/v1/feed-v1.json\"\nPORTAL_URL=\"https://portal.radio.zerio-scripts.com\"\n\nif ! command -v jq >/dev/null || ! command -v curl >/dev/null; then\n  apt-get update -qq && apt-get install -y -qq curl jq ca-certificates >/dev/null\nfi\n\nmkdir -p /mnt/server\ncd /mnt/server\n\nif [ -z \"${LICENCE_KEY:-}\" ]; then\n  echo \"Set the Licence key variable (your zvl_... production key from ${PORTAL_URL}) and reinstall.\"\n  exit 1\nfi\n\n# shortcut: trusts the feed over HTTPS and checks the file's sha256 against it, but\n# does not check the feed's minisign signature; the supervisor verifies every update.\nrelease=\"$(curl -fsSL \"$FEED_URL\" | jq -c '.payload | fromjson | .majors[\"1\"]')\"\nversion=\"$(jq -r '.version' <<<\"$release\")\"\nsha256=\"$(jq -r '.files[\"linux-x64\"].sha256' <<<\"$release\")\"\necho \"Newest zerio-voice: ${version}\"\n\nbody=\"$(jq -n --arg key \"$LICENCE_KEY\" --arg version \"$version\" \\\n  '{key: $key, version: $version, platform: \"linux-x64\"}')\"\nlinks=\"$(curl -sS -X POST \"${PORTAL_URL}/licence/download\" \\\n  -H 'Content-Type: application/json' -d \"$body\")\"\nurl=\"$(jq -r '.url // empty' <<<\"$links\" 2>/dev/null || true)\"\nif [ -z \"$url\" ]; then\n  echo \"The portal refused the download: $(jq -r '.error // .' <<<\"$links\" 2>/dev/null || echo \"$links\")\"\n  echo \"Check the Licence key variable.\"\n  exit 1\nfi\n\ncurl -fsSL -o zerio-voice.download \"$url\"\necho \"${sha256}  zerio-voice.download\" | sha256sum -c --quiet -\nchmod +x zerio-voice.download\nmv -f zerio-voice.download zerio-voice\n\nif [ ! -f config.json ]; then\n  admin_token=\"$(head -c 32 /dev/urandom | od -An -tx1 | tr -d ' \\n')\"\n  # The panel fills in server.port, database.url and licence.key from the\n  # variables on every start; the rest is the normal starter config.\n  jq -n --arg token \"$admin_token\" '{\n    mode: \"single\",\n    server: { host: \"0.0.0.0\", port: 30130 },\n    database: { url: \"\" },\n    auth: { admin_token: $token },\n    licence: { key: \"\" },\n    zerio_domain: true,\n    updates: { check: true, supervisor: true }\n  }' > config.json\n  echo \"Wrote config.json with a new admin token (auth.admin_token).\"\nfi\n\necho \"Installed zerio-voice ${version}.\"\n",
+      "container": "ghcr.io/parkervcp/installers:debian",
+      "entrypoint": "bash"
+    }
+  },
+  "variables": [
+    {
+      "name": "Licence key",
+      "description": "Your production licence key (zvl_...) from portal.radio.zerio-scripts.com, Server page. If the install failed on the key, fix it here and reinstall.",
+      "env_variable": "LICENCE_KEY",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|starts_with:zvl_|max:128",
+      "field_type": "text"
+    },
+    {
+      "name": "Database host",
+      "description": "The database Endpoint, host:port (for example 10.0.0.5:3306). On this panel: the server's Databases tab.",
+      "env_variable": "DB_HOST",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "nullable|string|max:255",
+      "field_type": "text"
+    },
+    {
+      "name": "Database name",
+      "description": "An empty database for the voice server. It creates its own zv_* tables; don't use your FiveM database.",
+      "env_variable": "DB_DATABASE",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "nullable|string|max:64",
+      "field_type": "text"
+    },
+    {
+      "name": "Database username",
+      "description": "The database user.",
+      "env_variable": "DB_USERNAME",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "nullable|string|max:64",
+      "field_type": "text"
+    },
+    {
+      "name": "Database password",
+      "description": "The database user's password. Passwords with # / ? or % need those characters percent-encoded (# is %23).",
+      "env_variable": "DB_PASSWORD",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "nullable|string|max:255",
+      "field_type": "text"
+    },
+    {
+      "name": "Public IP",
+      "description": "Optional. The public IPv4 address players reach this server on, usually the IP shown next to its port. Leave empty to use the address the portal sees.",
+      "env_variable": "PUBLIC_IP",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "nullable|ip",
+      "field_type": "text"
+    }
+  ]
+}
