@@ -169,7 +169,17 @@ Start the program once (Windows: double-click it; if Windows says "Windows prote
 
 The first start with an address from us takes up to a minute while the certificate is made. Then the voice server checks itself from the outside and prints either `players can reach wss://...` or a box that says the port is closed. If it's closed, open the port (the machine's firewall, your host's firewall, or a port forward on your router) and wait: it checks again every minute, no restart needed.
 
-**Game server panels** (Pterodactyl, Pelican, TCAdmin...):
+**Pterodactyl and Pelican:** our egg installs the voice server and keeps `config.json` filled in for you.
+
+1. Download [egg-zerio-voice.json](/eggs/egg-zerio-voice.json) and import it: **Admin › Nests › Import Egg** on Pterodactyl, **Eggs › Import** on Pelican.
+2. Create a server with the **Zerio Voice** egg, one port, and your production licence key. The install downloads the newest voice server with your key.
+3. In the server's **Databases** tab, create a database. Copy its endpoint, name, username and password into the **Startup** tab.
+4. If the panel's machine has more than one IP address, put the IP shown next to the server's port in **Public IP**.
+5. Start the server. The console prints the lines for your `server.cfg` (see below). The admin token is `auth.admin_token` in `config.json`, in the **Files** tab.
+
+To update, type `update` in the console.
+
+**Other game server panels** (TCAdmin...):
 
 - Use `zerio-voice` (or `zerio-voice.exe`) as the start command, `stop` as the stop command, and `zerio-voice ready` as the "server started" text. On Linux, pick an image based on Debian 12 or Ubuntu 22.04 (or newer).
 - Set `server.port` in `config.json` to a port the panel gave this server.
