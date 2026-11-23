@@ -253,6 +253,17 @@ Then use the domain in `server.cfg`:
 setr zerio_voice_domain "radio.example.com"
 ```
 
+## Dispatch
+
+The web dispatch console and tone board on [portal.radio.zerio-scripts.com](https://portal.radio.zerio-scripts.com) work with your own voice server too. Two connections make them work:
+
+- Your voice server keeps an outbound connection to the portal, signed in with its licence key. There is no port to open, and its console shows `portal link: connected`.
+- Dispatchers' browsers connect straight to your voice server for audio, so it must be on a domain with HTTPS. The address from us (the default) has that. With your own domain behind a reverse proxy, set `dispatch.public_url` in `config.json` to `wss://<your domain>`.
+
+Sign in at the portal with your portal email to add dispatch accounts and groups. The **Server** page shows whether the link is up and which address dispatchers connect to.
+
+To turn dispatch off, set `"dispatch": { "portal_link": false }` in `config.json`. Voice keeps working.
+
 ## Updates
 
 Nothing updates by itself. When a new version is out, the voice server console tells you, and so do zerio-radio admins in game. Type these in the voice server's console:
