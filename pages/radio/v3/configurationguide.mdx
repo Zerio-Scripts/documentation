@@ -114,7 +114,9 @@ Leave both `false` on a live server.
 
 ## Voice Server (`configs/voice.lua`)
 
-During the beta you run the voice server yourself ([Self-Hosting](/radio/v3/selfhosting)). Leave this file as it ships and put the address and admin token in `server.cfg` instead:
+**Hosted by Zerio:** fill in `Domain` and `ServerId` from the setup wizard, and put the admin token in `server.cfg`. See [Set Up the Voice Server](/radio/v3/installationguide#set-up-the-voice-server).
+
+**Self-hosted** ([Self-Hosting](/radio/v3/selfhosting)): leave this file as it ships and put the address and admin token in `server.cfg` instead:
 
 ```cfg
 setr zerio_voice_domain      "my-server.voice.zerio-radio.com:30130"
@@ -134,12 +136,12 @@ Config.VoiceServer = {
 }
 ```
 
-| Option      | Description                                                                                                                                                                                                |
-| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Enabled`   | Turns the voice connection on. When `false`, there is no radio audio, but the radio UI still opens.                                                                                                        |
-| `Domain`    | The voice server's address, with no `https://` and no trailing slash. `zerio_voice_domain` in `server.cfg` overrides it, so leave it as it ships. `localhost` only works for testing alone on your own PC. |
-| `ServerId`  | Must stay `""` for a voice server you host yourself. It's only for voice servers hosted by us _(Coming in full release)_.                                                                                  |
-| `PortalUrl` | The customer portal. zerio-radio uses it to sync patches made in the web dispatch panel _(Coming in full release)_. Leave it as it ships, or set it to `""` to turn the sync off.                          |
+| Option      | Description                                                                                                                                                                                                                                                                                                              |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Enabled`   | Turns the voice connection on. When `false`, there is no radio audio, but the radio UI still opens.                                                                                                                                                                                                                      |
+| `Domain`    | The voice server's address, with no `https://` and no trailing slash. Hosted: `eu.radio.zerio-scripts.com` or `na.radio.zerio-scripts.com`, as the setup wizard shows. Self-hosted: `zerio_voice_domain` in `server.cfg` overrides it, so leave it as it ships. `localhost` only works for testing alone on your own PC. |
+| `ServerId`  | Hosted: the Server ID you picked in the setup wizard. Self-hosted: must stay `""`.                                                                                                                                                                                                                                       |
+| `PortalUrl` | The customer portal. zerio-radio uses it to sync patches made in the web dispatch panel _(hosted voice servers only for now)_. Leave it as it ships, or set it to `""` to turn the sync off.                                                                                                                             |
 
 ### Per-Environment Voice Server
 
@@ -533,13 +535,13 @@ Players who receive a panic alert hear `html/sounds/panic_alert.ogg` and see a s
 
 When unit GPS is on for the channel, the player's blip also flashes (see `FlashOnPanic` in [Unit GPS](#unit-gps-configsfeaturesgpslua)).
 
-Every panic alert also shows up in the dispatch console _(Coming in full release)_. To send it to zerio-dispatch, ps-dispatch or lb-tablet as well, see [Dispatch Scripts](#dispatch-scripts-configsfeaturesdispatchlua).
+Every panic alert also shows up in the dispatch console _(hosted voice servers only for now)_. To send it to zerio-dispatch, ps-dispatch or lb-tablet as well, see [Dispatch Scripts](#dispatch-scripts-configsfeaturesdispatchlua).
 
 ---
 
 ## Dispatch Scripts (`configs/features/dispatch.lua`)
 
-Panic and man-down alerts always reach the dispatch console _(Coming in full release)_. These settings also send them to a third-party dispatch script.
+Panic and man-down alerts always reach the dispatch console _(hosted voice servers only for now)_. These settings also send them to a third-party dispatch script.
 
 ```lua
 Config.DispatchAlerts = {
@@ -876,7 +878,7 @@ Locations = {
 
 ## Channel Patches (`configs/features/patches.lua`)
 
-A patch links two or more channels so players on one channel hear the others. Admins manage patches in `/radioadmin` on the Patches page. Patches made in the web dispatch panel _(Coming in full release)_ are synced to the game when `PortalUrl` is set in `configs/voice.lua`.
+A patch links two or more channels so players on one channel hear the others. Admins manage patches in `/radioadmin` on the Patches page. Patches made in the web dispatch panel _(hosted voice servers only for now)_ are synced to the game when `PortalUrl` is set in `configs/voice.lua`.
 
 | Option             | Default | Description                                                                                              |
 | ------------------ | ------- | -------------------------------------------------------------------------------------------------------- |
