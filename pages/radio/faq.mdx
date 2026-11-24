@@ -4,7 +4,7 @@ import { Callout, Tabs } from "nextra/components";
 
 <Callout type="info">
   These pages are for zerio-radio V3. Still on V2? See the [V2
-  documentation](/radio/description).
+  documentation](/radio/v2/faq).
 </Callout>
 
 Common questions about zerio-radio v3. If your question isn't answered here, ask in our [community server](https://discord.zerio-scripts.com).
@@ -21,7 +21,7 @@ By default the radio opens with a key (F5). To make it an item, set this in `con
 Config.OpenType.Value = { "item" }
 ```
 
-Then add the `radio` item to your inventory. The full item lists are in [Add the Items](/radio/v3/installationguide#add-the-items).
+Then add the `radio` item to your inventory. The full item lists are in [Add the Items](/radio/installationguide#add-the-items).
 
 <Tabs items={['ox_inventory', 'QBCore', 'ESX']}>
   <Tabs.Tab>
@@ -125,7 +125,7 @@ The scanner opens with `/radioscanner` by default. To make it an item, set the o
     Config.Scanner.OpenType = "item"
     ```
 
-    Then add `radio_scanner` to `qb-core/shared/items.lua` with `useable = true` (see [Add the Items](/radio/v3/installationguide#add-the-items)).
+    Then add `radio_scanner` to `qb-core/shared/items.lua` with `useable = true` (see [Add the Items](/radio/installationguide#add-the-items)).
 
   </Tabs.Tab>
 
@@ -136,7 +136,7 @@ The scanner opens with `/radioscanner` by default. To make it an item, set the o
     Config.Scanner.OpenType = "item"
     ```
 
-    Then add `radio_scanner` to the `items` table (see [Add the Items](/radio/v3/installationguide#add-the-items)).
+    Then add `radio_scanner` to the `items` table (see [Add the Items](/radio/installationguide#add-the-items)).
 
   </Tabs.Tab>
 </Tabs>
@@ -196,14 +196,14 @@ For a quick start, run `sql/!data.sql` once. It adds 911 Police Radio, 912 EMS R
 In the channel editor you can also set:
 
 - **No-talk-over**: Only one person can transmit at a time. Others get "Channel busy".
-- **Signal 100**: Lets a dispatcher in the web dispatch panel take over the channel. While it is active, players can't transmit. Scripts can start it too, with [`StartSignal100`](/radio/v3/devdocs#startsignal100).
+- **Signal 100**: Lets a dispatcher in the web dispatch panel take over the channel. While it is active, players can't transmit. Scripts can start it too, with [`StartSignal100`](/radio/devdocs#startsignal100).
 - **Man-Down** and **Unit GPS**: See [below](#why-dont-man-down-alerts-or-unit-gps-work).
 - **Mic Click Sound**: The push-to-talk sound set for the channel.
 - **Player Groups**: Whether players can create and join groups on the channel. See [How do groups work?](#how-do-groups-work)
 
 Locking a channel in the admin menu stops everyone from joining it.
 
-Channels can also be created from other scripts with exports. See [Developer Documentation](/radio/v3/devdocs).
+Channels can also be created from other scripts with exports. See [Developer Documentation](/radio/devdocs).
 
 ### How do I restrict who can join a channel?
 
@@ -241,7 +241,7 @@ To give the ace, add it in `server.cfg`:
 add_ace group.admin zerio.admin allow
 ```
 
-The ace, the QBCore permission and the ESX group are set in `configs/admin.lua`. You can also add your own condition there with `additionalCheck`, for example to only let staff who are on duty in. See [Admin Menu](/radio/v3/configurationguide#admin-menu-configsadminlua).
+The ace, the QBCore permission and the ESX group are set in `configs/admin.lua`. You can also add your own condition there with `additionalCheck`, for example to only let staff who are on duty in. See [Admin Menu](/radio/configurationguide#admin-menu-configsadminlua).
 
 Players listed in `DispatchJobs` or `AcePermissions` in `configs/features/patches.lua` can also open `/radioadmin`, but they only see the Patches page.
 
@@ -261,9 +261,9 @@ Groups split the people on a channel into named groups, like "SWAT" or "Traffic"
 
 - Turn groups off for a channel, or only let players join existing groups, with **Player Groups** in the channel editor in `/radioadmin`.
 - Turn them off everywhere with `Config.Groups.Enabled = false` in `configs/features/groups.lua`.
-- Scripts, for example a dispatch or MDT script, can put players in groups and lock them there with [`SetPlayerGroup`](/radio/v3/devdocs#setplayergroup), and colour groups with [`SetGroupColor`](/radio/v3/devdocs#setgroupcolor).
+- Scripts, for example a dispatch or MDT script, can put players in groups and lock them there with [`SetPlayerGroup`](/radio/devdocs#setplayergroup), and colour groups with [`SetGroupColor`](/radio/devdocs#setgroupcolor).
 
-Groups last until the server restarts. See [Groups](/radio/v3/configurationguide#groups-configsfeaturesgroupslua).
+Groups last until the server restarts. See [Groups](/radio/configurationguide#groups-configsfeaturesgroupslua).
 
 ### What happened to Radio Groups?
 
@@ -304,8 +304,8 @@ Go through these in order:
 
 ### Players can't hear each other on the radio
 
-1. **Check the server console** for a red or yellow box from `[zerio-radio:voice]`. It says what's wrong: the token, the voice server's address, or an address players can't use. See [Troubleshooting](/radio/v3/installationguide#troubleshooting).
-2. **Check the voice server.** Self-hosted: its console should say `players can reach wss://...`; if it says the port is closed, open it. See [Self-Hosting](/radio/v3/selfhosting#troubleshooting).
+1. **Check the server console** for a red or yellow box from `[zerio-radio:voice]`. It says what's wrong: the token, the voice server's address, or an address players can't use. See [Troubleshooting](/radio/installationguide#troubleshooting).
+2. **Check the voice server.** Self-hosted: its console should say `players can reach wss://...`; if it says the port is closed, open it. See [Self-Hosting](/radio/selfhosting#troubleshooting).
 3. **Check the channel.** Both players must be on the same frequency, and the talker must transmit on their active channel.
 4. **Check the microphone.** The radio doesn't use the device in FiveM's voice chat settings. Pick the microphone in the radio's own settings under **Microphone** (Audio). "System default" uses the microphone Windows uses as the default recording device. The choice is saved on the player's computer. If the chosen microphone is unplugged, the radio uses the default until it's plugged in again. Also make sure Windows allows desktop apps to use the microphone.
 5. **Check signal.** With no signal, push-to-talk is blocked with "No signal". See [Why do players have no signal?](#why-do-players-have-no-signal)
@@ -339,13 +339,13 @@ No. When zerio-radio starts, it sets `voice_enableRadios`, `voice_enableRadioUi`
 
 ### How do I send panic alerts to my dispatch script?
 
-zerio-dispatch, ps-dispatch and lb-tablet work out of the box. With `Script = "auto"` in `configs/features/dispatch.lua`, panic alerts go to whichever of them is running. Set `Jobs` to the jobs that should get the alert. See [Dispatch Scripts](/radio/v3/configurationguide#dispatch-scripts-configsfeaturesdispatchlua).
+zerio-dispatch, ps-dispatch and lb-tablet work out of the box. With `Script = "auto"` in `configs/features/dispatch.lua`, panic alerts go to whichever of them is running. Set `Jobs` to the jobs that should get the alert. See [Dispatch Scripts](/radio/configurationguide#dispatch-scripts-configsfeaturesdispatchlua).
 
 Man-down alerts can go there too: set `Alerts.mandown.Enabled = true`.
 
 For any other dispatch script, either:
 
-- Listen to the [`dispatchAlert`](/radio/v3/devdocs#dispatchalert) event from your own resource. It has the player, channel, coordinates, street, name and callsign.
+- Listen to the [`dispatchAlert`](/radio/devdocs#dispatchalert) event from your own resource. It has the player, channel, coordinates, street, name and callsign.
 - Or edit `Functions.SendDispatchAlert` in `server/functions.lua` and `client/functions.lua`. Both files are open for editing.
 
 ### Do panic alerts show up in the dispatch console?
@@ -443,4 +443,4 @@ Notifications use ox_lib. To use another notification system, edit `Notify` in `
 
 ### How do I translate the radio?
 
-Copy `locales/en.json` to a new file, for example `locales/de.json`, translate it, and set `Config.Locale = "de"` in `configs/main.lua`. This translates notifications, command help and the text inside the radio itself. Any text you leave out shows in English. See [Translations](/radio/v3/configurationguide#translations-locales).
+Copy `locales/en.json` to a new file, for example `locales/de.json`, translate it, and set `Config.Locale = "de"` in `configs/main.lua`. This translates notifications, command help and the text inside the radio itself. Any text you leave out shows in English. See [Translations](/radio/configurationguide#translations-locales).

@@ -4,10 +4,10 @@ import { Callout, Steps, Tabs } from "nextra/components";
 
 <Callout type="info">
   These pages are for zerio-radio V3. Still on V2? See the [V2
-  documentation](/radio/description).
+  documentation](/radio/v2/installationguide).
 </Callout>
 
-This guide walks you through installing zerio-radio v3 on your FiveM server. If you are coming from v2, read [Migrating from v2](/radio/v3/migrating) first.
+This guide walks you through installing zerio-radio v3 on your FiveM server. If you are coming from v2, read [Migrating from v2](/radio/migrating) first.
 
 ## Prerequisites
 
@@ -17,7 +17,7 @@ Before installing, make sure you have:
 - [oxmysql](https://github.com/overextended/oxmysql) and [ox_lib](https://github.com/overextended/ox_lib) installed and started
 - QBCore, Qbox or ESX, or no framework (standalone)
 - If you use ox_inventory: version 2.47.0 or newer
-- A voice server. V3 lets you self-host it on your own Windows or Linux machine: see [Self-Hosting](/radio/v3/selfhosting). You need the transaction ID of your zerio-radio purchase, and the email or Cfx.re username you bought it with, to get your licence.
+- A voice server. V3 lets you self-host it on your own Windows or Linux machine: see [Self-Hosting](/radio/selfhosting). You need the transaction ID of your zerio-radio purchase, and the email or Cfx.re username you bought it with, to get your licence.
 
 <Callout type="warning">
   Stop any other radio resource (for example qb-radio, or an old copy of
@@ -50,8 +50,8 @@ You can have us host the voice server, or run it yourself.
 
 <Callout type="info">
   **Self-host the voice server** on your own Windows or Linux machine: follow
-  [Self-Hosting the Voice Server](/radio/v3/selfhosting), then continue with
-  [Add the Items](#add-the-items).
+  [Self-Hosting the Voice Server](/radio/selfhosting), then continue with [Add
+  the Items](#add-the-items).
 </Callout>
 
 **Hosted by Zerio**: buy hosted voice on the [store](https://store.zerio-scripts.com), then set it up once in the customer portal:
@@ -86,7 +86,7 @@ set zerio_voice_admin_token "your-token-from-the-setup-wizard"
 
 To manage your server later, sign in at [portal.radio.zerio-scripts.com](https://portal.radio.zerio-scripts.com) with your portal email. If you switch region there, update `Domain` in `configs/voice.lua` to match.
 
-If you run several environments (for example a test server and a live server) from the same files, you can set the voice server per environment in `server.cfg` instead. See [Voice Server](/radio/v3/configurationguide#voice-server-configsvoicelua).
+If you run several environments (for example a test server and a live server) from the same files, you can set the voice server per environment in `server.cfg` instead. See [Voice Server](/radio/configurationguide#voice-server-configsvoicelua).
 
 ### Add the Items
 
@@ -154,7 +154,7 @@ Item images are in the `_ITEM IMAGES` folder of the download: `radio`, `radio_ba
 
     Every codeplug radio you add in `configs/opentype.lua` (for example `police_radio`) needs an entry like `radio`, with the same `client.export = 'zerio-radio.Open'`.
 
-    If you turn on the [battery system](/radio/v3/configurationguide#battery-configsfeaturesbatterylua), also add the battery item:
+    If you turn on the [battery system](/radio/configurationguide#battery-configsfeaturesbatterylua), also add the battery item:
 
     ```lua
     return {
@@ -354,7 +354,7 @@ If you see a red box instead, check [Troubleshooting](#troubleshooting).
 
 ### Create Channels and Towers
 
-Channels and towers live in the database. Join the server and open the admin menu with `/radioadmin` to create them. See [Who can open /radioadmin?](/radio/v3/faq#who-can-open-radioadmin) if you get no access.
+Channels and towers live in the database. Join the server and open the admin menu with `/radioadmin` to create them. See [Who can open /radioadmin?](/radio/faq#who-can-open-radioadmin) if you get no access.
 
 If you want a starting point, run `sql/!data.sql` once on your database. It adds four channels (911 Police Radio, 912 EMS Radio, 913 Fire Radio and 100 Dispatch) and nine towers around the map. Channels and towers that already exist are skipped, so it is safe to run again.
 
@@ -364,7 +364,7 @@ If you want a starting point, run `sql/!data.sql` once on your database. It adds
   full signal everywhere, so a fresh install can talk straight away. Add towers
   in `/radioadmin` (or run `sql/!data.sql`) when you want coverage to matter.
   See [Radio
-  Towers](/radio/v3/configurationguide#radio-towers-configsfeaturestowerslua).
+  Towers](/radio/configurationguide#radio-towers-configsfeaturestowerslua).
 </Callout>
 
 ### Test the Installation
@@ -415,7 +415,7 @@ Players can change every keybind in **Settings → Key Bindings → FiveM**. The
 
 ## Upgrading from v2
 
-Coming from v2? Your database upgrades itself on the first start, but your config has to be copied over by hand. Follow [Migrating from v2](/radio/v3/migrating).
+Coming from v2? Your database upgrades itself on the first start, but your config has to be copied over by hand. Follow [Migrating from v2](/radio/migrating).
 
 ## Troubleshooting
 
@@ -464,7 +464,7 @@ Coming from v2? Your database upgrades itself on the first start, but your confi
 
 **Cause**: `zerio_voice_domain` (or `Domain`) is `localhost` or a bare IP address. Players' games only connect to an address with a certificate.
 
-**Solution**: use the address your voice server prints when it starts. See [Self-Hosting](/radio/v3/selfhosting#your-voice-servers-address).
+**Solution**: use the address your voice server prints when it starts. See [Self-Hosting](/radio/selfhosting#your-voice-servers-address).
 
 ### Red "voice server is too old" or "this zerio-radio is unsupported" box in the console
 
@@ -513,7 +513,7 @@ Coming from v2? Your database upgrades itself on the first start, but your confi
 
 **Cause**: The player's signal on the active channel is zero. Most often the player is outside every tower's range. A jammer, a 0% signal zone or a dead battery also cause it.
 
-**Solution**: See [Why do players have no signal?](/radio/v3/faq#why-do-players-have-no-signal)
+**Solution**: See [Why do players have no signal?](/radio/faq#why-do-players-have-no-signal)
 
 ### Using the radio item does nothing
 
@@ -530,7 +530,7 @@ Coming from v2? Your database upgrades itself on the first start, but your confi
 
 **Cause**: Voice is not connected, or the player's microphone is not the one the radio uses.
 
-**Solution**: See [Players can't hear each other on the radio](/radio/v3/faq#players-cant-hear-each-other-on-the-radio).
+**Solution**: See [Players can't hear each other on the radio](/radio/faq#players-cant-hear-each-other-on-the-radio).
 
 ### "ox_inventory ... has no post-hook events" warning
 

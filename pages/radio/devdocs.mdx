@@ -4,7 +4,7 @@ import { Callout } from "nextra/components";
 
 <Callout type="info">
   These pages are for zerio-radio V3. Still on V2? See the [V2
-  documentation](/radio/description).
+  documentation](/radio/v2/devdocs).
 </Callout>
 
 Everything other resources can use from zerio-radio: exports, the server events it triggers, and the commands it registers.
@@ -229,7 +229,7 @@ Checks the player's access to every channel they're on again, and removes them f
 
 ### Groups
 
-Groups organise the members of a channel, for example "SWAT" or "Traffic". They only change how the member list looks, never who hears whom. See [Groups](/radio/v3/configurationguide#groups-configsfeaturesgroupslua) for how players use them.
+Groups organise the members of a channel, for example "SWAT" or "Traffic". They only change how the member list looks, never who hears whom. See [Groups](/radio/configurationguide#groups-configsfeaturesgroupslua) for how players use them.
 
 Groups are kept in memory for the server session. The exports below take the player as a server id or a character identifier (QBCore citizen ID, ESX identifier), so you can also assign players who are offline. Group names are unique per channel, ignoring case.
 
@@ -908,4 +908,4 @@ Triggered when a repeater is removed, whether it was picked up, removed by an ad
 | `/listrepeaters`           | Ace `zerio.repeater`, console               | Lists repeaters in the server console               |
 | `/listtowers`              | Admins, console                             | Lists towers and their health in the server console |
 
-The command names for opening the radio, the scanner, changing channel, callsigns and the admin menu can be changed in the config. See the [Configuration Guide](/radio/v3/configurationguide).
+The command names for opening the radio, the scanner, changing channel, callsigns and the admin menu can be changed in the config. See the [Configuration Guide](/radio/configurationguide).
