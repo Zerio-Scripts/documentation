@@ -7,12 +7,12 @@ import { Callout, Steps, Tabs } from "nextra/components";
   documentation](/radio/v2/description).
 </Callout>
 
-zerio-radio V3 sends radio voice through a voice server (zerio-voice). You can self-host it on your own machine, next to your FiveM server: it's a single program with a small config file, on Windows or Linux.
+zerio-radio V3 sends radio voice through a voice server (zerio-voice). You can self-host it on your own machine, next to your FiveM server: it's a single program with a small config file, on Windows or Linux. You can also run it with Docker, or on a Pterodactyl or Pelican panel with our egg.
 
 ## What You Need
 
 - A Windows (10/11 or Server 2019+) or Linux machine (Ubuntu 22.04+, Debian 12+). The same machine as your FiveM server is fine.
-- MySQL 8 or MariaDB 10.6+, with an **empty** database for the voice server. Don't reuse your FiveM database.
+- MySQL 8 or MariaDB 10.6+, with an **empty** database for the voice server. Don't reuse your FiveM database. With Docker, the database is included.
 - A port players can reach: TCP **30130** by default.
 - zerio-radio V3 on your FiveM server.
 
@@ -32,9 +32,17 @@ A VPS, a dedicated server or a game server panel that lets you run your own prog
 
 Each purchase can set up one voice server.
 
-### Download the Voice Server
+### Pick How to Run It
 
-Sign in at [portal.radio.zerio-scripts.com](https://portal.radio.zerio-scripts.com), open the **Server** page, and download the Windows or Linux version from the **Self-hosting** card.
+Sign in at [portal.radio.zerio-scripts.com](https://portal.radio.zerio-scripts.com) and open the **Server** page. The **Self-hosting** card shows three ways to run the voice server, each with its download or the file to copy:
+
+| Way                        | Good for                                              | Continue with                                           |
+| -------------------------- | ----------------------------------------------------- | ------------------------------------------------------- |
+| **Windows or Linux**       | Your own PC, a VPS or a dedicated server              | Download it from the card, then [Set It Up](#set-it-up) |
+| **Docker**                 | A machine that runs Docker. The database is included. | [Docker](#docker)                                       |
+| **Pterodactyl or Pelican** | A game server panel                                   | [Pterodactyl and Pelican](#pterodactyl-and-pelican)     |
+
+All three run the same voice server, and you can move from one to another later.
 
 </Steps>
 
@@ -46,6 +54,8 @@ Sign in at [portal.radio.zerio-scripts.com](https://portal.radio.zerio-scripts.c
 Lost a key, or think someone else has it? **Rotate** it on the portal's **Server** page. You get a new key and the old one stops working.
 
 ## Set It Up
+
+These steps are for the Windows or Linux download. Using [Docker](#docker) or [Pterodactyl or Pelican](#pterodactyl-and-pelican)? Follow that section instead, then come back for [Connect zerio-radio](#connect-zerio-radio).
 
 <Steps>
 
@@ -169,17 +179,7 @@ Start the program once (Windows: double-click it; if Windows says "Windows prote
 
 The first start with an address from us takes up to a minute while the certificate is made. Then the voice server checks itself from the outside and prints either `players can reach wss://...` or a box that says the port is closed. If it's closed, open the port (the machine's firewall, your host's firewall, or a port forward on your router) and wait: it checks again every minute, no restart needed.
 
-**Pterodactyl and Pelican:** our egg installs the voice server and keeps `config.json` filled in for you.
-
-1. Download [egg-zerio-voice.json](/eggs/egg-zerio-voice.json) and import it: **Admin › Nests › Import Egg** on Pterodactyl, **Eggs › Import** on Pelican.
-2. Create a server with the **Zerio Voice** egg, one port, and your production licence key. The install downloads the newest voice server with your key.
-3. In the server's **Databases** tab, create a database. Copy its endpoint, name, username and password into the **Startup** tab.
-4. If the panel's machine has more than one IP address, put the IP shown next to the server's port in **Public IP**.
-5. Start the server. The console prints the lines for your `server.cfg` (see below). The admin token is `auth.admin_token` in `config.json`, in the **Files** tab.
-
-To update, type `update` in the console.
-
-**Other game server panels** (TCAdmin...):
+**Game server panels:** on Pterodactyl or Pelican, use [our egg](#pterodactyl-and-pelican). On other panels (TCAdmin...):
 
 - Use `zerio-voice` (or `zerio-voice.exe`) as the start command, `stop` as the stop command, and `zerio-voice ready` as the "server started" text. On Linux, pick an image based on Debian 12 or Ubuntu 22.04 (or newer).
 - Set `server.port` in `config.json` to a port the panel gave this server.
@@ -219,6 +219,134 @@ Leave out `zerio_voice_admin_url` if the voice server runs on a different machin
 Restart your FiveM server. The console shows a red box if zerio-radio can't reach the voice server or the token doesn't match, and a yellow box if `zerio_voice_domain` is an address players can't use (`localhost` or a bare IP address).
 
 </Steps>
+
+## Docker
+
+Our Docker image downloads the voice server with your licence key the first time it starts. The file below also starts a database for it, so there's nothing else to install.
+
+<Steps>
+
+### Save This as `compose.yml`
+
+```yaml
+# zerio-voice with its own database. Guide:
+# https://docs.zerio-scripts.com/radio/selfhosting
+#
+# 1. Put your production licence key in LICENCE_KEY.
+# 2. Replace change-this-password in BOTH places with a password of your own
+#    (letters and digits only, or percent-encode it in DATABASE_URL).
+# 3. docker compose up -d, then docker compose logs -f zerio-voice
+services:
+  zerio-voice:
+    image: ghcr.io/zerio-ab/zerio-voice-selfhost:latest
+    restart: unless-stopped
+    stop_grace_period: 20s
+    ports:
+      - "30130:30130"
+    environment:
+      LICENCE_KEY: "zvl_your_production_key"
+      DATABASE_URL: "mysql://zerio_voice:change-this-password@db/zerio_voice"
+    volumes:
+      - zerio-voice:/data
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mariadb:11.4
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: zerio_voice
+      MARIADB_USER: zerio_voice
+      MARIADB_PASSWORD: "change-this-password"
+      MARIADB_RANDOM_ROOT_PASSWORD: "1"
+    volumes:
+      - zerio-voice-db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  # The voice server, its config.json, its address and its licence files.
+  # Keep this volume: without it the server gets a new address and counts as
+  # a new machine for your licence.
+  zerio-voice:
+  zerio-voice-db:
+```
+
+Put your production licence key in `LICENCE_KEY`, and replace `change-this-password` in both places with a password of your own.
+
+### Start the Containers
+
+In the folder with `compose.yml`:
+
+```bash
+docker compose up -d
+```
+
+Then look at the voice server's output:
+
+```bash
+docker compose logs -f zerio-voice
+```
+
+The first start shows your admin token once, as the `zerio_voice_admin_token` line for your `server.cfg`. Save it. The voice server is running when you see `zerio-voice ready (v1.1.0) on 0.0.0.0:30130` and `licence: valid`.
+
+### Open the Port
+
+Allow TCP port **30130** in the machine's firewall (and your host's firewall, if it has one), for example:
+
+```bash
+sudo ufw allow 30130/tcp
+```
+
+Within a minute the output says `players can reach wss://...`.
+
+### Add It to Your FiveM Server
+
+Put the admin token and the address from the output in your `server.cfg`, as in [Connect zerio-radio](#connect-zerio-radio). Leave out `zerio_voice_admin_url`.
+
+</Steps>
+
+Good to know:
+
+- **Updating:** `docker compose pull` doesn't change the voice server's version. See [Updates](#updates).
+- **Keep the `zerio-voice` volume.** It holds the voice server, its `config.json`, its address and its licence files. `docker compose down` keeps it; `docker compose down -v` deletes it, and the voice server then gets a new address and counts as a new machine for your licence.
+- **Your own database:** remove the `db` service and the `depends_on` lines, and point `DATABASE_URL` at your database.
+- **Another port:** add `PORT: "30140"` under `environment` and use the same number on both sides of `ports` (`"30140:30140"`).
+- **More than one public IP:** add `PUBLIC_IP: "203.0.113.5"` under `environment`, with the IP players should use.
+- **Lost the admin token?** `docker compose exec zerio-voice jq -r .auth.admin_token /data/config.json` shows it.
+- **Other settings** (your own domain, turning dispatch off) are in `config.json` in the volume. Copy it out with `docker compose cp zerio-voice:/data/config.json .`, edit it, copy it back with `docker compose cp config.json zerio-voice:/data/config.json`, then `docker compose restart zerio-voice`. The values you set under `environment` always win over the file.
+
+## Pterodactyl and Pelican
+
+Our egg installs the voice server and keeps `config.json` filled in for you.
+
+<Steps>
+
+### Import the Egg
+
+Download [egg-zerio-voice.json](/eggs/egg-zerio-voice.json) (also on the portal's **Self-hosting** card) and import it: **Admin › Nests › Import Egg** on Pterodactyl, **Eggs › Import** on Pelican.
+
+### Create the Server
+
+Create a server with the **Zerio Voice** egg, one port, and your production licence key. The install downloads the newest voice server with your key.
+
+### Give It a Database
+
+In the server's **Databases** tab, create a database. Copy its endpoint, name, username and password into the **Startup** tab.
+
+If the panel's machine has more than one IP address, also put the IP shown next to the server's port in **Public IP**.
+
+### Start It and Add It to Your FiveM Server
+
+Start the server. The console prints the lines for your `server.cfg`; add them as in [Connect zerio-radio](#connect-zerio-radio), and leave out `zerio_voice_admin_url`. The admin token is `auth.admin_token` in `config.json`, in the **Files** tab.
+
+</Steps>
+
+To update, type `update` in the console.
 
 ## Your Voice Server's Address
 
@@ -276,7 +404,7 @@ To turn dispatch off, set `"dispatch": { "portal_link": false }` in `config.json
 
 ## Updates
 
-Nothing updates by itself. When a new version is out, the voice server console tells you, and so do zerio-radio admins in game. Type these in the voice server's console:
+Nothing updates by itself. When a new version is out, the voice server console tells you, and so do zerio-radio admins in game. Type these in the voice server's console (on Pterodactyl or Pelican, the server's console on the panel):
 
 | Command        | What it does                                                                                                                   |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------ |
@@ -284,6 +412,8 @@ Nothing updates by itself. When a new version is out, the voice server console t
 | `update check` | Look for a new version now.                                                                                                    |
 | `update`       | Install the newest version. The radio is quiet for 10 to 20 seconds. If the new version doesn't start, it goes back by itself. |
 | `stop`         | Stop the voice server.                                                                                                         |
+
+With Docker, run the command instead of typing it: `docker compose exec zerio-voice update` (or `status`, or `update check`). The answer shows up in `docker compose logs zerio-voice`.
 
 On Linux with systemd there's no console: stop the service, run it once in a terminal and type `update`, then start the service again. Or replace the `zerio-voice` file with the new download and restart the service.
 
@@ -293,7 +423,7 @@ Don't edit or delete the `.zerio-voice` folder the voice server creates next to 
 
 | You see                                      | What to do                                                                                                                                                                                                                              |
 | -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `licence: no valid licence … reason=missing` | `licence.key` is empty. Copy your production key from the portal.                                                                                                                                                                       |
+| `licence: no valid licence … reason=missing` | `licence.key` is empty. Copy your production key from the portal (with Docker: `LICENCE_KEY` in `compose.yml`).                                                                                                                         |
 | `reason=unknown`                             | The key has a typo. Copy it again, or rotate it on the portal.                                                                                                                                                                          |
 | `reason=instance_limit`                      | The production key already runs on 2 machines. A machine stops counting 13 hours after it was last online.                                                                                                                              |
 | `reason=dev_not_loopback`                    | You used the development key on a public server. Use the production key.                                                                                                                                                                |
@@ -306,5 +436,7 @@ Don't edit or delete the `.zerio-voice` folder the voice server creates next to 
 | `can't listen on ...`                        | Another program (or a second zerio-voice) already uses that port. Stop it, or change `server.port`.                                                                                                                                     |
 | `zerio domain: … development key`            | `zerio_domain` needs the production key. For testing on your own PC with the development key, set `"zerio_domain": false` and `"host": "127.0.0.1"`, and use `setr zerio_voice_domain "localhost:30130"`.                               |
 | `zerio domain: … public IPv4 address`        | Add `"public_ip": "<the machine's public IPv4>"` to `config.json`.                                                                                                                                                                      |
+
+With Docker, a container that keeps restarting says why at the end of `docker compose logs zerio-voice`, for example `zerio-voice can't start: the portal doesn't know this licence key`.
 
 Still stuck? Ask in our [Discord](https://discord.zerio-scripts.com).
