@@ -7,7 +7,7 @@
   "exported_at": "2026-11-23T20:00:00+00:00",
   "name": "Zerio Voice",
   "author": "fivem@zerio.se",
-  "description": "The self-hosted voice server for Zerio-Radio V3. Needs a production licence key from portal.radio.zerio-scripts.com and an empty MySQL 8 / MariaDB 10.6+ database (create one in the server's Databases tab). Guide: https://docs.zerio-scripts.com/radio/v3/selfhosting",
+  "description": "The self-hosted voice server for Zerio-Radio V3. Needs a production licence key from portal.radio.zerio-scripts.com and an empty MySQL 8 / MariaDB 10.6+ database (create one in the server's Databases tab). Guide: https://docs.zerio-scripts.com/radio/selfhosting",
   "features": null,
   "docker_images": {
     "Debian 12": "ghcr.io/parkervcp/yolks:debian"

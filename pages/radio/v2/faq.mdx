@@ -1,0 +1,170 @@
+import { Tabs, Callout } from "nextra/components";
+import Image from "next/image";
+
+# Frequently asked questions
+
+<Callout type="warning">
+  **These pages cover the old zerio-radio V2.** V3 is the current version: see
+  the [V3 FAQ](/radio/faq) and the [migration guide](/radio/migrating).
+</Callout>
+
+A list of frequently asked questions can be seen below.
+
+If this is empty and you have a question, please turn to the support in our [community server](https://discord.zerio-scripts.com) instead!
+
+## How to set-up the radio as an item
+
+<Tabs items={['Normal Inventories', 'OX Inventory']}>
+  <Tabs.Tab>
+    In most inventories, except for ox_inventory and other inventories that store their usage callbacks locally. You'd simply have to go to the `zerio-radio/shared/opentype.lua` file. And change `Shared.OpenType.Value` to `"item"`.
+  </Tabs.Tab>
+
+  <Tabs.Tab>
+    1. Copy the following item info into `ox_inventory/data/items.lua`
+
+    ```lua
+      ['radio'] = {
+          label = 'Radio',
+          weight = 1000,
+          stack = false,
+          allowArmed = true,
+          consume = 0,
+          client = {
+              export = 'zerio-radio.Open',
+              remove = function(total)
+                  if total < 1 then
+                      TriggerEvent('zerio-radio:client:removedradio')
+                  end
+              end
+          }
+      },
+    ```
+
+    2. Change `Shared.OpenType.Value` in `zerio-radio/shared/opentype.lua` to `"custom"`.
+
+  </Tabs.Tab>
+</Tabs>
+
+## How to set-up the radio scanner as an item
+
+<Tabs items={['Normal Inventories', 'OX Inventory']}>
+  <Tabs.Tab>
+    In most inventories, except for ox_inventory and other inventories that store their usage callbacks locally. You'd simply have to go to the `zerio-radio/shared/scanner.lua` file. And change `Shared.Scanner.OpenType` to `"item"`.
+  </Tabs.Tab>
+
+  <Tabs.Tab>
+    1. Copy the following item info into `ox_inventory/data/items.lua`
+
+    ```lua
+      ['radioscanner'] = {
+          label = 'Radio Scanner',
+          weight = 1000,
+          stack = false,
+          allowArmed = true,
+          consume = 0,
+          client = {
+              export = 'zerio-radio.OpenScanner',
+          }
+      },
+    ```
+
+    2. Change `Shared.Scanner.OpenType` in `zerio-radio/shared/scanner.lua` to `"custom"`.
+
+  </Tabs.Tab>
+</Tabs>
+
+## I have issues with mic clicks.
+
+If you're using pma-voice and do not get "mic clicks" when using the radio, remove [this line](https://github.com/AvarianKnight/pma-voice/blob/main/client/init/main.lua#L232) from pma-voice.
+
+<Callout>
+  Please note: The line number for older versions of pma-voice is 220, and newer is 232.
+  The line you should be removing is the "if check" line in the "playMicClicks" function.
+
+  <Image src="/radio_mic_clicks_img.png" alt="Image of the line to remove" width={1131} height={399} quality={100} />
+</Callout>
+
+## Players can cancel combat rolls by talking over the radio.
+
+This gets caused by zerio-radio trying to put away the weapon when talking over the radio, which you can disable by setting `Shared.RemoveWeaponOnTalkingOnRadio` to `false` in `zerio-radio/shared/main.lua`.
+
+## How do I disable pma-voice's default animation?
+
+For zerio-radio to be able to play its animation's, you need to disable pma-voice's default radio animations, as they otherwise overwrite zerio-radio's animations.
+
+You can do this by adding the following snippet to your `server.cfg` file:
+
+```
+setr voice_enableRadioAnim 0
+```
+
+## Disconnect player on item drop.
+
+<Callout>
+  The following does **not** apply to ox_inventory. This is automatically
+  handled if you use the snippet above.
+</Callout>
+
+<Tabs items={['ESX', 'QBCore']}>
+  <Tabs.Tab>
+    Open the `es_extended/server/classes/player.lua` file. Then find the function named `removeInventoryItem`.
+
+    We want to add the following snippet after the line triggering `esx:removeInventoryItem`.
+
+    ```lua
+    if tostring(itemName) == "radio" and newCount == 0 then
+        TriggerClientEvent("zerio-radio:client:removedradio", self.source)
+    end
+    ```
+
+  </Tabs.Tab>
+
+  <Tabs.Tab>
+    Open the `qb-inventory/server/functions.lua` file. Then find the function named `RemoveItem`.
+
+    We want to add the following code snippet, before each `return true` of the function. Depending on how new/old your files are, there may be only one, or multiple true returns.
+
+    ```lua
+    if tostring(item) == "radio" then
+        TriggerClientEvent("zerio-radio:client:removedradio", Player.PlayerData.source)
+    end
+    ```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Animations & Props
+
+### Change/disable talking animation
+
+You can disable the talking animation by removing/commenting out the `TalkAnimation` value in `zerio-radio/shared/animation.lua`.
+
+Changing the animation would be done via the sub values of `TalkAnimation`.
+
+### Change/disable open animation
+
+Changing the animation played upon opening the radio can be done via the `OpenAnimation` subvalues.
+
+Disabling the animation can be done via removing/commenting out the `OpenAnimation` value.
+
+### Change/disable talking prop
+
+Changing the talking prop can be done via the `TalkProp` subvalues.
+
+<Callout>
+  List of player bones can be found
+  [here](https://wiki.rage.mp/index.php?title=Bones). You'd use the `ID` value.
+</Callout>
+
+Disabling the talking prop can be done by removing/commenting out the `TalkProp` value.
+
+### Change/disable open prop
+
+Changing the prop spawned when opening the radio can be done via the `OpenProp`.
+
+<Callout>
+  List of player bones can be found
+  [here](https://wiki.rage.mp/index.php?title=Bones). You'd use the `ID` value.
+</Callout>
+
+Disabling the talking prop can be done by removing/commenting out the `OpenProp` value
