@@ -973,6 +973,15 @@ Dispatchers play alert tones on them from the tone board in the web dispatch con
 | `placementProp`    | `"prop_speaker_01"` | Preview prop shown while placing.                                              |
 | `placeRaycastDist` | `30.0`              | How far (meters) the placement preview can reach.                              |
 
+### Adding tones
+
+Owners and admins add sounds to the tone board's **Presets** with **Add**:
+
+- **Upload file**: upload an MP3, OGG or WAV file (up to 5 MB). The file is stored in your own [Fivemanage](https://fivemanage.com) account. The first time, paste a Fivemanage API token (create one under Tokens on Fivemanage). It is saved for your server, so every admin can upload after that. Deleting a preset also deletes its file from Fivemanage.
+- **Paste link**: an `https://` link to a sound. The radio only plays links on your voice server's address or on Fivemanage (`r2.fivemanage.com`), so links to other sites, such as Discord, won't play in-game.
+
+Uploads need zerio-radio 3.0.7 or newer on your server.
+
 ---
 
 ## Groups (`configs/features/groups.lua`)
